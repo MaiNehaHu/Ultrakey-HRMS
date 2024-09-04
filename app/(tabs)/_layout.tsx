@@ -1,57 +1,117 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import React from "react";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Tabs } from "expo-router";
+import { View, TouchableOpacity, Image } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import Colors from "@/constants/Colors";
+import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+import { useAppTheme } from "@/contexts/AppTheme";
+import logo_light from "@/assets/images/logo_light.jpg";
+import logo_dark from "@/assets/images/logo_dark.jpg";
+
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={35} {...props} />;
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { darkTheme, setDarkTheme } = useAppTheme();
+
+  const toggleTheme = () => {
+    setDarkTheme(!darkTheme);
+  };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
+        tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         headerShown: useClientOnlyValue(false, true),
-      }}>
+        headerStyle: {
+          backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerTitle: "", // no title on header
+          title: "Home", // title on tab bar
+
+          // header
+          headerLeft: () => (
+            <View style={{ marginLeft: 10 }}>
+              {/* logo for dark and light theme */}
+              <Image
+                source={darkTheme ? logo_dark : logo_light}
+                style={{ width: 50, height: 50 }}
+              />
+            </View>
+          ),
+
+          // tab bar icon colors
+          tabBarIcon: ({}) => (
+            <TabBarIcon
+              name="home"
+              color={Colors[!darkTheme ? "dark" : "light"].text}
+            />
+          ),
+
+          // color of title in tab bar
+          tabBarLabelStyle: {
+            color: Colors[darkTheme ? "dark" : "light"].background,
+          },
+
+          // tab bar styles
+          tabBarStyle: {
+            backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
+            height: 60,
+            // paddingBottom: 10,
+            // paddingTop: 10,
+          },
+
+          // dark and light theme toggle button
           headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+            <TouchableOpacity onPress={toggleTheme}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Ionicons
+                  name={darkTheme ? "moon" : "sunny"}
+                  size={20}
+                  color={Colors[darkTheme ? "dark" : "light"].text}
+                  style={{ margin: 15 }}
+                />
+              </View>
+            </TouchableOpacity>
           ),
         }}
       />
+
       <Tabs.Screen
         name="two"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: "Tab Two",
+          tabBarIcon: ({}) => (
+            <TabBarIcon
+              name="leaf"
+              color={Colors[!darkTheme ? "dark" : "light"].text}
+            />
+          ),
+
+          // color of title in tab bar
+          tabBarLabelStyle: {
+            color: Colors[darkTheme ? "dark" : "light"].background,
+          },
+
+          // tab bar styles
+          tabBarStyle: {
+            backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
+            height: 60,
+            // paddingBottom: 10,
+            // paddingTop: 10,
+          },
         }}
       />
     </Tabs>
