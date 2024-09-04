@@ -12,6 +12,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AppThemeProvider } from "@/contexts/AppTheme";
+import { PunchProvider } from "@/contexts/Punch";
 import { LoginProvider, useLogin } from "@/contexts/Login";
 
 export {
@@ -57,11 +58,13 @@ function Root() {
   return (
     <AppThemeProvider>
       <LoginProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <RootLayoutNav />
-        </ThemeProvider>
+        <PunchProvider>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          >
+            <RootLayoutNav />
+          </ThemeProvider>
+        </PunchProvider>
       </LoginProvider>
     </AppThemeProvider>
   );
