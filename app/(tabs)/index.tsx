@@ -1,14 +1,51 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import React, { useState, useEffect } from "react";
+import { StyleSheet } from "react-native";
+import { Text, View } from "@/components/Themed";
+import { useAppTheme } from "@/contexts/AppTheme";
+import Colors from "@/constants/Colors";
 
 export default function TabOneScreen() {
+  const { darkTheme } = useAppTheme();
+  const bgColor = Colors[darkTheme ? "dark" : "light"].background;
+  const textColor = Colors[darkTheme ? "dark" : "light"].text;
+
+  // State to store the current time
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update the time every second
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
+
+  let hour = currentTime.getHours();
+  // Convert 24-hour time to 12-hour time
+  hour = hour % 12 || 12;
+
+  const minute = currentTime.getMinutes().toString().padStart(2, "0");
+  const second = currentTime.getSeconds().toString().padStart(2, "0");
+
+  const ampm = hour >= 12 ? "PM" : "AM";
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={[styles.container, { backgroundColor: bgColor }]}>
+      <Text style={{ color: textColor, fontSize: 20, fontWeight: "500" }}>
+        {hour < 12 && ampm == "AM"
+          ? "Good Morning, Name"
+          : (hour <= 5 || hour == 12) && ampm == "PM"
+          ? "Good Afternoon, Name"
+          : "Good Evening, Name"}
+      </Text>
+
+      <Text style={{ color: textColor }}>
+        {`${hour < 10 ? `0${hour}` : hour}:${minute}:${second} ${ampm}`}
+      </Text>
+
+      
     </View>
   );
 }
@@ -16,16 +53,8 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    gap: 10,
+    padding: 15,
+    flexDirection: "column",
   },
 });

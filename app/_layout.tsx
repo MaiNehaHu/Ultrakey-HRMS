@@ -5,13 +5,14 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { AppThemeProvider } from "@/contexts/AppTheme";
+import { LoginProvider, useLogin } from "@/contexts/Login";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,20 +48,46 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <Root />;
 }
 
-function RootLayoutNav() {
+function Root() {
   const colorScheme = useColorScheme();
 
   return (
     <AppThemeProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
-      </ThemeProvider>
+      <LoginProvider>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <RootLayoutNav />
+        </ThemeProvider>
+      </LoginProvider>
     </AppThemeProvider>
+  );
+}
+
+function RootLayoutNav() {
+  const { isLogged } = useLogin();
+
+  useEffect(() => {
+    console.log(isLogged);
+
+    // login validation
+    setTimeout(() => {
+      if (!isLogged) {
+        router.push({ pathname: "/login" });
+      } else {
+        router.push({ pathname: "/(tabs)" });
+      }
+    }, 10);
+  }, []);
+
+  return (
+    <Stack>
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+    </Stack>
   );
 }

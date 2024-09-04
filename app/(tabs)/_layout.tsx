@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { View, TouchableOpacity, Image } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -15,7 +15,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
 }) {
-  return <FontAwesome size={35} {...props} />;
+  return <FontAwesome size={28} {...props} />;
 }
 
 export default function TabLayout() {
@@ -29,6 +29,12 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].tint,
+        tabBarStyle: {
+          backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
+          height: 60,
+          paddingBottom: 10,
+          paddingTop: 10,
+        },
         headerShown: useClientOnlyValue(false, true),
         headerStyle: {
           backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
@@ -56,21 +62,15 @@ export default function TabLayout() {
           tabBarIcon: ({}) => (
             <TabBarIcon
               name="home"
-              color={Colors[!darkTheme ? "dark" : "light"].text}
+              color={Colors[darkTheme ? "dark" : "light"].background}
             />
           ),
+
+          tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].text,
 
           // color of title in tab bar
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
-          },
-
-          // tab bar styles
-          tabBarStyle: {
-            backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
-            height: 60,
-            // paddingBottom: 10,
-            // paddingTop: 10,
           },
 
           // dark and light theme toggle button
@@ -96,21 +96,13 @@ export default function TabLayout() {
           tabBarIcon: ({}) => (
             <TabBarIcon
               name="leaf"
-              color={Colors[!darkTheme ? "dark" : "light"].text}
+              color={Colors[darkTheme ? "dark" : "light"].background}
             />
           ),
 
           // color of title in tab bar
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
-          },
-
-          // tab bar styles
-          tabBarStyle: {
-            backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
-            height: 60,
-            // paddingBottom: 10,
-            // paddingTop: 10,
           },
         }}
       />

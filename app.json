@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "HRMS",
-    "slug": "HRMS",
+    "name": "Ultrakey HRMS",
+    "slug": "Ultrakey HRMS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
