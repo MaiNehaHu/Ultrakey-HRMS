@@ -1,23 +1,31 @@
-import React, { useEffect } from "react";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { router, Tabs } from "expo-router";
+import React from "react";
+import { Tabs } from "expo-router";
 import { View, TouchableOpacity, Image } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AwesomeIcon from "react-native-vector-icons/FontAwesome6"; // Import FontAwesome6
 
 import Colors from "@/constants/Colors";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 import { useAppTheme } from "@/contexts/AppTheme";
-import logo_light from "@/assets/images/logo_light.jpg";
-import logo_dark from "@/assets/images/logo_dark.jpg";
+const logo_light = require("@/assets/images/logo_light.jpg");
+const logo_dark = require("@/assets/images/logo_dark.jpg");
 
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>["name"];
+function AwesomeIcons(props: {
+  name: React.ComponentProps<typeof AwesomeIcon>["name"];
   color: string;
+  size: number;
 }) {
-  return <FontAwesome size={28} {...props} />;
+  return <AwesomeIcon {...props} />; // Use AwesomeIcon
 }
 
+function IoniconsIcon(props: {
+  name: React.ComponentProps<typeof Ionicons>["name"];
+  color: string;
+  size: number;
+}) {
+  return <Ionicons {...props} />; // Use Ionicons
+}
 export default function TabLayout() {
   const { darkTheme, setDarkTheme } = useAppTheme();
 
@@ -58,12 +66,13 @@ export default function TabLayout() {
             </View>
           ),
 
-          // tab bar icon colors
-          tabBarIcon: ({}) => (
-            <TabBarIcon
-              name="home"
+          // tab bar icon using AwesomeIcon
+          tabBarIcon: () => (
+            <AwesomeIcons
+              name="house"
+              size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
-            />
+            /> // Use "house" icon from FontAwesome6
           ),
 
           tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].text,
@@ -90,14 +99,53 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="two"
+        name="salary"
         options={{
-          title: "Tab Two",
-          tabBarIcon: ({}) => (
-            <TabBarIcon
-              name="leaf"
+          title: "Salary",
+          tabBarIcon: () => (
+            <AwesomeIcons
+              name="money-bill"
+              size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
-            />
+            /> // Use AwesomeIcon
+          ),
+
+          // color of title in tab bar
+          tabBarLabelStyle: {
+            color: Colors[darkTheme ? "dark" : "light"].background,
+          },
+        }}
+      />
+
+      <Tabs.Screen
+        name="leaves"
+        options={{
+          title: "Leaves",
+          tabBarIcon: () => (
+            <AwesomeIcons
+              name="calendar-alt"
+              size={20}
+              color={Colors[darkTheme ? "dark" : "light"].background}
+            /> // Use AwesomeIcon
+          ),
+
+          // color of title in tab bar
+          tabBarLabelStyle: {
+            color: Colors[darkTheme ? "dark" : "light"].background,
+          },
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "You",
+          tabBarIcon: () => (
+            <IoniconsIcon
+              name="person"
+              size={20}
+              color={Colors[darkTheme ? "dark" : "light"].background}
+            /> // Use AwesomeIcon
           ),
 
           // color of title in tab bar
