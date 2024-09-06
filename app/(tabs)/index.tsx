@@ -29,6 +29,7 @@ export default function TabOneScreen() {
   const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
+  // Time
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function TabOneScreen() {
       if (punchInTime) {
         const elapsedTime =
           (new Date().getTime() - punchInTime.getTime()) / 1000;
-        const remaining = Math.max(0.1 * 60 - elapsedTime, 0);
+        const remaining = Math.max(1 * 60 - elapsedTime, 0);
         setRemainingTime(remaining);
         if (remaining === 0) {
           setIsRestricted(false);
@@ -52,61 +53,22 @@ export default function TabOneScreen() {
   let hour = currentTime.getHours();
   const ampm = hour >= 12 ? "PM" : "AM";
   hour = hour % 12 || 12;
-
   const minute = currentTime.getMinutes().toString().padStart(2, "0");
   const second = currentTime.getSeconds().toString().padStart(2, "0");
-
   const day = currentTime.getDate().toString().padStart(2, "0");
   const month = currentTime.toLocaleString("default", { month: "short" });
   const year = currentTime.getFullYear();
-
   const formattedDate = `${day} ${month}, ${year}`;
 
-  function handlePunchClick() {
-    if (!punchedIn) {
-      // Punch In
-      setPunchedIn(true);
-      const newPunchInTime = new Date();
-      setPunchInTime(newPunchInTime);
-      setIsRestricted(true);
+  // Helper function to check if current time is after 6:30 PM
+  const isAfterCutoff = (time: Date): boolean => {
+    const cutoffHour = 18; // 6 PM in 24-hour format
+    const cutoffMinute = 30;
+    const cutoffTime = new Date();
+    cutoffTime.setHours(cutoffHour, cutoffMinute, 0, 0);
+    return time.getTime() > cutoffTime.getTime();
+  };
 
-      // Add a new punch-in record
-      setPunchRecords((prevRecords) => [
-        ...prevRecords,
-        { punchIn: newPunchInTime, punchOut: null },
-      ]);
-
-      // Handle breaks
-      handleBreaksOnPunchIn();
-
-      playSound("punchin");
-    } else {
-      // Punch Out
-      if (isRestricted && remainingTime > 0) {
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = Math.floor(remainingTime % 60);
-        Alert.alert(`Please try after ${minutes} mins ${seconds} secs.`);
-      } else {
-        setPunchedIn(false);
-        setPunchInTime(null);
-
-        // Update the latest record with the punch-out time
-        setPunchRecords((prevRecords) => {
-          const updatedRecords = [...prevRecords];
-          if (updatedRecords.length > 0) {
-            updatedRecords[updatedRecords.length - 1].punchOut = new Date();
-          }
-          return updatedRecords;
-        });
-
-        // Handle breaks
-        handleBreaksOnPunchOut();
-
-        playSound("punchout");
-      }
-    }
-  }
-  
   function handleBreaksOnPunchIn() {
     setBreakRecords((prevBreakRecords) => {
       const updatedBreakRecords = [...prevBreakRecords];
@@ -114,7 +76,7 @@ export default function TabOneScreen() {
 
       if (lastBreak && lastBreak.breakEndAt === null) {
         // End the ongoing break with the punch-in time
-        lastBreak.breakEndAt = new Date().toLocaleTimeString();
+        lastBreak.breakEndAt = new Date().toISOString();
       }
 
       return updatedBreakRecords;
@@ -122,6 +84,10 @@ export default function TabOneScreen() {
   }
 
   function handleBreaksOnPunchOut() {
+    if (isAfterCutoff(currentTime)) {
+      return; // Do not record a break if it's after 6:30 PM
+    }
+
     setBreakRecords((prevBreakRecords) => {
       const updatedBreakRecords = [...prevBreakRecords];
       const lastBreak = updatedBreakRecords[updatedBreakRecords.length - 1];
@@ -129,7 +95,7 @@ export default function TabOneScreen() {
       if (!lastBreak || lastBreak.breakEndAt !== null) {
         // Start a new break record if there is no ongoing break
         const newBreakRecord: BreakRecord = {
-          breakStartAt: new Date().toLocaleTimeString(),
+          breakStartAt: new Date().toISOString(),
           breakEndAt: null,
         };
         return [...updatedBreakRecords, newBreakRecord];
@@ -149,9 +115,88 @@ export default function TabOneScreen() {
     await sound.playAsync();
   }
 
-  useEffect(() => {
-    console.log("Break Records Updated:", breakRecords);
-  }, [breakRecords]);
+  // Calculate the percentage of time worked
+  const calculatePercentage = (): number => {
+    if (punchRecords.length === 0) return 0; // No punch records
+
+    const firstPunchIn = punchRecords[0].punchIn;
+    if (!firstPunchIn) return 0; // If no valid punch-in time
+
+    // Get the last punch-out time or fallback to the current time
+    const lastPunchOut = punchRecords
+      .filter((record) => record.punchOut)
+      .map((record) => record.punchOut!)
+      .reduce(
+        (latest, current) => (current > latest ? current : latest),
+        new Date(0)
+      );
+
+    // Determine whether to use lastPunchOut or currentTime
+    const useTime =
+      lastPunchOut && isAfterCutoff(lastPunchOut)
+        ? lastPunchOut
+        : currentTime;
+
+    // Calculate total work duration
+    const totalWorkDuration = useTime.getTime() - firstPunchIn.getTime();
+
+    // Assuming 8 hours workday (adjust as needed)
+    const workdayDuration = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+    const percentage = (totalWorkDuration / workdayDuration) * 100;
+
+    return Math.min(100, percentage);
+  };
+
+  // Update this function if a punch-out is clicked
+  const handlePunchClick = () => {
+    if (!punchedIn) {
+      // Punch In
+      setPunchedIn(true);
+      const newPunchInTime = new Date();
+      setPunchInTime(newPunchInTime);
+      setIsRestricted(true);
+
+      // Add a new punch-in record
+      setPunchRecords((prevRecords) => [
+        ...prevRecords,
+        { punchIn: newPunchInTime, punchOut: null },
+      ]);
+
+      // Handle breaks
+      handleBreaksOnPunchIn();
+
+      playSound("punchin");
+    } else {
+      // Punch Out
+      const now = new Date();
+
+      if (isRestricted && remainingTime > 0) {
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = Math.floor(remainingTime % 60);
+        Alert.alert(`Please try after ${minutes} mins ${seconds} secs.`);
+      } else {
+        setPunchedIn(false);
+        setPunchInTime(null);
+
+        // Update the latest record with the punch-out time
+        setPunchRecords((prevRecords) => {
+          const updatedRecords = [...prevRecords];
+          if (updatedRecords.length > 0) {
+            updatedRecords[updatedRecords.length - 1].punchOut = now;
+          }
+          return updatedRecords;
+        });
+
+        // Handle breaks
+        handleBreaksOnPunchOut();
+
+        playSound("punchout");
+      }
+    }
+  };
+
+  // Work done time percentage
+  const percentage = calculatePercentage();
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: bgColor }]}>
@@ -187,7 +232,7 @@ export default function TabOneScreen() {
                 ? darkTheme
                   ? "#00e32d"
                   : "green"
-                : "#ff4040",
+                : "#f54c68",
             },
           ]}
         >
@@ -206,7 +251,7 @@ export default function TabOneScreen() {
 
         <Text
           style={{
-            color: punchedIn ? (darkTheme ? "#00e32d" : "green") : "#ff4040",
+            color: punchedIn ? (darkTheme ? "#00e32d" : "green") : "#f54c68",
             marginTop: 10,
             fontWeight: "500",
             fontSize: 18,
@@ -216,32 +261,69 @@ export default function TabOneScreen() {
         </Text>
       </View>
 
+      <View
+        style={{
+          marginTop: 10,
+          paddingHorizontal: 40,
+          backgroundColor: "transparent",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        <View
+          style={[
+            styles.track,
+            {
+              borderWidth: 1,
+              backgroundColor: "transparent",
+              borderColor: darkTheme ? "#00e32d" : "#1e3669",
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.fill,
+              {
+                width: `${percentage < 100 ? percentage : 100}%`,
+                backgroundColor: darkTheme ? "#00e32d" : "#1e3669",
+              },
+            ]}
+          />
+        </View>
+        <Text
+          style={[
+            styles.percentageText,
+            { color: darkTheme ? "#00e32d" : "#1e3669" },
+          ]}
+        >{`${Math.round(percentage < 100 ? percentage : 100)}%`}</Text>
+      </View>
+
       <View style={styles.recordContainer}>
         <View style={styles.recordRow}>
           <Text
             style={{
               color: darkTheme ? "#00e32d" : "green",
-              fontWeight: 500,
+              fontWeight: "500",
               fontSize: 16,
             }}
           >
-            Punch In(s):{" "}
+            Punch In:{" "}
           </Text>
-          <Text style={{ color: "#ff4040", fontWeight: 500, fontSize: 16 }}>
-            Punch Out(s):
+          <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
+            Punch Out:
           </Text>
         </View>
         {punchRecords.length > 0 ? (
-          punchRecords.map((record, index) => (
-            <View key={index} style={styles.recordRow}>
-              <Text style={{ color: textColor }}>
-                {record?.punchIn?.toLocaleTimeString() ?? "~~"}
-              </Text>
-              <Text style={{ color: textColor }}>
-                {record?.punchOut?.toLocaleTimeString() ?? "~~"}
-              </Text>
-            </View>
-          ))
+          <View style={styles.recordRow}>
+            <Text style={{ color: textColor }}>
+              {punchRecords[0].punchIn?.toLocaleTimeString() ?? "~~"}
+            </Text>
+            <Text style={{ color: textColor }}>
+              {punchRecords[
+                punchRecords.length - 1
+              ].punchOut?.toLocaleTimeString() ?? "~~"}
+            </Text>
+          </View>
         ) : (
           <Text style={{ color: textColor }}>No punch recorded</Text>
         )}
@@ -253,13 +335,13 @@ export default function TabOneScreen() {
           <Text
             style={{
               color: darkTheme ? "#00e32d" : "green",
-              fontWeight: 500,
+              fontWeight: "500",
               fontSize: 16,
             }}
           >
             Break Start(s):{" "}
           </Text>
-          <Text style={{ color: "#ff4040", fontWeight: 500, fontSize: 16 }}>
+          <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
             Break End(s):
           </Text>
         </View>
@@ -267,10 +349,14 @@ export default function TabOneScreen() {
           breakRecords.map((record, index) => (
             <View key={index} style={styles.recordRow}>
               <Text style={{ color: textColor }}>
-                {record.breakStartAt ?? "~~"}
+                {record.breakStartAt
+                  ? new Date(record.breakStartAt).toLocaleTimeString()
+                  : "~~"}
               </Text>
               <Text style={{ color: textColor }}>
-                {record.breakEndAt ?? "~~"}
+                {record.breakEndAt
+                  ? new Date(record.breakEndAt).toLocaleTimeString()
+                  : "~~"}
               </Text>
             </View>
           ))
@@ -291,7 +377,7 @@ const styles = StyleSheet.create({
   punchContainer: {
     display: "flex",
     width: "100%",
-    marginTop: 40,
+    marginTop: 30,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
@@ -315,5 +401,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
     backgroundColor: "transparent",
+  },
+  track: {
+    width: "80%",
+    height: 12,
+    borderRadius: 10,
+    overflow: "hidden",
+    marginVertical: 10,
+  },
+  fill: {
+    height: "100%",
+  },
+  percentageText: {
+    fontSize: 18,
+    width: "20%",
+    textAlign: "right",
+    fontWeight: "bold",
+    marginTop: 5,
   },
 });
