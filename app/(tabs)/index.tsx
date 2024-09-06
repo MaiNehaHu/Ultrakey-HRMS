@@ -17,6 +17,23 @@ interface BreakRecord {
   breakEndAt: string | null;
 }
 
+interface BreaksProps {
+  darkTheme: boolean;
+  textColor: string;
+  breakRecords: BreakRecord[];
+}
+
+interface PunchProps {
+  darkTheme: boolean;
+  textColor: string;
+  punchRecords: PunchRecord[];
+}
+
+interface TrackerProps {
+  darkTheme: boolean;
+  percentage: number;
+}
+
 export default function TabOneScreen() {
   const { darkTheme } = useAppTheme();
   const { punchedIn, setPunchedIn } = usePunching();
@@ -133,9 +150,7 @@ export default function TabOneScreen() {
 
     // Determine whether to use lastPunchOut or currentTime
     const useTime =
-      lastPunchOut && isAfterCutoff(lastPunchOut)
-        ? lastPunchOut
-        : currentTime;
+      lastPunchOut && isAfterCutoff(lastPunchOut) ? lastPunchOut : currentTime;
 
     // Calculate total work duration
     const totalWorkDuration = useTime.getTime() - firstPunchIn.getTime();
@@ -261,112 +276,153 @@ export default function TabOneScreen() {
         </Text>
       </View>
 
-      <View
-        style={{
-          marginTop: 10,
-          paddingHorizontal: 40,
-          backgroundColor: "transparent",
-          display: "flex",
-          flexDirection: "row",
-        }}
-      >
-        <View
-          style={[
-            styles.track,
-            {
-              borderWidth: 1,
-              backgroundColor: "transparent",
-              borderColor: darkTheme ? "#00e32d" : "#1e3669",
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.fill,
-              {
-                width: `${percentage < 100 ? percentage : 100}%`,
-                backgroundColor: darkTheme ? "#00e32d" : "#1e3669",
-              },
-            ]}
-          />
-        </View>
-        <Text
-          style={[
-            styles.percentageText,
-            { color: darkTheme ? "#00e32d" : "#1e3669" },
-          ]}
-        >{`${Math.round(percentage < 100 ? percentage : 100)}%`}</Text>
-      </View>
+      {/* Tracker */}
+      <Tracker darkTheme={darkTheme} percentage={percentage} />
 
-      <View style={styles.recordContainer}>
-        <View style={styles.recordRow}>
-          <Text
-            style={{
-              color: darkTheme ? "#00e32d" : "green",
-              fontWeight: "500",
-              fontSize: 16,
-            }}
-          >
-            Punch In:{" "}
-          </Text>
-          <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
-            Punch Out:
-          </Text>
-        </View>
-        {punchRecords.length > 0 ? (
-          <View style={styles.recordRow}>
-            <Text style={{ color: textColor }}>
-              {punchRecords[0].punchIn?.toLocaleTimeString() ?? "~~"}
-            </Text>
-            <Text style={{ color: textColor }}>
-              {punchRecords[
-                punchRecords.length - 1
-              ].punchOut?.toLocaleTimeString() ?? "~~"}
-            </Text>
-          </View>
-        ) : (
-          <Text style={{ color: textColor }}>No punch recorded</Text>
-        )}
-      </View>
+      {/* Punch in and Punch outs */}
+      <Punch
+        darkTheme={darkTheme}
+        textColor={textColor}
+        punchRecords={punchRecords}
+      />
 
       {/* Display break records */}
-      <View style={styles.recordContainer}>
-        <View style={styles.recordRow}>
-          <Text
-            style={{
-              color: darkTheme ? "#00e32d" : "green",
-              fontWeight: "500",
-              fontSize: 16,
-            }}
-          >
-            Break Start(s):{" "}
-          </Text>
-          <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
-            Break End(s):
-          </Text>
-        </View>
-        {breakRecords.length > 0 ? (
-          breakRecords.map((record, index) => (
-            <View key={index} style={styles.recordRow}>
-              <Text style={{ color: textColor }}>
-                {record.breakStartAt
-                  ? new Date(record.breakStartAt).toLocaleTimeString()
-                  : "~~"}
-              </Text>
-              <Text style={{ color: textColor }}>
-                {record.breakEndAt
-                  ? new Date(record.breakEndAt).toLocaleTimeString()
-                  : "~~"}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Text style={{ color: textColor }}>No breaks recorded</Text>
-        )}
-      </View>
+      <Breaks
+        darkTheme={darkTheme}
+        breakRecords={breakRecords}
+        textColor={textColor}
+      />
     </ScrollView>
   );
 }
+
+const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
+  return (
+    <View
+      style={{
+        marginTop: 10,
+        paddingHorizontal: 40,
+        backgroundColor: "transparent",
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
+      <View
+        style={[
+          styles.track,
+          {
+            borderWidth: 1,
+            backgroundColor: "transparent",
+            borderColor: darkTheme ? "#00e32d" : "#1e3669",
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.fill,
+            {
+              width: `${percentage < 100 ? percentage : 100}%`,
+              backgroundColor: darkTheme ? "#00e32d" : "#1e3669",
+            },
+          ]}
+        />
+      </View>
+      <Text
+        style={[
+          styles.percentageText,
+          { color: darkTheme ? "#00e32d" : "#1e3669" },
+        ]}
+      >{`${Math.round(percentage < 100 ? percentage : 100)}%`}</Text>
+    </View>
+  );
+};
+
+const Punch = ({ darkTheme, punchRecords, textColor }: PunchProps) => {
+  return (
+    <View style={styles.recordContainer}>
+      <View style={styles.recordRow}>
+        <Text
+          style={{
+            color: darkTheme ? "#00e32d" : "green",
+            fontWeight: "500",
+            fontSize: 16,
+          }}
+        >
+          Punch In:{" "}
+        </Text>
+        <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
+          Punch Out:
+        </Text>
+      </View>
+      {punchRecords.length > 0 ? (
+        <View style={styles.recordRow}>
+          <Text style={{ color: textColor }}>
+            {punchRecords[0].punchIn?.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }) ?? "~~"}
+          </Text>
+          <Text style={{ color: textColor }}>
+            {punchRecords[punchRecords.length - 1].punchOut?.toLocaleTimeString(
+              [],
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            ) ?? "~~"}
+          </Text>
+        </View>
+      ) : (
+        <Text style={{ color: textColor }}>No punch recorded</Text>
+      )}
+    </View>
+  );
+};
+
+const Breaks = ({ darkTheme, textColor, breakRecords }: BreaksProps) => {
+  return (
+    <View style={styles.recordContainer}>
+      <View style={styles.recordRow}>
+        <Text
+          style={{
+            color: darkTheme ? "#00e32d" : "green",
+            fontWeight: "500",
+            fontSize: 16,
+          }}
+        >
+          Break Start(s):
+        </Text>
+        <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
+          Break End(s):
+        </Text>
+      </View>
+      {breakRecords.length > 0 ? (
+        breakRecords.map((breakRecord, index) => (
+          <View key={index} style={styles.recordRow}>
+            <Text style={{ color: textColor }}>
+              {breakRecord.breakStartAt
+                ? new Date(breakRecord.breakStartAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "~~"}
+            </Text>
+            <Text style={{ color: textColor }}>
+              {breakRecord.breakEndAt
+                ? new Date(breakRecord.breakEndAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "~~"}
+            </Text>
+          </View>
+        ))
+      ) : (
+        <Text style={{ color: textColor }}>No breaks recorded</Text>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
