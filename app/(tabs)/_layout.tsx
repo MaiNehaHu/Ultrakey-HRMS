@@ -140,6 +140,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "You",
+          headerTitle:"Your Profile",
           tabBarIcon: () => (
             <IoniconsIcon
               name="person"
@@ -152,6 +153,9 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
           },
+
+          // header tint 
+          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint
         }}
       />
     </Tabs>
