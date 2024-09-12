@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const leaves = () => {
+const task = () => {
   return (
     <View>
-      <Text>leaves</Text>
+      <Text>task</Text>
     </View>
   )
 }
 
-export default leaves
+export default task
 
 const styles = StyleSheet.create({})

@@ -2,7 +2,7 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { View, TouchableOpacity, Image } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import AwesomeIcon from "react-native-vector-icons/FontAwesome6"; // Import FontAwesome6
+import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 
 import Colors from "@/constants/Colors";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
@@ -99,12 +99,13 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="salary"
+        name="task"
         options={{
-          title: "Salary",
+          title: "Tasks",
+          headerTitle: "Your Tasks",
           tabBarIcon: () => (
             <AwesomeIcons
-              name="money-bill"
+              name="square-check"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
@@ -114,13 +115,38 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
           },
+
+          // header tint
+          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
       />
 
       <Tabs.Screen
-        name="leaves"
+        name="salary"
         options={{
-          title: "Leaves",
+          title: "Salary",
+          tabBarIcon: () => (
+            <AwesomeIcons
+              name="wallet"
+              size={20}
+              color={Colors[darkTheme ? "dark" : "light"].background}
+            /> // Use AwesomeIcon
+          ),
+
+          // color of title in tab bar
+          tabBarLabelStyle: {
+            color: Colors[darkTheme ? "dark" : "light"].background,
+          },
+
+           // header tint
+           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
+        }}
+      />
+
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "Calendar",
           tabBarIcon: () => (
             <AwesomeIcons
               name="calendar-alt"
@@ -133,6 +159,9 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
           },
+
+          // header tint
+          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
       />
 
@@ -140,7 +169,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "You",
-          headerTitle:"Your Profile",
+          headerTitle: "Your Profile",
           tabBarIcon: () => (
             <IoniconsIcon
               name="person"
@@ -154,8 +183,8 @@ export default function TabLayout() {
             color: Colors[darkTheme ? "dark" : "light"].background,
           },
 
-          // header tint 
-          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint
+          // header tint
+          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
       />
     </Tabs>
