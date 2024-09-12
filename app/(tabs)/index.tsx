@@ -40,6 +40,8 @@ export default function TabOneScreen() {
   const [punchRecords, setPunchRecords] = useState<PunchRecord[]>([]);
   const [breakRecords, setBreakRecords] = useState<BreakRecord[]>([]);
   const [punchInTime, setPunchInTime] = useState<Date | null>(null);
+  const [latePunchIn, setLatePunchIn] = useState<Number | null>(null);
+  const [earlyPunchIn, setEarlyPunchIn] = useState<Number | null>(null);
   const [isRestricted, setIsRestricted] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -148,7 +150,7 @@ export default function TabOneScreen() {
         new Date(0)
       );
 
-    // Determine whether to use lastPunchOut or currentTime
+    // Determine whether to use lastPunchOut that is after 6:30 PM or currentTime
     const useTime =
       lastPunchOut && isAfterCutoff(lastPunchOut) ? lastPunchOut : currentTime;
 
@@ -156,19 +158,48 @@ export default function TabOneScreen() {
     const totalWorkDuration = useTime.getTime() - firstPunchIn.getTime();
 
     // Assuming 8 hours workday (adjust as needed)
-    const workdayDuration = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
+    const workdayDuration = 9 * 60 * 60 * 1000; // 9 hours in milliseconds
     const percentage = (totalWorkDuration / workdayDuration) * 100;
 
     return Math.min(100, percentage);
   };
 
-  // Update this function if a punch-out is clicked
+  const calculateLateAndEarlyPunchInTime = (punchInTime: Date | null) => {
+    if (!punchInTime) return; // No punch-in time
+
+    const cutoffHour = 9;
+    const cutoffMinute = 30;
+    const cutoffTime = new Date(punchInTime); // Start with the same date as punch-in
+    cutoffTime.setHours(cutoffHour, cutoffMinute, 0, 0); // Set cutoff time to 9:30 AM
+
+    if (punchInTime.getTime() > cutoffTime.getTime()) {
+      // Late punch-in
+      const lateTimeMs = punchInTime.getTime() - cutoffTime.getTime(); // late time in milliseconds
+
+      setLatePunchIn(lateTimeMs);
+      setEarlyPunchIn(0);
+    } else if (punchInTime.getTime() <= cutoffTime.getTime()) {
+      // Early punch-in
+      const earlyTimeMs = cutoffTime.getTime() - punchInTime.getTime(); // early time in milliseconds
+
+      setLatePunchIn(0);
+      setEarlyPunchIn(earlyTimeMs);
+    }
+  };
+
   const handlePunchClick = () => {
     if (!punchedIn) {
       // Punch In
       setPunchedIn(true);
       const newPunchInTime = new Date();
-      setPunchInTime(newPunchInTime);
+
+      setPunchInTime(newPunchInTime); // Punch in time recorded
+
+      // Only calculate late punch-in on the first punch-in
+      if (punchRecords.length === 0) {
+        calculateLateAndEarlyPunchInTime(newPunchInTime); // Calculate late punch-in time
+      }
+
       setIsRestricted(true);
 
       // Add a new punch-in record

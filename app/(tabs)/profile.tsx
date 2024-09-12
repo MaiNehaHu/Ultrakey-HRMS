@@ -14,6 +14,7 @@ const Profile: React.FC = () => {
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
+  const tintColor = Colors[darkTheme ? "dark" : "light"].tint;
 
   // Load the image from AsyncStorage on component mount
   useEffect(() => {
@@ -54,7 +55,7 @@ const Profile: React.FC = () => {
       // Save the image URI to AsyncStorage
       try {
         await AsyncStorage.setItem("profileImage", selectedImageUri);
-        setImage({ uri: selectedImageUri });        
+        setImage({ uri: selectedImageUri });
       } catch (error) {
         console.error("Failed to save image to storage", error);
       }
@@ -108,39 +109,61 @@ const Profile: React.FC = () => {
           </Pressable>
         </View>
 
-        <Text style={{ color: oppBgColor, fontWeight: "500", fontSize: 18 }}>
+        <Text style={{ color: tintColor, fontWeight: "500", fontSize: 20 }}>
           Neha Kumari
         </Text>
       </View>
 
       <View style={styles.dataContainer}>
         <View style={styles.flex_row}>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.leftText, { color: textColor }]}>
             Designation:
           </Text>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.rightText, { color: textColor }]}>
             Android Developer
           </Text>
         </View>
         <View style={styles.flex_row}>
-          <Text style={[styles.dataText, { color: textColor }]}>DOB:</Text>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.leftText, { color: textColor }]}>
+            Blood group:
+          </Text>
+          <Text style={[styles.rightText, { color: textColor }]}>B+</Text>
+        </View>
+        <View style={styles.flex_row}>
+          <Text style={[styles.leftText, { color: textColor }]}>DOB:</Text>
+          <Text style={[styles.rightText, { color: textColor }]}>
             02/12/2003
           </Text>
         </View>
         <View style={styles.flex_row}>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.leftText, { color: textColor }]}>
+            PAN number:
+          </Text>
+          <Text style={[styles.rightText, { color: textColor }]}>
+            ABCD1224J7
+          </Text>
+        </View>
+        <View style={styles.flex_row}>
+          <Text style={[styles.leftText, { color: textColor }]}>
             Phone number:
           </Text>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.rightText, { color: textColor }]}>
             +91 93939 39393
           </Text>
         </View>
         <View style={styles.flex_row}>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.leftText, { color: textColor }]}>
+            Emergency no.:
+          </Text>
+          <Text style={[styles.rightText, { color: textColor }]}>
+            +91 97048 11111
+          </Text>
+        </View>
+        <View style={styles.flex_row}>
+          <Text style={[styles.leftText, { color: textColor }]}>
             Contact mail:
           </Text>
-          <Text style={[styles.dataText, { color: textColor }]}>
+          <Text style={[styles.rightText, { color: textColor }]}>
             nehakumari@ultrakeyit.com
           </Text>
         </View>
@@ -162,6 +185,7 @@ const styles = StyleSheet.create({
     gap: 10,
     display: "flex",
     marginBottom: 10,
+    marginTop: 20,
     flexDirection: "column",
     alignItems: "center",
     backgroundColor: "transparent",
@@ -178,14 +202,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "100%",
     display: "flex",
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     flexDirection: "column",
     alignItems: "flex-start",
     backgroundColor: "transparent",
     justifyContent: "space-between",
   },
-  dataText: {
-    width: "50%",
+  leftText: {
+    width: "40%",
+    fontWeight: "400",
+  },
+  rightText: {
+    width: "60%",
     fontWeight: "400",
   },
   flex_row: {
@@ -193,4 +221,3 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
-
