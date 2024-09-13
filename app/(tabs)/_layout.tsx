@@ -155,6 +155,16 @@ export default function TabLayout() {
             /> // Use AwesomeIcon
           ),
 
+          headerRight: () => (
+            <View style={{ marginRight: 10 }}>
+              {/* logo for dark and light theme */}
+              <Image
+                source={darkTheme ? logo_dark : logo_light}
+                style={{ width: 40, height: 40 }}
+              />
+            </View>
+          ),
+
           // color of title in tab bar
           tabBarLabelStyle: {
             color: Colors[darkTheme ? "dark" : "light"].background,
