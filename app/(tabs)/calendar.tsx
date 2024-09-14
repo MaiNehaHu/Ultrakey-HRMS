@@ -69,7 +69,14 @@ const CalendarScreen = () => {
   };
 
   return (
-    <View style={{ backgroundColor: bgColor, flex: 1, padding: 15, paddingBottom: 110 }}>
+    <View
+      style={{
+        backgroundColor: bgColor,
+        flex: 1,
+        padding: 15,
+        paddingBottom: 110,
+      }}
+    >
       <View style={styles.buttonContainer}>
         <Pressable
           onPress={() => setShowAttendance(true)}
@@ -175,6 +182,13 @@ const Leaves = ({
     }).start();
   };
 
+  const formatDate = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <View>
       <View style={styles.flex_row_top}>
@@ -195,7 +209,7 @@ const Leaves = ({
         </Animated.View>
       </View>
 
-      <ScrollView style={{ marginTop: 15, }}>
+      <ScrollView style={{ marginTop: 15 }}>
         {leaves.length === 0 ? (
           <Text style={[styles.noDataText, { color: textColor }]}>
             No Leaves data found
@@ -209,12 +223,12 @@ const Leaves = ({
               <View style={styles.flex_row_top}>
                 <View>
                   <Text style={{ color: oppTextColor }}>
-                    From {leave.from.date.toLocaleDateString()}
+                    From {formatDate(leave.from.date)}
                     {" - "}
                     Session {leave.from.session}
                   </Text>
                   <Text style={{ color: oppTextColor }}>
-                    To {leave.to.date.toLocaleDateString()}
+                    To {formatDate(leave.to.date)}
                     {" - "}
                     Session {leave.to.session}
                   </Text>

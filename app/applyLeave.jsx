@@ -2,43 +2,59 @@ import { Modal, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, 
 import React, { useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
-import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
+import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { Animated } from 'react-native';
-import DatePicker from 'react-native-modern-datepicker'
+import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only using DateTimePickerModal
 
 const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     const { darkTheme } = useAppTheme();
 
-    const bgColor = Colors[darkTheme ? "dark" : "light"].background;
-    const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
-    const textColor = Colors[darkTheme ? "dark" : "light"].text;
+    const bgColor = Colors[darkTheme ? 'dark' : 'light'].background;
+    const oppBgColor = Colors[!darkTheme ? 'dark' : 'light'].background;
+    const textColor = Colors[darkTheme ? 'dark' : 'light'].text;
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    const [reason, setReason] = useState("Reason");
+    const [reason, setReason] = useState('Reason');
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
     const [fromSession, setFromSession] = useState(1);
     const [toSession, setToSession] = useState(2);
-    const [leaveType, setLeaveType] = useState("Unpaid Leave");
-    const [isFromPickerOpen, setIsFromPickerOpen] = useState(false);
-    const [isToPickerOpen, setIsToPickerOpen] = useState(false);
-    const [loading, setLoading] = useState(false); // Loader state
+    const [leaveType, setLeaveType] = useState('Unpaid Leave');
+    const [loading, setLoading] = useState(false);
 
-    // Save the new leave
+    const [isFromPickerVisible, setFromPickerVisible] = useState(false); // For "from" date picker
+    const [isToPickerVisible, setToPickerVisible] = useState(false);     // For "to" date picker
+
+    const showFromDatePicker = () => setFromPickerVisible(true);
+    const hideFromDatePicker = () => setFromPickerVisible(false);
+
+    const showToDatePicker = () => setToPickerVisible(true);
+    const hideToDatePicker = () => setToPickerVisible(false);
+
+    const handleFromConfirm = (date) => {
+        setFromDate(date);
+        hideFromDatePicker();
+    };
+
+    const handleToConfirm = (date) => {
+        setToDate(date);
+        hideToDatePicker();
+    };
+
     const handleSaveLeave = () => {
-        setLoading(true); // Start loader
+        setLoading(true);
 
         const newLeave = {
             id: Date.now(), // Unique ID
             reason,
             from: { date: fromDate, session: fromSession },
-            to: { date: toDate, session: toSession }, // Example: same session as fromSession
-            type: leaveType, // Example
-            status: "Pending",
+            to: { date: toDate, session: toSession },
+            type: leaveType,
+            status: 'Pending',
         };
 
-        setLeaves((prevLeaves) => [...prevLeaves, newLeave]);
+        setLeaves((prevLeaves) => [newLeave, ...prevLeaves]);
         setTimeout(() => {
             setLoading(false);
             toggleModal();
@@ -57,6 +73,13 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             toValue: 1,
             useNativeDriver: true,
         }).start();
+    };
+
+    const formatDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     };
 
     return (
@@ -84,19 +107,15 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
                     <View style={styles.flex_row_center}>
                         {/* From Date Picker */}
-                        <TouchableOpacity onPress={() => setIsFromPickerOpen(true)} style={styles.dateButton}>
-                            <Text style={styles.dateButtonText}>From Date: {fromDate.toISOString().split('T')[0]}</Text>
+                        <TouchableOpacity onPress={showFromDatePicker} style={styles.dateButton}>
+                            <Text style={styles.dateButtonText}>From Date: {formatDate(fromDate)}</Text>
                         </TouchableOpacity>
-                        <DatePicker
-                            modal
-                            open={isFromPickerOpen}
-                            date={fromDate}
+                        <DateTimePickerModal
+                            isVisible={isFromPickerVisible}
                             mode="date"
-                            onConfirm={(date) => {
-                                setIsFromPickerOpen(false);
-                                setFromDate(date);
-                            }}
-                            onCancel={() => setIsFromPickerOpen(false)}
+                            minimumDate={new Date()}
+                            onConfirm={handleFromConfirm}
+                            onCancel={hideFromDatePicker}
                         />
 
                         {/* Session Toggle */}
@@ -143,19 +162,15 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
                     <View style={styles.flex_row_center}>
                         {/* To Date Picker */}
-                        <Pressable onPress={() => setIsToPickerOpen(true)} style={styles.dateButton}>
-                            <Text style={styles.dateButtonText}>To Date: {toDate.toISOString().split('T')[0]}</Text>
+                        <Pressable onPress={showToDatePicker} style={styles.dateButton}>
+                            <Text style={styles.dateButtonText}>To Date: {formatDate(toDate)}</Text>
                         </Pressable>
-                        <DatePicker
-                            modal
-                            open={isToPickerOpen}
-                            date={toDate}
+                        <DateTimePickerModal
+                            isVisible={isToPickerVisible}
                             mode="date"
-                            onConfirm={(date) => {
-                                setIsToPickerOpen(false);
-                                setToDate(date);
-                            }}
-                            onCancel={() => setIsToPickerOpen(false)}
+                            minimumDate={new Date()}
+                            onConfirm={handleToConfirm}
+                            onCancel={hideToDatePicker}
                         />
 
                         {/* Session Toggle */}
