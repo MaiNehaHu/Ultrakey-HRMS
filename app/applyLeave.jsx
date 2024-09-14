@@ -52,14 +52,54 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             to: { date: toDate, session: toSession },
             type: leaveType,
             status: 'Pending',
+            noOfDays: calculateNoOfDays(fromDate, fromSession, toDate, toSession)
         };
 
-        setLeaves((prevLeaves) => [newLeave, ...prevLeaves]);
         setTimeout(() => {
+            setLeaves((prevLeaves) => [newLeave, ...prevLeaves]);
             setLoading(false);
             toggleModal();
-        }, 1500);
+        }, 500);
     };
+
+    function calculateNoOfDays(fromDate, fromSession, toDate, toSession) {
+        const startDate = new Date(fromDate.setHours(0, 0, 0, 0));
+        const endDate = new Date(toDate.setHours(0, 0, 0, 0));
+        const daysDiff = (endDate - startDate) / (1000 * 60 * 60 * 24); // Calculate full days between the two dates
+
+        let noOfDays = 0;
+
+        if (daysDiff === 0) {
+            // Case for the same day
+            if (fromSession === 1 && toSession === 1) {
+                noOfDays = 0.5; // Morning half
+            } else if (fromSession === 1 && toSession === 2) {
+                noOfDays = 1; // Full day
+            } else if (fromSession === 2 && toSession === 2) {
+                noOfDays = 0.5; // Afternoon half
+            }
+        } else {
+            // Case for different days
+            noOfDays = daysDiff - 1; // Number of full days between
+
+            // Handle the first day based on the session
+            if (fromSession === 1) {
+                noOfDays += 1; // Full first day
+            } else if (fromSession === 2) {
+                noOfDays += 0.5; // Half first day
+            }
+
+            // Handle the last day based on the session
+            if (toSession === 1) {
+                noOfDays += 0.5; // Half last day
+            } else if (toSession === 2) {
+                noOfDays += 1; // Full last day
+            }
+        }
+
+        return noOfDays;
+    }
+
 
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {

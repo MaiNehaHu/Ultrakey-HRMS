@@ -11,13 +11,16 @@ import { Calendar } from "react-native-calendars"; // Add DateObject for correct
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import moment from "moment";
-import ApplyLeave from "@/app/applyLeave";
+import ApplyLeave from "@/app/ApplyLeave";
+import LeaveDetails from "@/app/LeaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
 
 const CalendarScreen = () => {
   const [showAttendance, setShowAttendance] = useState(true);
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
   const [isModalVisible, setModalVisible] = useState(false);
+  const [leaveModalId, setLeaveModalId] = useState(null);
+  const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
 
   const { darkTheme } = useAppTheme();
   const { leaves, setLeaves } = useLeavesContext();
@@ -134,6 +137,8 @@ const CalendarScreen = () => {
             textColor={textColor}
             oppBgColor={oppBgColor}
             oppTextColor={oppTextColor}
+            setLeaveModalId={setLeaveModalId}
+            setShowLeaveDetailsModal={setShowLeaveDetailsModal}
           />
         )}
       </View>
@@ -144,6 +149,14 @@ const CalendarScreen = () => {
           isVisible={isModalVisible}
           toggleModal={toggleModal}
           setLeaves={setLeaves}
+        />
+      )}
+
+      {showLeaveDetailsModal && (
+        <LeaveDetails
+          leaveModalId={leaveModalId}
+          isVisible={showLeaveDetailsModal}
+          setShowLeaveDetailsModal={setShowLeaveDetailsModal}
         />
       )}
     </View>
@@ -159,12 +172,16 @@ const Leaves = ({
   toggleModal,
   oppBgColor,
   oppTextColor,
+  setLeaveModalId,
+  setShowLeaveDetailsModal,
 }: {
   leaves: any;
   textColor: string;
   toggleModal: any;
   oppBgColor: string;
   oppTextColor: string;
+  setLeaveModalId: any;
+  setShowLeaveDetailsModal: any;
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -216,8 +233,12 @@ const Leaves = ({
           </Text>
         ) : (
           leaves.map((leave: any) => (
-            <View
+            <Pressable
               key={leave.id}
+              onPress={() => {
+                setLeaveModalId(leave.id);
+                setShowLeaveDetailsModal(true);
+              }}
               style={[styles.leaveCard, { backgroundColor: oppBgColor }]}
             >
               <View style={styles.flex_row_top}>
@@ -250,7 +271,7 @@ const Leaves = ({
                   {leave.status}
                 </Text>
               </View>
-            </View>
+            </Pressable>
           ))
         )}
       </ScrollView>
