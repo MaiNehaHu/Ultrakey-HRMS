@@ -4,10 +4,10 @@ import {
   Text,
   View,
   Pressable,
-  Animated,
   ScrollView,
+  Animated,
 } from "react-native";
-import { Calendar } from "react-native-calendars"; // Add DateObject for correct typing
+import { Calendar } from "react-native-calendars";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import moment from "moment";
@@ -30,13 +30,27 @@ const CalendarScreen = () => {
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
   const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
 
+  // Sample attendance data
+  const attendace = [
+    { date: "2024-09-19T10:31:50.857Z", percentage: 100 },
+    { date: "2024-09-13T10:31:50.857Z", percentage: 60 },
+    { date: "2024-09-12T10:31:50.857Z", percentage: 20 },
+  ];
+
+  const holidays = [
+    { date: "2024-09-07T10:31:50.857Z", name: "Ganesh Chaturthi" },
+    { date: "2024-10-02T10:31:50.857Z", name: "Gandhi Jayanti" },
+    { date: "2024-10-12T10:31:50.857Z", name: "Dussehra" },
+    { date: "2024-10-31T10:31:50.857Z", name: "Dussehra" },
+  ];
+
   // Function to get all Sundays in the selected month
   const markSundays = (month: number, year: number) => {
     const marked: Record<string, any> = {};
     const currentMonth = moment()
       .year(year)
       .month(month - 1)
-      .startOf("month"); // Adjust to zero-indexed month
+      .startOf("month");
     const daysInMonth = currentMonth.daysInMonth();
 
     for (let i = 1; i <= daysInMonth; i++) {
@@ -45,23 +59,99 @@ const CalendarScreen = () => {
         // Sunday
         marked[date.format("YYYY-MM-DD")] = {
           selected: true,
-          selectedColor: "red",
+          selectedColor: "gray",
         };
       }
     }
-
-    setMarkedDates(marked);
+    return marked;
   };
 
-  // UseEffect to mark Sundays for the current month on initial load
+  // Function to mark attendance
+  const markAttendance = () => {
+    const attendanceMarked: Record<string, any> = {};
+    attendace.forEach((entry) => {
+      const date = moment(entry.date).format("YYYY-MM-DD");
+      const color =
+        entry.percentage === 100
+          ? "green"
+          : entry.percentage < 50
+          ? "orange"
+          : "red";
+      attendanceMarked[date] = {
+        selected: true,
+        selectedColor: color,
+      };
+    });
+    return attendanceMarked;
+  };
+
+  // Function to mark holidays
+  const markHolidays = () => {
+    const holidayMarked: Record<string, any> = {};
+    holidays.forEach((holiday) => {
+      const date = moment(holiday.date).format("YYYY-MM-DD");
+      holidayMarked[date] = {
+        selected: true,
+        selectedColor: "gray",
+      };
+    });
+    return holidayMarked;
+  };
+
+  // Function to mark leaves in the calendar
+  const markLeaves = () => {
+    const leaveMarkedDates: Record<string, any> = { ...markedDates };
+
+    leaves?.forEach((leave: any) => {
+      if (leave.status === "Approved") {
+        const start = moment(leave.from.date);
+        const end = moment(leave.to.date);
+
+        while (start.isSameOrBefore(end)) {
+          const formattedDate = start.format("YYYY-MM-DD");
+          leaveMarkedDates[formattedDate] = {
+            marked: true,
+            dotColor: "navy", // Color for leaves
+          };
+          start.add(1, "days");
+        }
+      }
+    });
+
+    return leaveMarkedDates;
+  };
+
+  // UseEffect to mark Sundays, attendance, leaves, and holidays for the current month on initial load
   useEffect(() => {
     const currentDate = moment();
-    markSundays(currentDate.month() + 1, currentDate.year());
-  }, []);
+    const sundays = markSundays(currentDate.month() + 1, currentDate.year());
+    const attendanceMarks = markAttendance();
+    const leaveMarks = markLeaves();
+    const holidayMarks = markHolidays();
+
+    // Merge all the marked dates
+    setMarkedDates({
+      ...sundays,
+      ...attendanceMarks,
+      ...leaveMarks,
+      ...holidayMarks,
+    });
+  }, [leaves]);
 
   // Handle month change
   const onMonthChange = (date: any) => {
-    markSundays(date.month, date.year); // Call markSundays when the month changes
+    const sundays = markSundays(date.month, date.year);
+    const attendanceMarks = markAttendance();
+    const leaveMarks = markLeaves();
+    const holidayMarks = markHolidays();
+
+    // Merge all markings for the new month
+    setMarkedDates({
+      ...sundays,
+      ...attendanceMarks,
+      ...leaveMarks,
+      ...holidayMarks,
+    });
   };
 
   // Toggle the modal visibility
@@ -126,7 +216,7 @@ const CalendarScreen = () => {
       <View style={{ marginTop: 15 }}>
         {showAttendance ? (
           <Calendar
-            markedDates={markedDates} // Marked Sundays
+            markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
             onMonthChange={onMonthChange} // Handle month change
             style={{ borderRadius: 5, borderWidth: 2, borderColor: oppBgColor }}
           />
