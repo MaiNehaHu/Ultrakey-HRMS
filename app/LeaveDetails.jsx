@@ -7,17 +7,36 @@ import { useLeavesContext } from '@/contexts/Leaves';
 
 const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => {
     const { darkTheme } = useAppTheme();
-    const { leaves } = useLeavesContext();
+    const { leaves, setLeaves } = useLeavesContext();
     const [leaveData, setLeaveData] = useState(null);  // Initialize as null
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    useEffect(() => {
-        const currentLeave = leaves.find((leave) => leave.id === leaveModalId);
-        setLeaveData(currentLeave || {});  // Fallback to empty object if not found
-    }, [leaveModalId, leaves]);
-
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
+
+    function handleWithdraw() {
+        setLeaves((prevLeaves) => {
+            // Find the index of the leave to be withdrawn
+            const leaveIndex = prevLeaves.findIndex((leave) => leave.id === leaveModalId);
+
+            if (leaveIndex === -1) {
+                return prevLeaves;
+            }
+
+            // Create a copy of the leaves array
+            const updatedLeaves = [...prevLeaves];
+
+            // Update the status of the selected leave
+            updatedLeaves[leaveIndex] = {
+                ...updatedLeaves[leaveIndex],
+                status: "Withdrawn",
+            };
+
+            return updatedLeaves;
+        });
+
+        setShowLeaveDetailsModal(false);
+    }
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -26,6 +45,11 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     };
+
+    useEffect(() => {
+        const currentLeave = leaves.find((leave) => leave.id === leaveModalId);
+        setLeaveData(currentLeave || {});  // Fallback to empty object if not found
+    }, [leaveModalId, leaves]);
 
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {
@@ -95,9 +119,19 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                         <Pressable
                             onPressIn={handlePressIn}
                             onPressOut={handlePressOut}
-                            style={[styles.withdrawButton]}
+                            onPress={() => {
+                                setTimeout(() => {
+                                    handleWithdraw()
+                                }, 100);
+                            }}
+                            disabled={leaveData && leaveData.status == "Withdrawn" ? true : false}
+                            style={[styles.withdrawButton, {
+                                backgroundColor: leaveData && leaveData.status == "Withdrawn" ? '#e83c3c' : 'red'
+                            }]}
                         >
-                            <Text style={[styles.buttonText]}>
+                            <Text style={[styles.buttonText, {
+                                color: leaveData && leaveData.status == "Withdrawn" ? '#cccccc' : '#fff',
+                            }]}>
                                 Withdraw Leave
                             </Text>
                         </Pressable>
@@ -145,11 +179,9 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         padding: 10,
         paddingHorizontal: 20,
-        backgroundColor: 'red'
     },
     buttonText: {
         fontSize: 14,
-        color: '#fff',
         textAlign: "center",
         fontWeight: "500",
     },
