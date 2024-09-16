@@ -125,6 +125,7 @@ export default function TabLayout() {
         name="salary"
         options={{
           title: "Salary",
+          headerTitle:"Your Salary Details",
           tabBarIcon: () => (
             <AwesomeIcons
               name="wallet"
@@ -138,8 +139,18 @@ export default function TabLayout() {
             color: Colors[darkTheme ? "dark" : "light"].background,
           },
 
-           // header tint
-           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
+          // header tint
+          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
+
+          headerRight: () => (
+            <View style={{ marginRight: 10 }}>
+              {/* logo for dark and light theme */}
+              <Image
+                source={darkTheme ? logo_dark : logo_light}
+                style={{ width: 40, height: 40 }}
+              />
+            </View>
+          ),
         }}
       />
 

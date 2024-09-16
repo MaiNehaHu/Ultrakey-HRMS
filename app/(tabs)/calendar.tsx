@@ -33,16 +33,40 @@ const CalendarScreen = () => {
 
   // Sample attendance data
   const attendace = [
-    { date: "2024-09-19T10:31:50.857Z", percentage: 100 },
-    { date: "2024-09-13T10:31:50.857Z", percentage: 60 },
-    { date: "2024-09-12T10:31:50.857Z", percentage: 20 },
+    { date: "2024-09-19T00:00:00.857Z", percentage: 100 },
+    { date: "2024-09-13T00:00:00.857Z", percentage: 60 },
+    { date: "2024-09-12T00:00:00.857Z", percentage: 20 },
   ];
 
   const holidays = [
-    { date: "2024-09-07T10:31:50.857Z", name: "Ganesh Chaturthi" },
-    { date: "2024-10-02T10:31:50.857Z", name: "Gandhi Jayanti" },
-    { date: "2024-10-12T10:31:50.857Z", name: "Dussehra" },
-    { date: "2024-10-31T10:31:50.857Z", name: "Dussehra" },
+    { date: "2024-01-01T00:00:00.857Z", name: "New Year’s Day" },
+    { date: "2024-01-15T00:00:00.857Z", name: "Makar Sankranti" },
+    { date: "2024-01-26T00:00:00.857Z", name: "Republic Day" },
+    { date: "2024-03-08T00:00:00.857Z", name: "Maha Shivaratri" },
+    { date: "2024-04-09T00:00:00.857Z", name: "Udgadi" },
+    { date: "2024-06-02T00:00:00.857Z", name: "Telangana State Formation Day" },
+    { date: "2024-05-01T00:00:00.857Z", name: "May Day" },
+    { date: "2024-08-15T00:00:00.857Z", name: "Independence Day" },
+    { date: "2024-04-17T00:00:00.857Z", name: "Rama Navami" },
+    { date: "2024-09-07T00:00:00.857Z", name: "Ganesh Chaturthi" },
+    { date: "2024-10-02T00:00:00.857Z", name: "Gandhi Jayanti" },
+    { date: "2024-10-12T00:00:00.857Z", name: "Dussehra" },
+    { date: "2024-10-31T00:00:00.857Z", name: "Diwali (Deepavali)" },
+    { date: "2024-12-25T00:00:00.857Z", name: "Christmas" },
+    { date: "2025-01-01T00:00:00.857Z", name: "New Year’s Day" },
+    { date: "2025-01-14T00:00:00.857Z", name: "Makar Sankranti" },
+    { date: "2025-01-26T00:00:00.857Z", name: "Republic Day" },
+    { date: "2025-02-26T00:00:00.857Z", name: "Maha Shivaratri" },
+    { date: "2025-03-30T00:00:00.857Z", name: "Udgadi" },
+    { date: "2025-05-01T00:00:00.857Z", name: "May Day" },
+    { date: "2025-06-02T00:00:00.857Z", name: "Telangana State Formation Day" },
+    { date: "2025-08-15T00:00:00.857Z", name: "Independence Day" },
+    { date: "2025-04-06T00:00:00.857Z", name: "Rama Navami" },
+    { date: "2025-08-27T00:00:00.857Z", name: "Ganesh Chaturthi" },
+    { date: "2025-10-02T00:00:00.857Z", name: "Gandhi Jayanti" },
+    { date: "2025-10-02T00:00:00.857Z", name: "Dussehra" },
+    { date: "2025-10-21T00:00:00.857Z", name: "Diwali (Deepavali)" },
+    { date: "2025-12-25T00:00:00.857Z", name: "Christmas" },
   ];
 
   // Function to get all Sundays in the selected month
@@ -93,7 +117,7 @@ const CalendarScreen = () => {
       const date = moment(holiday.date).format("YYYY-MM-DD");
       holidayMarked[date] = {
         selected: true,
-        selectedColor: "gray",
+        selectedColor: "navy",
       };
     });
     return holidayMarked;
@@ -122,12 +146,41 @@ const CalendarScreen = () => {
     return leaveMarkedDates;
   };
 
-  // UseEffect to mark Sundays, attendance, leaves, and holidays for the current month on initial load
+  // Function to find the 4th Saturday of a given month and year
+  const markFourthSaturday = (month: number, year: number) => {
+    const marked: Record<string, any> = {};
+    const startOfMonth = moment()
+      .year(year)
+      .month(month - 1)
+      .startOf("month");
+    let saturdayCount = 0;
+
+    for (let day = 1; day <= startOfMonth.daysInMonth(); day++) {
+      const date = startOfMonth.clone().date(day);
+      if (date.day() === 6) {
+        // Saturday
+        saturdayCount++;
+        if (saturdayCount === 4) {
+          marked[date.format("YYYY-MM-DD")] = {
+            selected: true,
+            selectedColor: "navy", // Color for 4th Saturday
+          };
+        }
+      }
+    }
+    return marked;
+  };
+
+  // UseEffect to mark Sundays, attendance, leaves, holidays, and 4th Saturday for the current month on initial load
   useEffect(() => {
     const sundays = markSundays(currentDate.month() + 1, currentDate.year());
     const attendanceMarks = markAttendance();
     const leaveMarks = markLeaves();
     const holidayMarks = markHolidays();
+    const fourthSaturdayMarks = markFourthSaturday(
+      currentDate.month() + 1,
+      currentDate.year()
+    );
 
     // Merge all the marked dates
     setMarkedDates({
@@ -135,6 +188,7 @@ const CalendarScreen = () => {
       ...attendanceMarks,
       ...leaveMarks,
       ...holidayMarks,
+      ...fourthSaturdayMarks,
     });
   }, [leaves, currentDate]);
 
@@ -218,7 +272,7 @@ const CalendarScreen = () => {
         </Pressable>
       </View>
 
-      <View style={{ marginTop: 15 }}>
+      <View style={{ marginTop: 15, flex: 1 }}>
         {showAttendance ? (
           <>
             <Calendar
@@ -231,11 +285,11 @@ const CalendarScreen = () => {
               }}
             />
 
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: 20, flex: 1, minHeight: "47%" }}>
               {/* Display Holidays */}
               <Text
                 style={[
-                  styles.holiday_text,
+                  styles.holiday_header,
                   {
                     color: textColor,
                     borderWidth: 2,
@@ -246,9 +300,7 @@ const CalendarScreen = () => {
                 Holidays for {currentDate.format("MMM YYYY")}
               </Text>
 
-              <View
-                style={{ display: "flex", flexDirection: "column", gap: 8 }}
-              >
+              <ScrollView>
                 {currentMonthHolidays.length > 0 ? (
                   currentMonthHolidays.map((holiday, index) => (
                     <View
@@ -289,7 +341,7 @@ const CalendarScreen = () => {
                     No holidays in this month
                   </Text>
                 )}
-              </View>
+              </ScrollView>
             </View>
           </>
         ) : (
@@ -479,10 +531,6 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5, // Android shadow
   },
   status: {
     color: "#fff",
@@ -501,12 +549,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5, // Android shadow
+    marginBottom: 5,
   },
-  holiday_text: {
+  holiday_header: {
     padding: 8,
     borderRadius: 25,
     textAlign: "center",
