@@ -14,14 +14,57 @@ import moment from "moment";
 import ApplyLeave from "@/app/ApplyLeave";
 import LeaveDetails from "@/app/LeaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
+import PunchDetails from "@/app/PunchDetails";
+
+interface LeaveSession {
+  date: string;
+  session: string;
+}
+
+interface AttendanceSession {
+  date: Date;
+  percentage: number;
+  latePunchIn: number;
+  earlyPunchIn: number;
+  punchRecords: PunchRecord[];
+  breakRecords: BreakRecord[];
+}
+
+interface PunchRecord {
+  punchIn: Date;
+  punchOut: Date;
+}
+
+interface BreakRecord {
+  breakStartAt: Date;
+  breakEndAt: Date;
+}
+
+interface ClickedDate {
+  selectedAttendance: AttendanceSession | null;
+  selectedHoliday: { date: string; name: string } | null;
+  selectedLeave: {
+    reason: string;
+    from: LeaveSession;
+    to: LeaveSession;
+    type: string;
+    noOfDays: number;
+  } | null;
+}
 
 const CalendarScreen = () => {
   const [showAttendance, setShowAttendance] = useState(true);
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isLeaveModalVisible, setLeaveModalVisible] = useState(false);
   const [leaveModalId, setLeaveModalId] = useState(null);
+  const [isPunchModalVisible, setPunchModalVisible] = useState(false);
   const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
   const [currentDate, setCurrentDate] = useState(moment());
+  const [clickedDate, setClickedDate] = useState<ClickedDate>({
+    selectedAttendance: null,
+    selectedHoliday: null,
+    selectedLeave: null,
+  });
 
   const { darkTheme } = useAppTheme();
   const { leaves, setLeaves } = useLeavesContext();
@@ -33,9 +76,60 @@ const CalendarScreen = () => {
 
   // Sample attendance data
   const attendace = [
-    { date: "2024-09-19T00:00:00.857Z", percentage: 100 },
-    { date: "2024-09-13T00:00:00.857Z", percentage: 60 },
-    { date: "2024-09-12T00:00:00.857Z", percentage: 20 },
+    {
+      date: "2024-09-19T00:00:00.857Z",
+      percentage: 100,
+      latePunchIn: 800,
+      earlyPunchIn: 0,
+      punchRecords: [
+        {
+          punchIn: "2024-09-19T09:39:00.857Z",
+          punchOut: "2024-09-19T0018:09:00.857Z",
+        },
+      ],
+      breakRecords: [
+        {
+          breakStartAt: "2024-09-13T09:39:00.857Z",
+          breakEndAt: "2024-09-13T09:39:00.857Z",
+        },
+      ],
+    },
+    {
+      date: "2024-09-13T00:00:00.857Z",
+      percentage: 60,
+      latePunchIn: 800,
+      earlyPunchIn: 0,
+      punchRecords: [
+        {
+          punchIn: "2024-09-13T09:39:00.857Z",
+          punchOut: "2024-09-13T0018:09:00.857Z",
+        },
+      ],
+      breakRecords: [
+        {
+          breakStartAt: "2024-09-13T09:39:00.857Z",
+          breakEndAt: "2024-09-13T09:39:00.857Z",
+        },
+      ],
+    },
+    {
+      date: "2024-09-12T00:00:00.857Z",
+      percentage: 20,
+      latePunchIn: 800,
+      earlyPunchIn: 0,
+      punchRecords: [
+        {
+          punchIn: "2024-09-13T09:39:00.857Z",
+          punchOut: "2024-09-13T0018:09:00.857Z",
+        },
+      ],
+      breakRecords: [
+        {
+          breakStartAt: "2024-09-13T09:39:00.857Z",
+          breakEndAt: "2024-09-13T09:39:00.857Z",
+        },
+      ],
+    },
   ];
 
   const holidays = [
@@ -110,16 +204,33 @@ const CalendarScreen = () => {
     return attendanceMarked;
   };
 
-  // Function to mark holidays
+  // Function to mark holidays and 4th Saturday
   const markHolidays = () => {
     const holidayMarked: Record<string, any> = {};
+
+    // Mark regular holidays
     holidays.forEach((holiday) => {
       const date = moment(holiday.date).format("YYYY-MM-DD");
       holidayMarked[date] = {
         selected: true,
         selectedColor: "navy",
+        holidayName: holiday.name, // Store holiday name
       };
     });
+
+    // Mark 4th Saturdays
+    const fourthSaturdays = markFourthSaturday(
+      currentDate.month() + 1,
+      currentDate.year()
+    );
+    Object.keys(fourthSaturdays).forEach((date) => {
+      holidayMarked[date] = {
+        selected: true,
+        selectedColor: "navy", // Color for 4th Saturday
+        holidayName: "4th Saturday", // Distinct name for 4th Saturday
+      };
+    });
+
     return holidayMarked;
   };
 
@@ -146,7 +257,7 @@ const CalendarScreen = () => {
     return leaveMarkedDates;
   };
 
-  // Function to find the 4th Saturday of a given month and year
+  // Function to mark the 4th Saturday of a given month and year
   const markFourthSaturday = (month: number, year: number) => {
     const marked: Record<string, any> = {};
     const startOfMonth = moment()
@@ -177,10 +288,6 @@ const CalendarScreen = () => {
     const attendanceMarks = markAttendance();
     const leaveMarks = markLeaves();
     const holidayMarks = markHolidays();
-    const fourthSaturdayMarks = markFourthSaturday(
-      currentDate.month() + 1,
-      currentDate.year()
-    );
 
     // Merge all the marked dates
     setMarkedDates({
@@ -188,7 +295,6 @@ const CalendarScreen = () => {
       ...attendanceMarks,
       ...leaveMarks,
       ...holidayMarks,
-      ...fourthSaturdayMarks,
     });
   }, [leaves, currentDate]);
 
@@ -197,12 +303,90 @@ const CalendarScreen = () => {
     setCurrentDate(moment(date.dateString, "YYYY-MM-DD"));
   };
 
+  const onDayPress = (day: any) => {
+    const date = day.dateString;
+
+    // Check if the date is an attendance, holiday, or leave
+    const attendance = attendace.find(
+      (entry) => moment(entry.date).format("YYYY-MM-DD") === date
+    );
+    const holiday = holidays.find(
+      (entry) => moment(entry.date).format("YYYY-MM-DD") === date
+    );
+    const leave = leaves.find(
+      (entry: any) =>
+        moment(entry.from.date).format("YYYY-MM-DD") <= date &&
+        moment(entry.to.date).format("YYYY-MM-DD") >= date
+    );
+
+    // Check if the date is a 4th Saturday or Sunday
+    const isFourthSaturday = markFourthSaturday(
+      currentDate.month() + 1,
+      currentDate.year()
+    )[date];
+    const isSunday = markSundays(currentDate.month() + 1, currentDate.year())[
+      date
+    ];
+
+    setClickedDate({
+      selectedAttendance: attendance
+        ? {
+            date: new Date(attendance.date),
+            percentage: attendance.percentage,
+            latePunchIn: attendance.latePunchIn,
+            earlyPunchIn: attendance.earlyPunchIn,
+            punchRecords: attendance.punchRecords.map((record) => ({
+              punchIn: new Date(record.punchIn),
+              punchOut: new Date(record.punchOut),
+            })),
+            breakRecords: attendance.breakRecords.map((record) => ({
+              breakStartAt: new Date(record.breakStartAt),
+              breakEndAt: new Date(record.breakEndAt),
+            })),
+          }
+        : null,
+      selectedHoliday: holiday
+        ? { date: holiday.date, name: holiday.name }
+        : isFourthSaturday
+        ? { date, name: "4th Saturday" }
+        : isSunday
+        ? { date, name: "Sunday" }
+        : null,
+      selectedLeave: leave
+        ? {
+            reason: leave.reason,
+            from: {
+              date: leave.from.date,
+              session: leave.from.session,
+            },
+            to: {
+              date: leave.to.date,
+              session: leave.to.session,
+            },
+            type: leave.type,
+            noOfDays: leave.noOfDays,
+          }
+        : null,
+    });
+
+    setPunchModalVisible(true);
+  };
+
+  // Close the modal
+  const closeModal = () => {
+    setPunchModalVisible(false);
+    setClickedDate({
+      selectedAttendance: null,
+      selectedHoliday: null,
+      selectedLeave: null,
+    });
+  };
+
   // Format date
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
       day: "2-digit",
       month: "short",
-      // year: "numeric",
     }).format(new Date(date));
   };
 
@@ -216,7 +400,7 @@ const CalendarScreen = () => {
   // Toggle the modal visibility
   const toggleModal = () => {
     setTimeout(() => {
-      setModalVisible(!isModalVisible);
+      setLeaveModalVisible(!isLeaveModalVisible);
     }, 100);
   };
 
@@ -278,6 +462,7 @@ const CalendarScreen = () => {
             <Calendar
               markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
               onMonthChange={onMonthChange} // Handle month change
+              onDayPress={onDayPress} // Handle day press
               style={{
                 borderRadius: 5,
                 borderWidth: 2,
@@ -358,9 +543,9 @@ const CalendarScreen = () => {
       </View>
 
       {/* Add Leave Modal */}
-      {isModalVisible && (
+      {isLeaveModalVisible && (
         <ApplyLeave
-          isVisible={isModalVisible}
+          isVisible={isLeaveModalVisible}
           toggleModal={toggleModal}
           setLeaves={setLeaves}
         />
@@ -373,6 +558,15 @@ const CalendarScreen = () => {
           setShowLeaveDetailsModal={setShowLeaveDetailsModal}
         />
       )}
+
+      {/* Date Detail Modal */}
+      <PunchDetails
+        isVisible={isPunchModalVisible}
+        data={clickedDate}
+        onClose={closeModal}
+        textColor={textColor}
+        bgColor={bgColor}
+      />
     </View>
   );
 };

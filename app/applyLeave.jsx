@@ -51,7 +51,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             from: { date: fromDate, session: fromSession },
             to: { date: toDate, session: toSession },
             type: leaveType,
-            status: 'Pending',
+            status: 'Approved',
             noOfDays: calculateNoOfDays(fromDate, fromSession, toDate, toSession)
         };
 
