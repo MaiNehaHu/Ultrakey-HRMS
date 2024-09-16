@@ -21,6 +21,7 @@ const CalendarScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [leaveModalId, setLeaveModalId] = useState(null);
   const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
+  const [currentDate, setCurrentDate] = useState(moment());
 
   const { darkTheme } = useAppTheme();
   const { leaves, setLeaves } = useLeavesContext();
@@ -123,7 +124,6 @@ const CalendarScreen = () => {
 
   // UseEffect to mark Sundays, attendance, leaves, and holidays for the current month on initial load
   useEffect(() => {
-    const currentDate = moment();
     const sundays = markSundays(currentDate.month() + 1, currentDate.year());
     const attendanceMarks = markAttendance();
     const leaveMarks = markLeaves();
@@ -136,23 +136,28 @@ const CalendarScreen = () => {
       ...leaveMarks,
       ...holidayMarks,
     });
-  }, [leaves]);
+  }, [leaves, currentDate]);
 
-  // Handle month change
+  // Handle month change in calendar
   const onMonthChange = (date: any) => {
-    const sundays = markSundays(date.month, date.year);
-    const attendanceMarks = markAttendance();
-    const leaveMarks = markLeaves();
-    const holidayMarks = markHolidays();
-
-    // Merge all markings for the new month
-    setMarkedDates({
-      ...sundays,
-      ...attendanceMarks,
-      ...leaveMarks,
-      ...holidayMarks,
-    });
+    setCurrentDate(moment(date.dateString, "YYYY-MM-DD"));
   };
+
+  // Format date
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      // year: "numeric",
+    }).format(new Date(date));
+  };
+
+  // Filter holidays based on current month and year
+  const currentMonthHolidays = holidays.filter(
+    (holiday) =>
+      moment(holiday.date).month() === currentDate.month() &&
+      moment(holiday.date).year() === currentDate.year()
+  );
 
   // Toggle the modal visibility
   const toggleModal = () => {
@@ -215,11 +220,78 @@ const CalendarScreen = () => {
 
       <View style={{ marginTop: 15 }}>
         {showAttendance ? (
-          <Calendar
-            markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
-            onMonthChange={onMonthChange} // Handle month change
-            style={{ borderRadius: 5, borderWidth: 2, borderColor: oppBgColor }}
-          />
+          <>
+            <Calendar
+              markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
+              onMonthChange={onMonthChange} // Handle month change
+              style={{
+                borderRadius: 5,
+                borderWidth: 2,
+                borderColor: textColor,
+              }}
+            />
+
+            <View style={{ marginTop: 20 }}>
+              {/* Display Holidays */}
+              <Text
+                style={[
+                  styles.holiday_text,
+                  {
+                    color: textColor,
+                    borderWidth: 2,
+                    borderColor: textColor,
+                  },
+                ]}
+              >
+                Holidays for {currentDate.format("MMM YYYY")}
+              </Text>
+
+              <View
+                style={{ display: "flex", flexDirection: "column", gap: 8 }}
+              >
+                {currentMonthHolidays.length > 0 ? (
+                  currentMonthHolidays.map((holiday, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.holiday_card,
+                        {
+                          backgroundColor: darkTheme
+                            ? "#001f3f"
+                            : Colors.dark.background,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color: "#FFFFFF",
+                          fontSize: 16,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {formatDate(holiday.date)}
+                        <Text style={{ fontSize: 13, color: "#D3D3D3" }}>
+                          {" "}
+                          for {holiday.name}
+                        </Text>
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text
+                    style={{
+                      color: textColor,
+                      fontSize: 16,
+                      textAlign: "center",
+                      marginTop: 10,
+                    }}
+                  >
+                    No holidays in this month
+                  </Text>
+                )}
+              </View>
+            </View>
+          </>
         ) : (
           <Leaves
             leaves={leaves}
@@ -390,12 +462,12 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingHorizontal: 20,
   },
-  // flex_row_center: {
-  //   display: "flex",
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   justifyContent: "space-between",
-  // },
+  flex_row_center: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   flex_row_top: {
     display: "flex",
     flexDirection: "row",
@@ -403,9 +475,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   leaveCard: {
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 15,
+    padding: 15,
     marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // Android shadow
   },
   status: {
     color: "#fff",
@@ -419,5 +496,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
     marginTop: 50,
+  },
+  holiday_card: {
+    borderRadius: 15,
+    padding: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // Android shadow
+  },
+  holiday_text: {
+    padding: 8,
+    borderRadius: 25,
+    textAlign: "center",
+    fontWeight: "500",
+    marginBottom: 10,
   },
 });

@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         fontSize: 14,
         borderRadius: 20,
+        fontWeight: 500
     },
     withdrawButton: {
         borderRadius: 30,
