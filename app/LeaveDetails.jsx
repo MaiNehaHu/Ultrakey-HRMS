@@ -126,13 +126,13 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                                             handleWithdraw()
                                         }, 100);
                                     }}
-                                    disabled={leaveData && leaveData.status == "Withdrawn" ? true : false}
+                                    disabled={leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? true : false}
                                     style={[styles.withdrawButton, {
-                                        backgroundColor: leaveData && leaveData.status == "Withdrawn" ? '#e83c3c' : 'red'
+                                        backgroundColor: leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? '#e83c3c' : 'red'
                                     }]}
                                 >
                                     <Text style={[styles.buttonText, {
-                                        color: leaveData && leaveData.status == "Withdrawn" ? '#cccccc' : '#fff',
+                                        color: leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? '#cccccc' : '#fff',
                                     }]}>
                                         Withdraw Leave
                                     </Text>
