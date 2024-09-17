@@ -85,7 +85,7 @@ const DateDetailModal = ({
   };
 
   return (
-    <Modal transparent={true} visible={isVisible} animationType="fade">
+    <Modal transparent={true} visible={isVisible} animationType="none">
       <Pressable style={styles.modalBackground} onPress={() => onClose(false)}>
         <View style={styles.modalContainerWrapper}>
           <Pressable style={[styles.modalContainer, { backgroundColor: bgColor }]} onPress={(e) => e.stopPropagation()}>

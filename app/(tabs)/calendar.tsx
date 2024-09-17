@@ -88,6 +88,10 @@ const CalendarScreen = () => {
           punchIn: "2024-09-19T09:39:00.857Z",
           punchOut: "2024-09-19T0018:09:00.857Z",
         },
+        {
+          punchIn: "2024-09-19T09:39:00.857Z",
+          punchOut: "2024-09-19T0020:09:00.857Z",
+        },
       ],
       breakRecords: [
         {

@@ -66,7 +66,7 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
     };
 
     return (
-        <Modal visible={isVisible} transparent={true} animationType='fade'>
+        <Modal visible={isVisible} transparent={true} animationType="none">
             <Pressable style={styles.modalBackground} onPress={() => setShowLeaveDetailsModal(false)}>
                 <View style={styles.modalContainerWrapper}>
                     <Pressable style={[styles.modalContainer, { backgroundColor: bgColor }]} onPress={(e) => e.stopPropagation()}>
