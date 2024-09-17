@@ -41,6 +41,7 @@ interface BreakRecord {
 }
 
 interface ClickedDate {
+  clickedDate: Date | null;
   selectedAttendance: AttendanceSession | null;
   selectedHoliday: { date: string; name: string } | null;
   selectedLeave: {
@@ -64,6 +65,7 @@ const CalendarScreen = () => {
     selectedAttendance: null,
     selectedHoliday: null,
     selectedLeave: null,
+    clickedDate: null,
   });
 
   const { darkTheme } = useAppTheme();
@@ -89,7 +91,11 @@ const CalendarScreen = () => {
       ],
       breakRecords: [
         {
-          breakStartAt: "2024-09-13T09:39:00.857Z",
+          breakStartAt: "2024-09-13T18:39:00.857Z",
+          breakEndAt: "2024-09-13T09:39:00.857Z",
+        },
+        {
+          breakStartAt: "2024-09-13T18:39:00.857Z",
           breakEndAt: "2024-09-13T09:39:00.857Z",
         },
       ],
@@ -329,6 +335,7 @@ const CalendarScreen = () => {
     ];
 
     setClickedDate({
+      clickedDate: date,
       selectedAttendance: attendance
         ? {
             date: new Date(attendance.date),
@@ -379,6 +386,7 @@ const CalendarScreen = () => {
       selectedAttendance: null,
       selectedHoliday: null,
       selectedLeave: null,
+      clickedDate: null
     });
   };
 
