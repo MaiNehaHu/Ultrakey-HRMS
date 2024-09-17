@@ -36,7 +36,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].tint,
+        tabBarActiveTintColor: Colors[!darkTheme ? "dark" : "light"].text,
         tabBarStyle: {
           backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
           height: 60,
@@ -75,13 +75,6 @@ export default function TabLayout() {
             /> // Use "house" icon from FontAwesome6
           ),
 
-          tabBarActiveTintColor: Colors[darkTheme ? "dark" : "light"].text,
-
-          // color of title in tab bar
-          tabBarLabelStyle: {
-            color: Colors[darkTheme ? "dark" : "light"].background,
-          },
-
           // dark and light theme toggle button
           headerRight: () => (
             <TouchableOpacity onPress={toggleTheme}>
@@ -111,11 +104,6 @@ export default function TabLayout() {
             /> // Use AwesomeIcon
           ),
 
-          // color of title in tab bar
-          tabBarLabelStyle: {
-            color: Colors[darkTheme ? "dark" : "light"].background,
-          },
-
           // header tint
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
@@ -125,7 +113,7 @@ export default function TabLayout() {
         name="salary"
         options={{
           title: "Salary",
-          headerTitle:"Your Salary Details",
+          headerTitle: "Your Salary Details",
           tabBarIcon: () => (
             <AwesomeIcons
               name="wallet"
@@ -133,11 +121,6 @@ export default function TabLayout() {
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
           ),
-
-          // color of title in tab bar
-          tabBarLabelStyle: {
-            color: Colors[darkTheme ? "dark" : "light"].background,
-          },
 
           // header tint
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
@@ -176,11 +159,6 @@ export default function TabLayout() {
             </View>
           ),
 
-          // color of title in tab bar
-          tabBarLabelStyle: {
-            color: Colors[darkTheme ? "dark" : "light"].background,
-          },
-
           // header tint
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
@@ -198,11 +176,6 @@ export default function TabLayout() {
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
           ),
-
-          // color of title in tab bar
-          tabBarLabelStyle: {
-            color: Colors[darkTheme ? "dark" : "light"].background,
-          },
 
           // header tint
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,

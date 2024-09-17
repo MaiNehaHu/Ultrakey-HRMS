@@ -390,7 +390,7 @@ const CalendarScreen = () => {
       selectedAttendance: null,
       selectedHoliday: null,
       selectedLeave: null,
-      clickedDate: null
+      clickedDate: null,
     });
   };
 
@@ -417,7 +417,7 @@ const CalendarScreen = () => {
   };
 
   return (
-    <View
+    <ScrollView
       style={{
         backgroundColor: bgColor,
         flex: 1,
@@ -482,7 +482,14 @@ const CalendarScreen = () => {
               }}
             />
 
-            <View style={{ marginTop: 20, flex: 1, minHeight: "47%" }}>
+            <View
+              style={{
+                marginTop: 20,
+                flex: 1,
+                minHeight: "47%",
+                marginBottom: 50,
+              }}
+            >
               {/* Display Holidays */}
               <Text
                 style={[
@@ -579,7 +586,7 @@ const CalendarScreen = () => {
         textColor={textColor}
         bgColor={bgColor}
       />
-    </View>
+    </ScrollView>
   );
 };
 
