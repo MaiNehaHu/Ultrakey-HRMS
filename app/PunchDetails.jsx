@@ -28,6 +28,79 @@ const DateDetailModal = ({
     return moment(date).format("h:mm A");
   };
 
+  const formatWorkedHours = (workedMilliseconds) => {
+    const totalMinutes = Math.floor(workedMilliseconds / (1000 * 60)); // Convert milliseconds to total minutes
+    const hours = Math.floor(totalMinutes / 60); // Get hours
+    const minutes = totalMinutes % 60; // Get remaining minutes
+    return `${hours > 0 ? `${hours} hr${hours !== 1 ? 's' : ''}` : ""} ${minutes} min${minutes !== 1 ? 's' : ''}`;
+  };
+
+  // Format work hours
+  const workHoursRecords = (from, to) => {
+    if (from && to) {
+      const workedMilliseconds = to - from;
+      console.log(formatTime(from), formatTime(to));
+
+      const formattedWorkedHours = formatWorkedHours(workedMilliseconds); // Convert milliseconds to readable format
+
+      return (
+        <View style={[styles.breakRecord, { flexDirection: 'column', alignItems: 'center', width: "100%" }]}>
+          {/* Row for headings */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 5 }}>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>
+              Worked for
+            </Text>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>
+              Standard hours
+            </Text>
+          </View>
+          {/* Row for times */}
+          <View style={[styles.breakTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '90%' }]}>
+            <Text style={[styles.punchTableTime, { color: textColor }]}>
+              {formattedWorkedHours}
+            </Text>
+            <Text style={[styles.punchTableTime, { color: textColor }]}>
+              9 hours
+            </Text>
+          </View>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  // Render punch records
+  const renderPunchRecords = (punchRecords) => {
+    if (punchRecords && punchRecords.length > 0) {
+      const firstPunchIn = punchRecords[0]?.punchIn;
+      const lastPunchOut = punchRecords[punchRecords.length - 1]?.punchOut || "~~"; // Handle undefined punchOut
+
+      return (
+        <View style={[styles.punchRecord, { flexDirection: 'column', alignItems: 'center' }]}>
+          {/* Row for headings */}
+          <View style={[styles.punchTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '100%' }]}>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>
+              First Punch In
+            </Text>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>
+              Last Punch Out
+            </Text>
+          </View>
+          {/* Row for times */}
+          <View style={[styles.punchTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '100%' }]}>
+            <Text style={[styles.punchTableTime, { color: textColor }]}>
+              {formatTime(firstPunchIn)}
+            </Text>
+            <Text style={[styles.punchTableTime, { color: textColor }]}>
+              {lastPunchOut !== "~~" ? formatTime(lastPunchOut) : "~~"}
+            </Text>
+          </View>
+        </View>
+      );
+    }
+    return null;
+  };
+
   // Format break records
   const renderBreakRecords = (breakRecords) => {
     if (breakRecords && breakRecords.length > 0) {
@@ -48,41 +121,28 @@ const DateDetailModal = ({
     return null;
   };
 
-  // Render punch records
-  const renderPunchRecords = (punchRecords) => {
-    if (punchRecords && punchRecords.length > 0) {
+  // Calculate and render overtime or due time
+  const renderOvertimeOrDueTime = (from, to) => {
+    const nineHoursInMilliseconds = 9 * 60 * 60 * 1000; // 9 hours in milliseconds
+    const workedMilliseconds = to - from;
+
+    if (workedMilliseconds > nineHoursInMilliseconds) {
+      const overtimeMilliseconds = workedMilliseconds - nineHoursInMilliseconds;
       return (
-        <View style={[styles.punchRecord, { flexDirection: 'column', alignItems: 'center' }]}>
-          {/* Row for headings */}
-          <View style={[styles.punchTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '100%' }]}>
-            <Text style={[styles.punchTableHeading, { color: textColor }]}>
-              First Punch In
-            </Text>
-            <Text style={[styles.punchTableHeading, { color: textColor }]}>
-              Last Punch Out
-            </Text>
-          </View>
-          {/* Row for times */}
-          <View style={[styles.punchTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '100%' }]}>
-            <Text style={[styles.punchTableTime, { color: textColor }]}>
-              {formatTime(punchRecords[0].punchIn)}
-            </Text>
-            <Text style={[styles.punchTableTime, { color: textColor }]}>
-              {formatTime(punchRecords[punchRecords.length - 1].punchOut) || "~~"}
-            </Text>
-          </View>
-        </View>
+        <Text style={[styles.modalContent, { color: textColor, textAlign: "center", marginBottom: 20 }]}>
+          Over Time: {formatWorkedHours(overtimeMilliseconds)}
+        </Text>
+      );
+    } else {
+      const dueTimeMilliseconds = nineHoursInMilliseconds - workedMilliseconds;
+      return (
+        <Text style={[styles.modalContent, { color: textColor, textAlign: "center", marginBottom: 20 }]}>
+          Due Time: {formatWorkedHours(dueTimeMilliseconds)}
+        </Text>
       );
     }
-    return null;
   };
 
-  const formatHoursAndMinutes = (minutes) => {
-    const hours = Math.round(minutes / 60);
-    const remainingMinutes = Math.round(minutes % 60);
-    return `${hours > 0 ? hours + " hr" + (hours > 1 ? "s" : "") : ""} ${remainingMinutes >= 0 ? remainingMinutes + (remainingMinutes >= 1 ? " min" : " mins") : ""
-      }`.trim();
-  };
 
   return (
     <Modal transparent={true} visible={isVisible} animationType="none">
@@ -91,16 +151,12 @@ const DateDetailModal = ({
           <Pressable style={[styles.modalContainer, { backgroundColor: bgColor }]} onPress={(e) => e.stopPropagation()}>
             {data && (
               <View
-                style={[
-                  styles.flex_row_top,
-                  {
-                    borderBottomWidth: 1,
-                    borderColor: "#e0e0e0",
-                    paddingBottom: 8,
-                    marginBottom: 10,
-                  },
-                ]}
-              >
+                style={[styles.flex_row_top, {
+                  borderBottomWidth: 1,
+                  borderColor: "#e0e0e0",
+                  paddingBottom: 8,
+                  marginBottom: 10,
+                }]}>
                 <Text style={{ color: textColor, fontSize: 16, fontWeight: "600" }}>
                   {formattedSelectedDate}
                 </Text>
@@ -113,11 +169,9 @@ const DateDetailModal = ({
               </View>
             )}
 
-            <Text
-              style={{ fontSize: 32, color: textColor, padding: 5, textAlign: 'center' }}
-            >
+            <Text style={{ fontSize: 32, color: textColor, padding: 5, textAlign: 'center' }}>
               {data?.selectedAttendance?.percentage
-                ? data.selectedAttendance.percentage
+                ? `${data.selectedAttendance.percentage}`
                 : data?.selectedLeave?.noOfDays
                   ? data.selectedLeave.noOfDays
                   : moment(data?.clickedDate).format("MMM D")}
@@ -153,29 +207,28 @@ const DateDetailModal = ({
 
             {data.selectedAttendance && (
               <View style={{ display: "flex", alignItems: "center" }}>
-                <Text
-                  style={[
-                    styles.modalContent,
-                    { color: textColor, textAlign: "center", marginBottom: 20 },
-                  ]}
-                >
-                  {data.selectedAttendance.latePunchIn ? `Late Punch In: ${formatHoursAndMinutes(data.selectedAttendance.latePunchIn / 60)}` : `Early Punch In: ${formatHoursAndMinutes(data.selectedAttendance.earlyPunchIn)}}`}
-                </Text>
+                {/* Render Overtime or Due Time */}
+                {renderOvertimeOrDueTime(
+                  data.selectedAttendance?.punchRecords?.[0]?.punchIn,
+                  data.selectedAttendance?.punchRecords?.[data.selectedAttendance.punchRecords.length - 1]?.punchOut
+                )}
 
                 {/* Punch Records */}
-                {renderPunchRecords(data.selectedAttendance.punchRecords)}
+                {renderPunchRecords(data.selectedAttendance?.punchRecords)}
 
                 {/* Break Records */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 5 }}>
-                  <Text style={[styles.punchTableHeading, { color: textColor }]}>
-                    Break Start
-                  </Text>
-                  <Text style={[styles.punchTableHeading, { color: textColor }]}>
-                    Break End
-                  </Text>
+                  <Text style={[styles.punchTableHeading, { color: textColor }]}>Break Start</Text>
+                  <Text style={[styles.punchTableHeading, { color: textColor }]}>Break End</Text>
                 </View>
-                {renderBreakRecords(data.selectedAttendance.breakRecords)}
+                {renderBreakRecords(data.selectedAttendance?.breakRecords)}
               </View>
+            )}
+
+            {/* Work Hours */}
+            {workHoursRecords(
+              data.selectedAttendance?.punchRecords?.[0]?.punchIn,
+              data.selectedAttendance?.punchRecords?.[data.selectedAttendance.punchRecords.length - 1]?.punchOut
             )}
           </Pressable>
         </View>
@@ -207,6 +260,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   modalContent: {
     fontSize: 16,
@@ -227,8 +281,8 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   punchTableHeading: {
-    fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: "600",
   },
   punchTableTime: {
     fontSize: 16,

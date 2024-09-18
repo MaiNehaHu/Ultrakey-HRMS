@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -25,7 +25,6 @@ interface AttendanceSession {
   date: Date;
   percentage: number;
   latePunchIn: number;
-  earlyPunchIn: number;
   punchRecords: PunchRecord[];
   breakRecords: BreakRecord[];
 }
@@ -55,7 +54,6 @@ interface ClickedDate {
 
 const CalendarScreen = () => {
   const [showAttendance, setShowAttendance] = useState(true);
-  const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
   const [isLeaveModalVisible, setLeaveModalVisible] = useState(false);
   const [leaveModalId, setLeaveModalId] = useState(null);
   const [isPunchModalVisible, setPunchModalVisible] = useState(false);
@@ -82,7 +80,6 @@ const CalendarScreen = () => {
       date: "2024-09-19T00:00:00.857Z",
       percentage: 100,
       latePunchIn: 800,
-      earlyPunchIn: 0,
       punchRecords: [
         {
           punchIn: "2024-09-19T09:39:00.857Z",
@@ -108,7 +105,6 @@ const CalendarScreen = () => {
       date: "2024-09-13T00:00:00.857Z",
       percentage: 60,
       latePunchIn: 800,
-      earlyPunchIn: 0,
       punchRecords: [
         {
           punchIn: "2024-09-13T09:39:00.857Z",
@@ -126,7 +122,6 @@ const CalendarScreen = () => {
       date: "2024-09-12T00:00:00.857Z",
       percentage: 20,
       latePunchIn: 800,
-      earlyPunchIn: 0,
       punchRecords: [
         {
           punchIn: "2024-09-13T09:39:00.857Z",
@@ -292,20 +287,18 @@ const CalendarScreen = () => {
     return marked;
   };
 
-  // UseEffect to mark Sundays, attendance, leaves, holidays, and 4th Saturday for the current month on initial load
-  useEffect(() => {
+  const markedDates = useMemo(() => {
     const sundays = markSundays(currentDate.month() + 1, currentDate.year());
     const attendanceMarks = markAttendance();
     const leaveMarks = markLeaves();
     const holidayMarks = markHolidays();
 
-    // Merge all the marked dates
-    setMarkedDates({
+    return {
       ...sundays,
       ...attendanceMarks,
       ...leaveMarks,
       ...holidayMarks,
-    });
+    };
   }, [leaves, currentDate]);
 
   // Handle month change in calendar
@@ -345,7 +338,7 @@ const CalendarScreen = () => {
             date: new Date(attendance.date),
             percentage: attendance.percentage,
             latePunchIn: attendance.latePunchIn,
-            earlyPunchIn: attendance.earlyPunchIn,
+            // earlyPunchIn: attendance.earlyPunchIn,
             punchRecords: attendance.punchRecords.map((record) => ({
               punchIn: new Date(record.punchIn),
               punchOut: new Date(record.punchOut),
@@ -470,84 +463,16 @@ const CalendarScreen = () => {
 
       <View style={{ marginTop: 15, flex: 1 }}>
         {showAttendance ? (
-          <>
-            <Calendar
-              markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
-              onMonthChange={onMonthChange} // Handle month change
-              onDayPress={onDayPress} // Handle day press
-              style={{
-                borderRadius: 5,
-                borderWidth: 2,
-                borderColor: textColor,
-              }}
-            />
-
-            <View
-              style={{
-                marginTop: 20,
-                flex: 1,
-                minHeight: "47%",
-                marginBottom: 50,
-              }}
-            >
-              {/* Display Holidays */}
-              <Text
-                style={[
-                  styles.holiday_header,
-                  {
-                    color: textColor,
-                    borderWidth: 2,
-                    borderColor: textColor,
-                  },
-                ]}
-              >
-                Holidays for {currentDate.format("MMM YYYY")}
-              </Text>
-
-              <ScrollView>
-                {currentMonthHolidays.length > 0 ? (
-                  currentMonthHolidays.map((holiday, index) => (
-                    <View
-                      key={index}
-                      style={[
-                        styles.holiday_card,
-                        {
-                          backgroundColor: darkTheme
-                            ? "#001f3f"
-                            : Colors.dark.background,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={{
-                          color: "#FFFFFF",
-                          fontSize: 16,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {formatDate(holiday.date)}
-                        <Text style={{ fontSize: 13, color: "#D3D3D3" }}>
-                          {" "}
-                          for {holiday.name}
-                        </Text>
-                      </Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text
-                    style={{
-                      color: textColor,
-                      fontSize: 16,
-                      textAlign: "center",
-                      marginTop: 10,
-                    }}
-                  >
-                    No holidays in this month
-                  </Text>
-                )}
-              </ScrollView>
-            </View>
-          </>
+          <CalendarAndHolidays
+            textColor={textColor}
+            darkTheme={darkTheme}
+            markedDates={markedDates}
+            onMonthChange={onMonthChange}
+            onDayPress={onDayPress}
+            currentDate={currentDate}
+            formatDate={formatDate}
+            currentMonthHolidays={currentMonthHolidays}
+          />
         ) : (
           <Leaves
             leaves={leaves}
@@ -591,6 +516,109 @@ const CalendarScreen = () => {
 };
 
 export default CalendarScreen;
+
+const CalendarAndHolidays = ({
+  textColor,
+  darkTheme,
+  markedDates,
+  onMonthChange,
+  onDayPress,
+  currentDate,
+  formatDate,
+  currentMonthHolidays,
+}: {
+  textColor: string;
+  darkTheme: boolean;
+  markedDates: any;
+  onMonthChange: any;
+  onDayPress: any;
+  currentDate: any;
+  formatDate: any;
+  currentMonthHolidays: any;
+}) => {
+  return (
+    <>
+      <Calendar
+        markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
+        onMonthChange={onMonthChange} // Handle month change
+        onDayPress={onDayPress} // Handle day press
+        style={{
+          borderRadius: 5,
+          borderWidth: 2,
+          borderColor: textColor,
+        }}
+      />
+
+      <View
+        style={{
+          marginTop: 20,
+          flex: 1,
+          minHeight: "47%",
+          marginBottom: 50,
+        }}
+      >
+        {/* Display Holidays */}
+        <Text
+          style={[
+            styles.holiday_header,
+            {
+              color: textColor,
+              borderWidth: 2,
+              borderColor: textColor,
+            },
+          ]}
+        >
+          Holidays for {formatDate(currentDate, "MMM YYYY")}
+        </Text>
+
+        <ScrollView>
+          {currentMonthHolidays.length > 0 ? (
+            currentMonthHolidays.map(
+              ({ date, name }: { date: Date; name: string }, index: number) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.holiday_card,
+                    {
+                      backgroundColor: darkTheme
+                        ? "#001f3f"
+                        : Colors.dark.background,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: "#FFFFFF",
+                      fontSize: 16,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {formatDate(date)}
+                    <Text style={{ fontSize: 13, color: "#D3D3D3" }}>
+                      {" "}
+                      for {name}
+                    </Text>
+                  </Text>
+                </View>
+              )
+            )
+          ) : (
+            <Text
+              style={{
+                color: textColor,
+                fontSize: 16,
+                textAlign: "center",
+                marginTop: 10,
+              }}
+            >
+              No holidays in this month
+            </Text>
+          )}
+        </ScrollView>
+      </View>
+    </>
+  );
+};
 
 // Leaves Component
 const Leaves = ({
