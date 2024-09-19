@@ -661,6 +661,12 @@ const Leaves = ({
     return `${day}/${month}/${year}`;
   };
 
+  const leaveStatus = {
+    Pending: "Pending",
+    Approved: "Approved",
+    Withdrawn: "Withdrawn",
+  };
+
   return (
     <View>
       <View style={styles.flex_row_top}>
@@ -715,9 +721,9 @@ const Leaves = ({
                     styles.status,
                     {
                       backgroundColor:
-                        leave.status === "Pending"
+                        leave.status === leaveStatus.Pending
                           ? "orange"
-                          : leave.status === "Approved"
+                          : leave.status === leaveStatus.Pending
                           ? "green"
                           : "red",
                     },
@@ -775,7 +781,7 @@ const styles = StyleSheet.create({
   },
   status: {
     color: "#fff",
-    paddingVertical: 2,
+    paddingVertical: 4,
     paddingHorizontal: 8,
     fontSize: 12,
     borderRadius: 20,

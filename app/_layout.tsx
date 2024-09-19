@@ -82,13 +82,13 @@ function RootLayoutNav() {
     if (isLogged !== null) {
       setLoading(false);
 
-      setTimeout(() => {
+      // setTimeout(() => {
         if (isLogged) {
           router.push({ pathname: "/(tabs)" });
         } else {
           router.push({ pathname: "/login" });
         }
-      }, 10);
+      // }, 10);
     }
   }, [isLogged]);
 
