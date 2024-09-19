@@ -14,6 +14,8 @@ import { shareAsync } from "expo-sharing";
 import ViewShot from "react-native-view-shot";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { printToFileAsync } from "expo-print";
+import * as FileSystem from "expo-file-system";
+import html from "@/app/salaryPdfHtml";
 
 export default function Salary() {
   const viewShotRef = useRef<ViewShot>(null);
@@ -34,44 +36,22 @@ export default function Salary() {
   };
 
   const handleShare = async () => {
-    const htmlContent = `
-    <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; background-color: ${bgColor}; color: ${textColor}; }
-          .header { font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; }
-          .table { width: 100%; border-collapse: collapse; }
-          .tableRow { border-bottom: 1px solid ${textColor}; }
-          .tableCell { padding: 10px; }
-          .tableCellValue { padding: 10px; }
-        </style>
-      </head>
-      <body>
-        <div class="header">Salary Details - ${currentDate.format(
-          "MMMM YYYY"
-        )}</div>
-        <table class="table">
-          <tr class="tableRow">
-            <td class="tableCell">Employee Name:</td>
-            <td class="tableCellValue">Neha Kumari</td>
-          </tr>
-          <tr class="tableRow">
-            <td class="tableCell">Employee ID:</td>
-            <td class="tableCellValue">AKEY24015</td>
-          </tr>
-          <!-- Add other rows here in a similar fashion -->
-          <tr class="tableRow">
-            <td class="tableCell">Total Pay:</td>
-            <td class="tableCellValue">₹14050/-</td>
-          </tr>
-        </table>
-      </body>
-    </html>
-  `;
-
     try {
-      const file = await printToFileAsync({ html: htmlContent, base64: false });
-      await shareAsync(file.uri);
+      const file = await printToFileAsync({
+        html: html,
+        base64: false,
+      });
+
+      const newFilePath = `${
+        FileSystem.documentDirectory
+      }PaySlip for ${currentDate.format("MMM YYYY")}.pdf`;
+
+      await FileSystem.moveAsync({
+        from: file.uri,
+        to: newFilePath,
+      });
+
+      await shareAsync(newFilePath);
     } catch (error) {
       console.error("Error sharing screenshot:", error);
     }
@@ -228,6 +208,35 @@ export default function Salary() {
               </Text>
               <Text style={[styles.tableCellValue, { color: textColor }]}>
                 Android Developer
+              </Text>
+            </View>
+
+            <View
+              style={[
+                styles.tableRow,
+                { backgroundColor: bgColor, borderColor: textColor },
+              ]}
+            >
+              <Text style={[styles.tableCell, { color: textColor }]}>
+                Joining date:
+              </Text>
+              <Text style={[styles.tableCellValue, { color: textColor }]}>
+                15 June, 2024
+              </Text>
+            </View>
+
+            {/* Employer location  */}
+            <View
+              style={[
+                styles.tableRow,
+                { backgroundColor: bgColor, borderColor: textColor },
+              ]}
+            >
+              <Text style={[styles.tableCell, { color: textColor }]}>
+                Location:
+              </Text>
+              <Text style={[styles.tableCellValue, { color: textColor }]}>
+                Gachibowli, Hyderabad
               </Text>
             </View>
 
