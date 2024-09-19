@@ -73,9 +73,13 @@ const task = () => {
   }, [navigation, textColor]);
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: bgColor, padding: 15 }}
-    ></ScrollView>
+    <ScrollView style={{ flex: 1, backgroundColor: bgColor, padding: 15 }}>
+      {tasks.map((task) => (
+        <View key={task.name}>
+          <Text>{task.name}</Text>
+        </View>
+      ))}
+    </ScrollView>
   );
 };
 

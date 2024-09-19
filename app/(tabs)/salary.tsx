@@ -15,9 +15,10 @@ import ViewShot from "react-native-view-shot";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { printToFileAsync } from "expo-print";
 import * as FileSystem from "expo-file-system";
-import html from "@/app/salaryPdfHtml";
+import salaryPdfHtml from "@/app/salaryPdfHtml";
 
 export default function Salary() {
+  const html = salaryPdfHtml();
   const viewShotRef = useRef<ViewShot>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
