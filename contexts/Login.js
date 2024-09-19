@@ -3,37 +3,48 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const LoginContext = createContext();
 
-export const LoginProvider = ({ children }) => {
-  const [isLogged, setIsLogged] = useState(false);
+// AsyncStorage.clear()
 
-  // Retrieve the theme from session storage on component mount
-  const getLogins = async () => {
-    try {
-      const storedLoginStatus = await AsyncStorage.getItem("login");
-      if (storedLoginStatus !== null) {
-        setIsLogged(JSON.parse(storedLoginStatus));
-      }
-    } catch (error) {
-      console.error("Failed to retrieve login status from AsyncStorage", error);
+const getLogins = async () => {
+  try {
+    const storedLoginStatus = await AsyncStorage.getItem("login");
+    if (storedLoginStatus !== null) {
+      console.log("Getting Login Status: ", JSON.parse(storedLoginStatus));
+      return JSON.parse(storedLoginStatus);
     }
+    return false; // Default to 'false' if no login status is found
+  } catch (error) {
+    console.error("Failed to retrieve login status from AsyncStorage", error);
+    return false;
+  }
+};
+
+export const LoginProvider = ({ children }) => {
+  const [isLogged, setIsLogged] = useState(null); // Use null initially to show loading state
+
+  const fetchLoginStatus = async () => {
+    const status = await getLogins();
+    setIsLogged(status); // Once resolved, set the status
   };
 
-  // Store the theme in session storage whenever it changes
-  const storeLogins = async () => {
+  const storeLogins = async (loginStatus) => {
     try {
-      await AsyncStorage.setItem("login", JSON.stringify(isLogged));
+      await AsyncStorage.setItem("login", JSON.stringify(loginStatus));
+      console.log("Setting Login Status: ", JSON.stringify(loginStatus));
     } catch (error) {
       console.error("Failed to save login status to AsyncStorage", error);
     }
   };
 
   useEffect(() => {
-    getLogins();
+    fetchLoginStatus(); // Fetch login status when the component mounts
   }, []);
 
   useEffect(() => {
-    storeLogins();
-  }, [isLogged]);
+    if (isLogged !== null) {
+      storeLogins(isLogged); // Store login status when `isLogged` changes
+    }
+  }, [isLogged]); // Only trigger when `isLogged` state changes
 
   return (
     <LoginContext.Provider value={{ isLogged, setIsLogged }}>
@@ -42,4 +53,5 @@ export const LoginProvider = ({ children }) => {
   );
 };
 
+// Custom hook to use the login context
 export const useLogin = () => useContext(LoginContext);

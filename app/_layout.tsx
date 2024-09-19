@@ -7,7 +7,7 @@ import {
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/components/useColorScheme";
@@ -15,6 +15,7 @@ import { AppThemeProvider } from "@/contexts/AppTheme";
 import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
 import { LoginProvider, useLogin } from "@/contexts/Login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -75,19 +76,25 @@ function Root() {
 
 function RootLayoutNav() {
   const { isLogged } = useLogin();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(isLogged);
+    if (isLogged !== null) {
+      setLoading(false);
 
-    // login validation
-    setTimeout(() => {
-      if (!isLogged) {
-        router.push({ pathname: "/login" });
-      } else {
-        router.push({ pathname: "/(tabs)" });
-      }
-    }, 10);
-  }, []);
+      setTimeout(() => {
+        if (isLogged) {
+          router.push({ pathname: "/(tabs)" });
+        } else {
+          router.push({ pathname: "/login" });
+        }
+      }, 10);
+    }
+  }, [isLogged]);
+
+  if (loading) {
+    SplashScreen.preventAutoHideAsync(); 
+  }
 
   return (
     <Stack>

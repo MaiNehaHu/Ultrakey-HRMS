@@ -27,6 +27,7 @@ export default function Salary() {
 
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
+  const tintColor = Colors[darkTheme ? "dark" : "light"].tint;
 
   const handlePrevMonth = () => {
     setCurrentDate(currentDate.clone().subtract(1, "month"));
@@ -472,7 +473,7 @@ export default function Salary() {
       >
         <Pressable
           style={{
-            backgroundColor: textColor,
+            backgroundColor: tintColor,
             padding: 10,
             borderRadius: 100,
           }}

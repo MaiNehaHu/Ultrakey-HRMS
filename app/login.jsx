@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 
 const Login = () => {
     const { darkTheme } = useAppTheme();
-    const { setIsLogged } = useLogin()
+    const { setIsLogged } = useLogin(); // No need to pass storeLogins here
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
@@ -17,8 +17,8 @@ const Login = () => {
     const scaleValue = useRef(new Animated.Value(1)).current;
 
     function handleLogin() {
-        setIsLogged(true);
-
+        setIsLogged(true); // Set login status
+        
         setTimeout(() => {
             router.push({
                 pathname: '(tabs)',
