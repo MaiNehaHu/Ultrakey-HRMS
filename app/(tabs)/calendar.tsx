@@ -198,7 +198,7 @@ const CalendarScreen = () => {
       const color =
         entry.percentage === 100
           ? "green"
-          : entry.percentage < 50
+          : entry.percentage >= 80 && entry.percentage <= 50
           ? "orange"
           : "red";
       attendanceMarked[date] = {
