@@ -8,7 +8,7 @@ import Colors from "@/constants/Colors";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 import { useAppTheme } from "@/contexts/AppTheme";
-const logo_light = require("@/assets/images/logo_light.jpg");
+const logo_light = require("@/assets/images/logo_light.png");
 const logo_dark = require("@/assets/images/logo_dark.jpg");
 
 function AwesomeIcons(props: {
@@ -56,12 +56,16 @@ export default function TabLayout() {
           title: "Home", // title on tab bar
 
           // header
-          headerLeft: () => (
+          headerRight: () => (
             <View style={{ marginLeft: 10 }}>
               {/* logo for dark and light theme */}
               <Image
                 source={darkTheme ? logo_dark : logo_light}
-                style={{ width: 50, height: 50 }}
+                style={{
+                  width: 120,
+                  objectFit: "contain",
+                  marginRight: 5,
+                }}
               />
             </View>
           ),
@@ -76,7 +80,7 @@ export default function TabLayout() {
           ),
 
           // dark and light theme toggle button
-          headerRight: () => (
+          headerLeft: () => (
             <TouchableOpacity onPress={toggleTheme}>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Ionicons
@@ -105,11 +109,15 @@ export default function TabLayout() {
           ),
 
           headerRight: () => (
-            <View style={{ marginRight: 10 }}>
+            <View>
               {/* logo for dark and light theme */}
               <Image
                 source={darkTheme ? logo_dark : logo_light}
-                style={{ width: 40, height: 40 }}
+                style={{
+                  width: 120,
+                  objectFit: "contain",
+                  marginRight: 5,
+                }}
               />
             </View>
           ),
@@ -136,11 +144,15 @@ export default function TabLayout() {
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
 
           headerRight: () => (
-            <View style={{ marginRight: 10 }}>
+            <View>
               {/* logo for dark and light theme */}
               <Image
                 source={darkTheme ? logo_dark : logo_light}
-                style={{ width: 40, height: 40 }}
+                style={{
+                  width: 120,
+                  objectFit: "contain",
+                  marginRight: 5,
+                }}
               />
             </View>
           ),
@@ -160,11 +172,15 @@ export default function TabLayout() {
           ),
 
           headerRight: () => (
-            <View style={{ marginRight: 10 }}>
+            <View>
               {/* logo for dark and light theme */}
               <Image
                 source={darkTheme ? logo_dark : logo_light}
-                style={{ width: 40, height: 40 }}
+                style={{
+                  width: 120,
+                  objectFit: "contain",
+                  marginRight: 5,
+                }}
               />
             </View>
           ),
@@ -191,11 +207,15 @@ export default function TabLayout() {
           headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
 
           headerRight: () => (
-            <View style={{ marginRight: 10 }}>
+            <View>
               {/* logo for dark and light theme */}
               <Image
                 source={darkTheme ? logo_dark : logo_light}
-                style={{ width: 40, height: 40 }}
+                style={{
+                  width: 120,
+                  objectFit: "contain",
+                  marginRight: 5,
+                }}
               />
             </View>
           ),

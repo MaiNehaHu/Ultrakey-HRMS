@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import Colors from "../constants/Colors";
 import { useAppTheme } from '../contexts/AppTheme';
 import { useLogin } from '../contexts/Login';
-import logo_light from '../assets/images/logo_light.jpg';
+import logo_light from '../assets/images/logo_light.png';
 import logo_dark from '../assets/images/logo_dark.jpg';
 import { router } from 'expo-router';
 
