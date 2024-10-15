@@ -15,7 +15,9 @@ import { AppThemeProvider } from "@/contexts/AppTheme";
 import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
 import { LoginProvider, useLogin } from "@/contexts/Login";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// AsyncStorage.clear()
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -98,9 +100,13 @@ function RootLayoutNav() {
 
   return (
     <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+      <Stack.Screen name="applyLeave" options={{ headerShown: false }} />
+      <Stack.Screen name="leaveDetails" options={{ headerShown: false }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="loginValidation" options={{ headerShown: false }} />
+      <Stack.Screen name="PunchDetails" options={{ headerShown: false }} />
+      <Stack.Screen name="TaskDetails" options={{ headerShown: false }} />
     </Stack>
   );
 }

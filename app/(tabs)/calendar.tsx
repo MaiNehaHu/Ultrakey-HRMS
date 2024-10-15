@@ -11,10 +11,10 @@ import { Calendar } from "react-native-calendars";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import moment from "moment";
-import ApplyLeave from "@/app/ApplyLeave";
-import LeaveDetails from "@/app/LeaveDetails";
+import ApplyLeave from "@/app/applyLeave";
+import LeaveDetails from "@/app/leaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
-import PunchDetails from "@/app/PunchDetails";
+import PunchDetails from "@/app/punchDetails";
 
 interface LeaveSession {
   date: string;

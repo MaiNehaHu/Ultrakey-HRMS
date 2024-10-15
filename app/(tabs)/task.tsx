@@ -2,7 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
-import TaskDetails from "../TaskDetails";
+import TaskDetails from "../taskDetails";
 
 interface Task {
   task_id: number;

@@ -1,24 +1,33 @@
-import { Image, Pressable, StyleSheet, Text, TextInput, View, Animated } from 'react-native';
-import React, { useRef } from 'react';
+import { Image, Pressable, StyleSheet, Text, TextInput, View, Animated, ImageBackground, SafeAreaView, ScrollView, Keyboard, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import Colors from "../constants/Colors";
 import { useAppTheme } from '../contexts/AppTheme';
 import { useLogin } from '../contexts/Login';
 import logo_light from '../assets/images/logo_light.png';
 import logo_dark from '../assets/images/logo_dark.jpg';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+// Import the icon from vector-icons
+import Icon from 'react-native-vector-icons/Ionicons';
+
+const bgImage = require('../assets/images/login_bg.png');
 
 const Login = () => {
     const { darkTheme } = useAppTheme();
-    const { setIsLogged } = useLogin(); // No need to pass storeLogins here
+    const navigation = useNavigation();
+    const { isLogged, setIsLogged } = useLogin();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
-    const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
+    const welcomeText = darkTheme ? Colors.dark.text : "#1A6FA8";
+
+    const [isFocused, setIsFocused] = useState(false);
+    const [passwordVisible, setPasswordVisible] = useState(false);
 
     const scaleValue = useRef(new Animated.Value(1)).current;
 
     function handleLogin() {
-        setIsLogged(true); // Set login status
-        
+        setIsLogged(true);
+
         setTimeout(() => {
             router.push({
                 pathname: '(tabs)',
@@ -28,7 +37,7 @@ const Login = () => {
 
     const onPressIn = () => {
         Animated.spring(scaleValue, {
-            toValue: 0.95,
+            toValue: 0.96,
             useNativeDriver: true,
         }).start();
     };
@@ -41,57 +50,173 @@ const Login = () => {
         }).start();
     };
 
+    // Reset focus when clicking outside input fields
+    const handlePressOutside = () => {
+        setIsFocused(false);
+        Keyboard.dismiss();
+    };
+
+    // Toggle password visibility
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+
+            const currentRoute = navigation.getState().routes[navigation.getState().index].name;
+
+            if (!isLogged) {
+                if (currentRoute !== 'login') {
+                    navigation.navigate('login');
+                }
+            } else {
+                if (currentRoute !== 'index') {
+                    navigation.navigate('index');
+                }
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation, isLogged]);
+
+    // Listen to keyboard dismissal and reset focus when the keyboard is hidden
+    useEffect(() => {
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setIsFocused(false);
+            Keyboard.dismiss();
+        });
+
+        return () => {
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
     return (
-        <View style={{ backgroundColor: bgColor, flex: 1, paddingHorizontal: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Image source={darkTheme ? logo_dark : logo_light} style={{ width: 100, height: 100 }} />
+        <Pressable style={styles.container} onPress={handlePressOutside}>
+            {/* Conditionally render the background image based on input focus */}
+            {!isFocused && (
+                <ImageBackground source={bgImage} style={styles.backgroundImage} />
+            )}
+            {isFocused && (
+                <View style={[styles.backgroundImage, { backgroundColor: bgColor }]} />
+            )}
 
-            <Text style={{ color: textColor }}>Ultrakey IT Solutions Pvt. Ltd. Welcomes you!</Text>
+            <SafeAreaView style={[{ backgroundColor: bgColor }, styles.inputsBG]}>
+                <ScrollView style={{ width: "100%" }} keyboardShouldPersistTaps="handled">
+                    <Image source={darkTheme ? logo_dark : logo_light} style={{ width: '100%', height: 50, objectFit: "contain" }} />
 
-            <View style={[{ backgroundColor: oppBgColor }, styles.card]}>
-                <TextInput type="text" keyboardType='default' placeholder='Enter Your ID' name="userId" id="userId" style={[styles.inputfield, { borderColor: bgColor }]} />
-                <TextInput type="text" keyboardType='default' placeholder='Enter Your Password' name="password" id="password" style={[styles.inputfield, { borderColor: bgColor }]} />
+                    <Text style={{ color: welcomeText, textAlign: 'center', fontWeight: 600, fontSize: 24, marginVertical: 30 }}>Welcome !</Text>
 
-                <Animated.View style={{ transform: [{ scale: scaleValue }], width: '100%' }}>
-                    <Pressable
-                        onPressIn={onPressIn}
-                        onPressOut={onPressOut}
-                        onPress={handleLogin}
-                        style={[{ backgroundColor: bgColor }, styles.button]}
-                    >
-                        <Text style={{ textAlign: 'center', fontWeight: '600', color: oppBgColor, fontSize: 18 }}>Login</Text>
-                    </Pressable>
-                </Animated.View>
-            </View>
-        </View>
+                    <SafeAreaView style={{ display: 'flex', gap: 20, }} pointerEvents="box-none">
+                        <SafeAreaView>
+                            <Text style={{ color: textColor, textAlign: 'left', fontWeight: 500, marginBottom: 5, fontSize: 16, marginLeft: 5 }}>Employee ID</Text>
+                            <TextInput
+                                type="text"
+                                keyboardType='default'
+                                placeholder='AKEY....'
+                                name="userId"
+                                id="userId"
+                                style={styles.inputfield}
+                                onFocus={() => setIsFocused(true)}
+                                onBlur={() => setIsFocused(false)}
+                            />
+                        </SafeAreaView>
+
+                        <SafeAreaView>
+                            <Text style={{ color: textColor, textAlign: 'left', fontWeight: 500, marginBottom: 5, fontSize: 16, marginLeft: 5 }}>Password</Text>
+                            <View style={styles.passwordContainer}>
+                                <TextInput
+                                    type="text"
+                                    keyboardType='default'
+                                    placeholder='Enter Your Password'
+                                    name="password"
+                                    id="password"
+                                    style={[styles.inputfield, { flex: 1 }]}
+                                    secureTextEntry={!passwordVisible} // Show/hide password
+                                    onFocus={() => setIsFocused(true)}
+                                    onBlur={() => setIsFocused(false)}
+                                />
+                                <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeIcon}>
+                                    <Icon
+                                        name={passwordVisible ? 'eye' : 'eye-off'}
+                                        size={24}
+                                        color={textColor}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        </SafeAreaView>
+
+                        <Pressable>
+                            <Text style={{ color: textColor, textAlign: 'right', textDecorationLine: 'underline', fontWeight: 500 }}>
+                                Forgot Password?
+                            </Text>
+                        </Pressable>
+                    </SafeAreaView>
+
+                    <Animated.View style={{ transform: [{ scale: scaleValue }], width: '100%' }}>
+                        <LinearGradient
+                            colors={['#1F366A', '#1A6FA8']}
+                            style={styles.gradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        >
+                            <Pressable
+                                onPressIn={onPressIn}
+                                onPressOut={onPressOut}
+                                onPress={handleLogin}
+                            >
+                                <Text style={{ textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: 18 }}>Login</Text>
+                            </Pressable>
+                        </LinearGradient>
+                    </Animated.View>
+                </ScrollView>
+            </SafeAreaView>
+        </Pressable>
     );
 }
 
 export default Login;
 
 const styles = StyleSheet.create({
-    card: {
-        rowGap: 10,
-        padding: 20,
-        marginTop: 40,
-        width: '100%',
-        borderRadius: 15,
+    container: {
+        flex: 1,
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-end'
+    },
+    backgroundImage: {
+        ...StyleSheet.absoluteFillObject,
+        resizeMode: 'cover',
     },
     inputfield: {
-        borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 30,
         width: '100%',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        backgroundColor: '#fff'
+        fontSize: 16,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+        backgroundColor: '#E7E7E7'
     },
-    button: {
+    passwordContainer: {
+        display: 'flex',
+        borderRadius: 30,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#E7E7E7',
+    },
+    eyeIcon: {
+        paddingHorizontal: 10,
+    },
+    inputsBG: {
+        width: "100%",
+        padding: 40,
+        borderTopRightRadius: 40,
+        borderTopLeftRadius: 40,
+    },
+    gradient: {
+        borderRadius: 30,
         width: '100%',
         padding: 10,
-        textAlign: 'center',
-        borderRadius: 10,
-        marginTop: 20,
+        marginTop: 30,
     }
 });
