@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet } from "react-native";
+import {
+  Alert,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { Text, View } from "@/components/Themed";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 import { usePunching } from "@/contexts/Punch";
 import { Audio } from "expo-av";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { ImageBackground } from "react-native";
+
+const backgroundImage = require("../../assets/images/body_bg.png");
 
 interface PunchRecord {
   punchIn: Date | null;
@@ -21,6 +33,17 @@ interface BreaksProps {
   darkTheme: boolean;
   textColor: string;
   breakRecords: BreakRecord[];
+}
+
+interface PunchCircleProps {
+  darkTheme: boolean;
+  punchedIn: string;
+  handlePunchClick: any;
+  formattedDate: string;
+  hour: number;
+  second: string;
+  ampm: string;
+  minute: string;
 }
 
 interface PunchProps {
@@ -45,7 +68,6 @@ export default function TabOneScreen() {
   const [isRestricted, setIsRestricted] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
-  const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
   // Time
@@ -138,29 +160,38 @@ export default function TabOneScreen() {
   const calculatePercentage = (): number => {
     if (punchRecords.length === 0) return 0; // No punch records
 
-    const firstPunchIn = punchRecords[0].punchIn;
-    if (!firstPunchIn) return 0; // If no valid punch-in time
+    let totalWorkDuration = 0;
+    let firstPunchIn: Date | null = null;
 
-    // Get the last punch-out time or fallback to the current time
-    const lastPunchOut = punchRecords
-      .filter((record) => record.punchOut)
-      .map((record) => record.punchOut!)
-      .reduce(
-        (latest, current) => (current > latest ? current : latest),
-        new Date(0)
-      );
+    punchRecords.forEach((record) => {
+      // Ensure punchIn and punchOut are Date or null
+      const punchIn = record.punchIn instanceof Date ? record.punchIn : null;
+      const punchOut = record.punchOut instanceof Date ? record.punchOut : null;
 
-    // Determine whether to use lastPunchOut that is after 6:30 PM or currentTime
-    const useTime =
-      lastPunchOut && isAfterCutoff(lastPunchOut) ? lastPunchOut : currentTime;
+      if (punchIn) {
+        // If a punch-in exists, start tracking work duration
+        firstPunchIn = punchIn;
+      }
 
-    // Calculate total work duration
-    const totalWorkDuration = useTime.getTime() - firstPunchIn.getTime();
+      if (punchOut && firstPunchIn) {
+        // If a punch-out exists, calculate the work duration from the last punch-in
+        totalWorkDuration += punchOut.getTime() - firstPunchIn.getTime();
+        firstPunchIn = null; // Reset the punch-in since the work period is closed
+      }
+    });
 
-    // Assuming 8 hours workday (adjust as needed)
+    // If there's a punch-in without a punch-out, calculate up to the current time
+    if (firstPunchIn) {
+      totalWorkDuration += currentTime.getTime() - firstPunchIn.getTime();
+    }
+
+    // Assuming 9 hours workday (adjust as needed)
     const workdayDuration = 9 * 60 * 60 * 1000; // 9 hours in milliseconds
+
+    // Calculate percentage
     const percentage = (totalWorkDuration / workdayDuration) * 100;
 
+    // Ensure percentage does not exceed 100%
     return Math.min(100, percentage);
   };
 
@@ -245,106 +276,193 @@ export default function TabOneScreen() {
   const percentage = calculatePercentage();
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: bgColor }]}>
-      <Text
-        style={{
-          color: textColor,
-          fontSize: 20,
-          fontWeight: "500",
-          marginBottom: 5,
-        }}
-      >
-        {hour < 12 && ampm === "AM"
-          ? "Good Morning, Name"
-          : (hour <= 4 || hour === 12) && ampm === "PM"
-          ? "Good Afternoon, Name"
-          : "Good Evening, Name"}
-      </Text>
+    <ScrollView style={{ backgroundColor: bgColor, flex: 1 }}>
+      <ImageBackground source={backgroundImage} style={styles.backImage} />
+      <SafeAreaView style={{ padding: 15 }}>
+        {/**Wishes */}
+        <Wish hour={hour} ampm={ampm} textColor={textColor} />
 
-      <Text style={{ color: textColor }}>
-        {`${formattedDate} || ${
-          hour < 10 ? `0${hour}` : hour
-        }:${minute}:${second} ${ampm}`}
-      </Text>
+        {/* Punch Circle */}
+        <PunchCircle
+          hour={hour}
+          minute={minute}
+          second={second}
+          ampm={ampm}
+          punchedIn={punchedIn}
+          darkTheme={darkTheme}
+          handlePunchClick={handlePunchClick}
+          formattedDate={formattedDate}
+        />
 
-      <View style={styles.punchContainer}>
-        <Pressable
-          onPress={handlePunchClick}
-          style={[
-            styles.punch,
-            {
-              borderColor: oppBgColor,
-              backgroundColor: punchedIn
-                ? darkTheme
-                  ? "#00e32d"
-                  : "green"
-                : "#f54c68",
-            },
-          ]}
-        >
-          <Text>
-            {punchedIn ? (
-              <AwesomeIcon
-                name="hand-pointer"
-                size={50}
-                style={{ color: "#fff" }}
-              />
-            ) : (
-              <AwesomeIcon name="mug-hot" size={50} style={{ color: "#fff" }} />
-            )}
-          </Text>
-        </Pressable>
+        {/* Tracker */}
+        <Tracker darkTheme={darkTheme} percentage={percentage} />
 
-        <Text
-          style={{
-            color: punchedIn ? (darkTheme ? "#00e32d" : "green") : "#f54c68",
-            marginTop: 10,
-            fontWeight: "500",
-            fontSize: 18,
-          }}
-        >
-          {punchedIn ? "Work Started" : "Work Paused"}
-        </Text>
-      </View>
+        {/* Punch in and Punch outs */}
+        <Punch
+          darkTheme={darkTheme}
+          textColor={textColor}
+          punchRecords={punchRecords}
+        />
 
-      {/* Tracker */}
-      <Tracker darkTheme={darkTheme} percentage={percentage} />
+        {/* Display break records */}
+        <Breaks
+          darkTheme={darkTheme}
+          breakRecords={breakRecords}
+          textColor={textColor}
+        />
 
-      {/* Punch in and Punch outs */}
-      <Punch
-        darkTheme={darkTheme}
-        textColor={textColor}
-        punchRecords={punchRecords}
-      />
+        <SafeAreaView style={{ marginTop: 30, gap: 20, display: "flex" }}>
+          <OnGoingTasksCard darkTheme={darkTheme} />
 
-      {/* Display break records */}
-      <Breaks
-        darkTheme={darkTheme}
-        breakRecords={breakRecords}
-        textColor={textColor}
-      />
+          <UpcomingHolidays darkTheme={darkTheme} />
+
+          <LeavesRequest darkTheme={darkTheme} />
+        </SafeAreaView>
+      </SafeAreaView>
     </ScrollView>
   );
 }
 
-const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
+const Wish = ({
+  textColor,
+  hour,
+  ampm,
+}: {
+  textColor: string;
+  hour: number;
+  ampm: string;
+}) => {
   return (
-    <View
+    <Text
       style={{
-        marginTop: 10,
-        paddingHorizontal: 40,
-        backgroundColor: "transparent",
-        display: "flex",
-        flexDirection: "row",
+        color: textColor,
+        fontSize: 20,
+        fontWeight: "500",
       }}
     >
+      {hour < 12 && ampm === "AM"
+        ? "Good Morning :)"
+        : (hour <= 4 || hour === 12) && ampm === "PM"
+        ? "Good Afternoon :)"
+        : "Good Evening :)"}
+    </Text>
+  );
+};
+
+const PunchCircle = ({
+  punchedIn,
+  darkTheme,
+  handlePunchClick,
+  formattedDate,
+  hour,
+  second,
+  ampm,
+  minute,
+}: PunchCircleProps) => {
+  const borderColor = darkTheme
+    ? punchedIn
+      ? Colors.lightBlue
+      : Colors.dark.border
+    : Colors.light.border;
+
+  return (
+    <View style={styles.punchContainer}>
+      <View
+        style={[
+          styles.punch,
+          {
+            top: -8,
+            width: 203,
+            height: 203,
+            position: "absolute",
+            backgroundColor: borderColor,
+          },
+        ]}
+      ></View>
+      <Pressable
+        onPress={handlePunchClick}
+        style={[styles.punch, { width: 200, height: 200 }]}
+      >
+        <LinearGradient
+          colors={
+            punchedIn
+              ? [Colors.white, Colors.white]
+              : [Colors.lightBlue, Colors.darkBlue]
+          }
+          style={{ width: "100%", height: "100%", borderRadius: 100 }}
+        >
+          <SafeAreaView
+            style={{
+              gap: 25,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <SafeAreaView>
+              <Text
+                style={{
+                  color: punchedIn ? Colors.darkBlue : Colors.white,
+                  fontSize: 18,
+                  fontWeight: 500,
+                }}
+              >
+                {formattedDate}
+              </Text>
+
+              <Text
+                style={{
+                  color: punchedIn ? Colors.darkBlue : Colors.white,
+                  fontSize: 14,
+                  fontWeight: "400",
+                  textAlign: "center",
+                }}
+              >
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                })}
+              </Text>
+            </SafeAreaView>
+
+            <Text
+              style={{
+                color: punchedIn ? Colors.darkBlue : Colors.white,
+                fontSize: 22,
+                fontWeight: 500,
+              }}
+            >{`${
+              hour < 10 ? `0${hour}` : hour
+            }:${minute}:${second} ${ampm}`}</Text>
+          </SafeAreaView>
+        </LinearGradient>
+      </Pressable>
+
+      <Text
+        style={{
+          marginTop: 10,
+          fontWeight: "500",
+          fontSize: 18,
+          color: darkTheme ? Colors.white : Colors.light.border,
+        }}
+      >
+        {punchedIn ? "Work Started" : "Work Paused"}
+      </Text>
+    </View>
+  );
+};
+
+const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
+  return (
+    <View style={styles.trackerContainer}>
       <View
         style={[
           styles.track,
           {
             borderWidth: 1,
             backgroundColor: "transparent",
-            borderColor: darkTheme ? "#00e32d" : "#1e3669",
+            borderColor: darkTheme ? Colors.white : Colors.black,
           },
         ]}
       >
@@ -353,7 +471,7 @@ const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
             styles.fill,
             {
               width: `${percentage < 100 ? percentage : 100}%`,
-              backgroundColor: darkTheme ? "#00e32d" : "#1e3669",
+              backgroundColor: darkTheme ? Colors.white : Colors.black,
             },
           ]}
         />
@@ -361,7 +479,7 @@ const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
       <Text
         style={[
           styles.percentageText,
-          { color: darkTheme ? "#00e32d" : "#1e3669" },
+          { color: darkTheme ? Colors.white : Colors.black },
         ]}
       >{`${Math.round(percentage < 100 ? percentage : 100)}%`}</Text>
     </View>
@@ -371,22 +489,29 @@ const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
 const Punch = ({ darkTheme, punchRecords, textColor }: PunchProps) => {
   return (
     <View style={styles.recordContainer}>
-      <View style={styles.recordRow}>
+      <SafeAreaView style={styles.recordRow}>
         <Text
           style={{
-            color: darkTheme ? "#00e32d" : "green",
+            color: darkTheme ? Colors.white : Colors.black,
             fontWeight: "500",
             fontSize: 16,
           }}
         >
           Punch In:{" "}
         </Text>
-        <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
+        <Text
+          style={{
+            fontWeight: "500",
+            fontSize: 16,
+            color: darkTheme ? Colors.white : Colors.black,
+          }}
+        >
           Punch Out:
         </Text>
-      </View>
+      </SafeAreaView>
+
       {punchRecords.length > 0 ? (
-        <View style={styles.recordRow}>
+        <SafeAreaView style={styles.recordRow}>
           <Text style={{ color: textColor }}>
             {punchRecords[0].punchIn?.toLocaleTimeString([], {
               hour: "2-digit",
@@ -402,7 +527,7 @@ const Punch = ({ darkTheme, punchRecords, textColor }: PunchProps) => {
               }
             ) ?? "~~"}
           </Text>
-        </View>
+        </SafeAreaView>
       ) : (
         <Text style={{ color: textColor }}>No punch recorded</Text>
       )}
@@ -416,15 +541,21 @@ const Breaks = ({ darkTheme, textColor, breakRecords }: BreaksProps) => {
       <View style={styles.recordRow}>
         <Text
           style={{
-            color: darkTheme ? "#00e32d" : "green",
+            color: darkTheme ? Colors.white : Colors.black,
             fontWeight: "500",
             fontSize: 16,
           }}
         >
-          Break Start(s):
+          Break Start:
         </Text>
-        <Text style={{ color: "#f54c68", fontWeight: "500", fontSize: 16 }}>
-          Break End(s):
+        <Text
+          style={{
+            fontWeight: "500",
+            fontSize: 16,
+            color: darkTheme ? Colors.white : Colors.black,
+          }}
+        >
+          Break End:
         </Text>
       </View>
       {breakRecords.length > 0 ? (
@@ -455,31 +586,267 @@ const Breaks = ({ darkTheme, textColor, breakRecords }: BreaksProps) => {
   );
 };
 
+const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
+  return (
+    <SafeAreaView style={styles.cardContainer}>
+      <View
+        style={[
+          styles.duplicateCard,
+          {
+            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
+          },
+        ]}
+      />
+      <View style={styles.cardStyle}>
+        {/**Header */}
+        <SafeAreaView style={styles.flex_row}>
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 16,
+              fontWeight: "600",
+            }}
+          >
+            On Going Tasks
+          </Text>
+
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Deadline by
+          </Text>
+        </SafeAreaView>
+
+        {/* Table */}
+        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "60%", color: Colors.black, overflow: "scroll" }}
+            >
+              HRMS for Ultrakey
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "30%" }}>20 Oct</Text>
+          </SafeAreaView>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "60%", color: Colors.black, overflow: "scroll" }}
+            >
+              Trending News Guru
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "30%" }}>20 Oct</Text>
+          </SafeAreaView>
+        </SafeAreaView>
+
+        <SafeAreaView>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => {
+              router.push({ pathname: "/(tabs)/task" });
+            }}
+          >
+            <Text style={styles.viewAllButtonText}>
+              View All <AwesomeIcon name="arrow-right" />
+            </Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
+  return (
+    <SafeAreaView style={styles.cardContainer}>
+      <View
+        style={[
+          styles.duplicateCard,
+          {
+            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
+          },
+        ]}
+      />
+      <View style={styles.cardStyle}>
+        {/**Header */}
+        <SafeAreaView style={styles.flex_row}>
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 16,
+              fontWeight: "600",
+            }}
+          >
+            Upcoming Holidays
+          </Text>
+
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Deadline by
+          </Text>
+        </SafeAreaView>
+
+        {/* Table */}
+        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
+            >
+              2 Oct
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+              Gandhi Jayanti
+            </Text>
+          </SafeAreaView>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
+            >
+              12 Oct
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+              Dassehra
+            </Text>
+          </SafeAreaView>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
+            >
+              12 Oct
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+              Diwali/Deepawali
+            </Text>
+          </SafeAreaView>
+        </SafeAreaView>
+
+        <SafeAreaView>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => {
+              router.push({ pathname: "/(tabs)/task" });
+            }}
+          >
+            <Text style={styles.viewAllButtonText}>
+              View All <AwesomeIcon name="arrow-right" />
+            </Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
+  return (
+    <SafeAreaView style={styles.cardContainer}>
+      <View
+        style={[
+          styles.duplicateCard,
+          {
+            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
+          },
+        ]}
+      />
+      <View style={styles.cardStyle}>
+        {/**Header */}
+        <SafeAreaView style={styles.flex_row}>
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 16,
+              fontWeight: "600",
+            }}
+          >
+            Leave Requests
+          </Text>
+
+          <Text
+            style={{
+              color: Colors.darkBlue,
+              fontSize: 14,
+              fontWeight: 500,
+            }}
+          >
+            Status
+          </Text>
+        </SafeAreaView>
+
+        {/* Table */}
+        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
+            >
+              2 Oct
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+              Gandhi Jayanti
+            </Text>
+          </SafeAreaView>
+          <SafeAreaView style={styles.flex_row}>
+            <Text
+              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
+            >
+              12 Oct
+            </Text>
+            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+              Dassehra
+            </Text>
+          </SafeAreaView>
+        </SafeAreaView>
+
+        <SafeAreaView>
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => {
+              router.push({ pathname: "/(tabs)/task" });
+            }}
+          >
+            <Text style={styles.viewAllButtonText}>
+              View All <AwesomeIcon name="arrow-right" />
+            </Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 15,
+  backImage: {
+    ...StyleSheet.absoluteFillObject,
+    resizeMode: "cover",
   },
   punchContainer: {
     display: "flex",
     width: "100%",
     marginTop: 30,
+    position: "relative",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "transparent",
   },
   punch: {
-    width: 150,
-    height: 150,
-    display: "flex",
-    borderWidth: 5,
     borderRadius: 100,
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    elevation: 10,
+    shadowRadius: 6,
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
   },
   recordContainer: {
     marginTop: 20,
-    paddingHorizontal: 50,
+    paddingHorizontal: 20,
     backgroundColor: "transparent",
   },
   recordRow: {
@@ -487,6 +854,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
     backgroundColor: "transparent",
+  },
+  trackerContainer: {
+    marginTop: 10,
+    paddingHorizontal: 40,
+    backgroundColor: "transparent",
+    display: "flex",
+    flexDirection: "row",
   },
   track: {
     width: "80%",
@@ -504,5 +878,52 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontWeight: "bold",
     marginTop: 5,
+  },
+  cardContainer: {
+    position: "relative",
+    marginHorizontal: 10,
+  },
+  duplicateCard: {
+    position: "absolute",
+    top: -7,
+    left: 0,
+    right: 0,
+    zIndex: -1,
+    height: "100%",
+    borderRadius: 20,
+    elevation: 5,
+    shadowRadius: 15,
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  cardStyle: {
+    display: "flex",
+    gap: 10,
+    padding: 15,
+    borderRadius: 15,
+    backgroundColor: Colors.white,
+    borderWidth: 0.5,
+    borderColor: "#D4D4D4",
+  },
+  flex_row: {
+    gap: 10,
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  viewAllButton: {
+    backgroundColor: Colors.lightBlue,
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignSelf: "flex-end",
+  },
+  viewAllButtonText: {
+    color: Colors.white,
+    textAlign: "right",
+    fontWeight: 500,
+    fontSize: 10,
   },
 });

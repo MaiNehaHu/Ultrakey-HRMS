@@ -110,86 +110,13 @@ const salaryPdfHtml = () => {
           width: 50%;
         }
 
-        @media (max-width: 320px) {
-          .payslip-details {
-            flex-direction: column;
-            padding: 10px;
-          }
-          
-          .vertical-line {
-            display: none;
-          }
-          
-          .employee-details,
-          .other-details {
-            width: 100%;
-            padding: 10px 0;
-          }
-        }
-
-        .employee-details,
-        .other-details {
-          width: 48%;
-          padding: 10px;
-        }
-
-        .employee-details p {
-          margin-bottom: 0.3rem;
-        }
-
-        .other-details p {
-          margin-bottom: 0.3rem;
-        }
-
-        .payslip-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-bottom: 20px;
-        }
-
-        .payslip-table th,
-        .payslip-table td {
-          border: 1px solid ${textColor};
-          padding: 8px;
-          text-align: left;
-        }
-
-        .payslip-table th {
-          font-weight: bold;
-        }
-        
-        .net-salary,
-        .footer-note {
-          text-align: center;
-          font-weight: bold;
-        }
-
-        .footer-note {
-          font-size: 13px;
-          margin-top: 10px;
-        }
-
-        .key {
-          display: flex;
-          justify-content: center;
-
-          flex-wrap: wrap;
-          text-align: center;
-          position: relative;
-          border: 1px solid ${textColor};
-          padding: 15px;
-        }
-        
-        .vertical-line {
-          width: 2px;
-          background-color: ${textColor};
-          height: 100%;
-          margin: 0 auto;
-        }
-
         @media print {
           body * {
             visibility: hidden;
+          }
+
+          body{
+            padding: 50px;
           }
           
           .payslip-container,

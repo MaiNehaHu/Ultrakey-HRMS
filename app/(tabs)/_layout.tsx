@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { View, TouchableOpacity, Image } from "react-native";
+import { View, TouchableOpacity, Image, Text } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 
@@ -8,6 +8,7 @@ import Colors from "@/constants/Colors";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 import { useAppTheme } from "@/contexts/AppTheme";
+import { SafeAreaView } from "react-native";
 const logo_light = require("@/assets/images/logo_light.png");
 const logo_dark = require("@/assets/images/logo_dark.jpg");
 
@@ -44,31 +45,76 @@ export default function TabLayout() {
           paddingTop: 10,
         },
         headerShown: useClientOnlyValue(false, true),
+        headerTitleStyle: {
+          display: "none",
+        },
         headerStyle: {
           backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
         },
+        headerRight: () => (
+          <TouchableOpacity onPress={toggleTheme}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons
+                name={darkTheme ? "moon" : "sunny"}
+                size={20}
+                color={Colors[darkTheme ? "dark" : "light"].text}
+                style={{ margin: 15 }}
+              />
+            </View>
+          </TouchableOpacity>
+        ),
+        headerLeft: () => (
+          <View
+            style={{
+              gap: 10,
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Image
+              source={{
+                uri: "https://i.pinimg.com/736x/e7/1e/ed/e71eed228bdb81e9b08fdf6b55c81191.jpg",
+              }}
+              style={{
+                width: 40,
+                minHeight: 40,
+                marginLeft: 10,
+                borderWidth: 2,
+                borderRadius: 50,
+                objectFit: "cover",
+                borderColor: darkTheme ? Colors.white : Colors.light.border,
+              }}
+            />
+
+            <SafeAreaView>
+              <Text
+                style={{
+                  fontWeight: 500,
+                  fontSize: 17,
+                  color: darkTheme? Colors.white: Colors.darkBlue,
+                }}
+              >
+                Neha Kumari
+              </Text>
+              <Text
+                style={{
+                  fontWeight: 500,
+                  fontSize: 11,
+                  color: darkTheme? Colors.white: "#666666",
+                }}
+              >
+                Android Developer
+              </Text>
+            </SafeAreaView>
+          </View>
+        ),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: "", // no title on header
-          title: "Home", // title on tab bar
-
-          // header
-          headerRight: () => (
-            <View style={{ marginLeft: 10 }}>
-              {/* logo for dark and light theme */}
-              <Image
-                source={darkTheme ? logo_dark : logo_light}
-                style={{
-                  width: 120,
-                  objectFit: "contain",
-                  marginRight: 5,
-                }}
-              />
-            </View>
-          ),
+          title: "Home",
 
           // tab bar icon using AwesomeIcon
           tabBarIcon: () => (
@@ -76,21 +122,7 @@ export default function TabLayout() {
               name="house"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
-            /> // Use "house" icon from FontAwesome6
-          ),
-
-          // dark and light theme toggle button
-          headerLeft: () => (
-            <TouchableOpacity onPress={toggleTheme}>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Ionicons
-                  name={darkTheme ? "moon" : "sunny"}
-                  size={20}
-                  color={Colors[darkTheme ? "dark" : "light"].text}
-                  style={{ margin: 15 }}
-                />
-              </View>
-            </TouchableOpacity>
+            />
           ),
         }}
       />
@@ -99,7 +131,7 @@ export default function TabLayout() {
         name="task"
         options={{
           title: "Tasks",
-          headerTitle: "Your Tasks",
+          // headerTitle: "Your Tasks",
           tabBarIcon: () => (
             <AwesomeIcons
               name="square-check"
@@ -107,23 +139,6 @@ export default function TabLayout() {
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
           ),
-
-          headerRight: () => (
-            <View>
-              {/* logo for dark and light theme */}
-              <Image
-                source={darkTheme ? logo_dark : logo_light}
-                style={{
-                  width: 120,
-                  objectFit: "contain",
-                  marginRight: 5,
-                }}
-              />
-            </View>
-          ),
-
-          // header tint
-          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
       />
 
@@ -131,30 +146,13 @@ export default function TabLayout() {
         name="salary"
         options={{
           title: "Salary",
-          headerTitle: "Your Salary Details",
+          // headerTitle: "Your Salary Details",
           tabBarIcon: () => (
             <AwesomeIcons
               name="wallet"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
-          ),
-
-          // header tint
-          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
-
-          headerRight: () => (
-            <View>
-              {/* logo for dark and light theme */}
-              <Image
-                source={darkTheme ? logo_dark : logo_light}
-                style={{
-                  width: 120,
-                  objectFit: "contain",
-                  marginRight: 5,
-                }}
-              />
-            </View>
           ),
         }}
       />
@@ -170,23 +168,6 @@ export default function TabLayout() {
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
           ),
-
-          headerRight: () => (
-            <View>
-              {/* logo for dark and light theme */}
-              <Image
-                source={darkTheme ? logo_dark : logo_light}
-                style={{
-                  width: 120,
-                  objectFit: "contain",
-                  marginRight: 5,
-                }}
-              />
-            </View>
-          ),
-
-          // header tint
-          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
         }}
       />
 
@@ -194,30 +175,13 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "You",
-          headerTitle: "Your Profile",
+          // headerTitle: "Your Profile",
           tabBarIcon: () => (
             <IoniconsIcon
               name="person"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
-          ),
-
-          // header tint
-          headerTintColor: Colors[darkTheme ? "dark" : "light"].tint,
-
-          headerRight: () => (
-            <View>
-              {/* logo for dark and light theme */}
-              <Image
-                source={darkTheme ? logo_dark : logo_light}
-                style={{
-                  width: 120,
-                  objectFit: "contain",
-                  marginRight: 5,
-                }}
-              />
-            </View>
           ),
         }}
       />

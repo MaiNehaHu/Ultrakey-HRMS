@@ -104,9 +104,9 @@ function RootLayoutNav() {
       <Stack.Screen name="applyLeave" options={{ headerShown: false }} />
       <Stack.Screen name="leaveDetails" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="loginValidation" options={{ headerShown: false }} />
-      <Stack.Screen name="PunchDetails" options={{ headerShown: false }} />
-      <Stack.Screen name="TaskDetails" options={{ headerShown: false }} />
+      <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
+      <Stack.Screen name="punchDetails" options={{ headerShown: false }} />
+      <Stack.Screen name="taskDetails" options={{ headerShown: false }} />
     </Stack>
   );
 }

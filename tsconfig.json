@@ -12,6 +12,13 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "app/(tabs)",
+    "app/login",
+    "app/forgotPassword",
+    "app/leaveDetails",
+    "app/applyLeave",
+    "app/punchDetails",
+    "app/taskDetails",
   ]
 }
