@@ -846,7 +846,7 @@ const styles = StyleSheet.create({
   },
   recordContainer: {
     marginTop: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     backgroundColor: "transparent",
   },
   recordRow: {
@@ -881,7 +881,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: "relative",
-    marginHorizontal: 10,
+    // marginHorizontal: 10,
   },
   duplicateCard: {
     position: "absolute",
