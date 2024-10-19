@@ -74,7 +74,10 @@ export default function SelectMonthAndYear({
                   <Text
                     style={[
                       styles.modalTitle,
-                      { color: textColor, borderColor: textColor },
+                      {
+                        color: darkTheme ? Colors.white : Colors.darkBlue,
+                        borderColor: textColor,
+                      },
                     ]}
                   >
                     Select Month
@@ -164,7 +167,10 @@ export default function SelectMonthAndYear({
                   <Text
                     style={[
                       styles.modalTitle,
-                      { color: textColor, borderColor: textColor },
+                      {
+                        color: darkTheme ? Colors.white : Colors.darkBlue,
+                        borderColor: textColor,
+                      },
                     ]}
                   >
                     Select Year

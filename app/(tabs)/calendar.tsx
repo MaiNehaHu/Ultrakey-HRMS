@@ -12,9 +12,9 @@ import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import moment from "moment";
 import ApplyLeave from "@/app/applyLeave";
-import LeaveDetails from "@/app/leaveDetails";
+import LeaveDetails from "@/components/myApp/leaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
-import PunchDetails from "@/app/punchDetails";
+import PunchDetails from "@/components/myApp/punchDetails";
 
 interface LeaveSession {
   date: string;

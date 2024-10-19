@@ -1,8 +1,8 @@
 import { Modal, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Pressable } from 'react-native'
-import { useAppTheme } from '../contexts/AppTheme';
-import Colors from '../constants/Colors';
+import { useAppTheme } from '../../contexts/AppTheme';
+import Colors from '../../constants/Colors';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { TouchableOpacity } from 'react-native';
 

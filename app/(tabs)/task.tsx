@@ -11,7 +11,7 @@ import {
 import React, { useState } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
-import TaskDetails from "../taskDetails";
+import TaskDetails from "@/components/myApp/taskDetails";
 import { FontAwesome6 } from "@expo/vector-icons";
 import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 

@@ -1,6 +1,6 @@
 import React from "react";
-import { Tabs } from "expo-router";
-import { View, TouchableOpacity, Image, Text } from "react-native";
+import { Tabs, useNavigation } from "expo-router";
+import { View, TouchableOpacity, Image, Text, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 
@@ -9,8 +9,12 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 import { useAppTheme } from "@/contexts/AppTheme";
 import { SafeAreaView } from "react-native";
-const logo_light = require("@/assets/images/logo_light.png");
-const logo_dark = require("@/assets/images/logo_dark.jpg");
+
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  morePage: undefined;
+};
 
 function AwesomeIcons(props: {
   name: React.ComponentProps<typeof AwesomeIcon>["name"];
@@ -28,6 +32,7 @@ function IoniconsIcon(props: {
   return <Ionicons {...props} />; // Use Ionicons
 }
 export default function TabLayout() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { darkTheme, setDarkTheme } = useAppTheme();
 
   const toggleTheme = () => {
@@ -64,12 +69,15 @@ export default function TabLayout() {
           </TouchableOpacity>
         ),
         headerLeft: () => (
-          <View
+          <Pressable
             style={{
               gap: 10,
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+            }}
+            onPress={() => {
+              navigation.navigate("morePage")
             }}
           >
             <Image
@@ -92,7 +100,7 @@ export default function TabLayout() {
                 style={{
                   fontWeight: 500,
                   fontSize: 17,
-                  color: darkTheme? Colors.white: Colors.darkBlue,
+                  color: darkTheme ? Colors.white : Colors.darkBlue,
                 }}
               >
                 Neha Kumari
@@ -101,13 +109,13 @@ export default function TabLayout() {
                 style={{
                   fontWeight: 500,
                   fontSize: 11,
-                  color: darkTheme? Colors.white: "#666666",
+                  color: darkTheme ? Colors.white : "#666666",
                 }}
               >
                 Android Developer
               </Text>
             </SafeAreaView>
-          </View>
+          </Pressable>
         ),
       }}
     >

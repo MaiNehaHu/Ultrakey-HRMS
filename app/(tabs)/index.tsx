@@ -14,10 +14,17 @@ import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 import { usePunching } from "@/contexts/Punch";
 import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { ImageBackground } from "react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
+
+type RootStackParamList = {
+  task: undefined;
+  holidaysList: undefined;
+  leavesPage: undefined;
+};
 
 interface PunchRecord {
   punchIn: Date | null;
@@ -587,6 +594,9 @@ const Breaks = ({ darkTheme, textColor, breakRecords }: BreaksProps) => {
 };
 
 const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <SafeAreaView style={styles.cardContainer}>
       <View
@@ -645,7 +655,7 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
           <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => {
-              router.push({ pathname: "/(tabs)/task" });
+              navigation.navigate("task");
             }}
           >
             <Text style={styles.viewAllButtonText}>
@@ -659,6 +669,9 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
 };
 
 const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <SafeAreaView style={styles.cardContainer}>
       <View
@@ -731,7 +744,7 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
           <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => {
-              router.push({ pathname: "/(tabs)/task" });
+              navigation.navigate("holidaysList");
             }}
           >
             <Text style={styles.viewAllButtonText}>
@@ -745,6 +758,9 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
 };
 
 const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <SafeAreaView style={styles.cardContainer}>
       <View
@@ -807,7 +823,7 @@ const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
           <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => {
-              router.push({ pathname: "/(tabs)/task" });
+              navigation.navigate("leavesPage");
             }}
           >
             <Text style={styles.viewAllButtonText}>
