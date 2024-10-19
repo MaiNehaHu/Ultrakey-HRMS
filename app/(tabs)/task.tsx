@@ -9,11 +9,11 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import DatePicker from "react-native-date-picker";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import TaskDetails from "../taskDetails";
 import { FontAwesome6 } from "@expo/vector-icons";
+import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -34,7 +34,8 @@ const tasks = [
     assigner: "",
     name: "Ultrakey HRMS",
     description: "Create HRMS App for Ulytrakey IT Solutions.",
-    deadline: "2024-09-13T09:39:00.857Z",
+    deadline: "2024-11-20T09:00:00.000Z", // November 20, 2024, 09:00 AM UTC
+    createdAt: "2024-09-10T15:30:00.000Z", // September 10, 2024, 03:30 PM UTC
     status: "Ongoing",
   },
   {
@@ -43,7 +44,8 @@ const tasks = [
     assigner: "",
     name: "Trending News Guru App",
     description: "Create Trending News Guru App for Ulytrakey IT Solutions.",
-    deadline: "2024-10-13T09:39:00.857Z",
+    deadline: "2024-10-15T12:45:00.000Z", // October 15, 2024, 12:45 PM UTC
+    createdAt: "2024-09-13T09:00:00.000Z", // September 13, 2024, 09:00 AM UTC
     status: "Completed",
   },
   {
@@ -52,10 +54,10 @@ const tasks = [
     assigner: "",
     name: "Ulytrakey CRM",
     description: "Create CRM for Ulytrakey IT Solutions.",
-    deadline: "2024-11-13T09:39:00.857Z",
+    deadline: "2024-09-30T18:00:00.000Z", // September 30, 2024, 06:00 PM UTC
+    createdAt: "2024-10-05T08:15:00.000Z", // October 5, 2024, 08:15 AM UTC
     status: "Overdue",
   },
-  // Add more tasks
 ];
 
 const taskStatus = {
@@ -69,8 +71,14 @@ const TaskScreen = () => {
   const { darkTheme } = useAppTheme();
   const [showModal, setShowModal] = useState(false);
   const [clickedTask, setClickedTask] = useState<Task>();
-  const [openDatePicker, setOpenDatePicker] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [pickerModalState, setPickerModalState] = useState({
+    tempYear: 2024,
+    selectedYear: 2024,
+    tempMonth: new Date().getMonth(),
+    selectedMonth: new Date().getMonth(),
+    showPickerMonthModal: false,
+    showPickerYearModal: false,
+  });
 
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
@@ -95,14 +103,42 @@ const TaskScreen = () => {
     }).format(new Date(date));
   };
 
-  // Filter tasks by selected month
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+
   const filteredTasks = tasks.filter((task) => {
-    const taskDate = new Date(task.deadline);
+    const createdAtDate = new Date(task.createdAt);
+    const deadlineDate = new Date(task.deadline);
+
     return (
-      taskDate.getFullYear() === selectedMonth.getFullYear() &&
-      taskDate.getMonth() === selectedMonth.getMonth()
+      (createdAtDate.getFullYear() === pickerModalState.selectedYear &&
+        createdAtDate.getMonth() === pickerModalState.selectedMonth) ||
+      (deadlineDate.getFullYear() === pickerModalState.selectedYear &&
+        deadlineDate.getMonth() === pickerModalState.selectedMonth)
     );
   });
+
+  const handleMonthYearSelection = () => {
+    setPickerModalState((prevState) => ({
+      ...prevState,
+      selectedMonth: prevState.tempMonth,
+      selectedYear: prevState.tempYear,
+    }));
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
@@ -110,41 +146,23 @@ const TaskScreen = () => {
 
       <ScrollView style={{ padding: 15 }}>
         <SafeAreaView style={styles.flex_row_top}>
-          <Text
-            style={{
-              color: textColor,
-              fontSize: 16,
-              fontWeight: "500",
-            }}
-          >
-            Tasks for{" "}
-            {selectedMonth.toLocaleString("default", { month: "long" })}
+          <Text style={{ color: textColor, fontSize: 16, fontWeight: "500" }}>
+            Tasks for {months[pickerModalState.selectedMonth]}{" "}
+            {pickerModalState.selectedYear}
           </Text>
 
-          <TouchableOpacity onPress={() => setOpenDatePicker(true)}>
+          <TouchableOpacity
+            onPress={() =>
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                showPickerMonthModal: true,
+              }))
+            }
+          >
             <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
           </TouchableOpacity>
         </SafeAreaView>
 
-        {/* Month Picker */}
-        <DatePicker
-          modal
-          mode="date"
-          open={openDatePicker}
-          date={selectedMonth}
-          title="Select Month"
-          confirmText="Confirm"
-          cancelText="Cancel"
-          onConfirm={(date: Date) => {
-            setSelectedMonth(date);
-            setOpenDatePicker(false);
-          }}
-          onCancel={() => {
-            setOpenDatePicker(false);
-          }}
-        />
-
-        {/* List of Filtered Tasks */}
         <SafeAreaView style={styles.cardsContainer}>
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
@@ -167,7 +185,7 @@ const TaskScreen = () => {
                     },
                   ]}
                 />
-                <View key={task.name} style={styles.taskCard}>
+                <View style={styles.taskCard}>
                   <View style={styles.flex_row_top}>
                     <Text
                       style={{
@@ -179,7 +197,6 @@ const TaskScreen = () => {
                     >
                       {task.name}
                     </Text>
-
                     <Text
                       style={[
                         styles.status,
@@ -198,6 +215,11 @@ const TaskScreen = () => {
                       {task.status}
                     </Text>
                   </View>
+
+                  <Text style={{ color: "#000" }}>
+                    Created: {formatDate(task.deadline)}
+                  </Text>
+
                   <Text style={{ color: "#000" }}>
                     Deadline: {formatDate(task.deadline)}
                   </Text>
@@ -218,6 +240,59 @@ const TaskScreen = () => {
             isVisible={showModal}
             onClose={onClose}
             clickedTask={clickedTask}
+          />
+        )}
+
+        {(pickerModalState.showPickerMonthModal ||
+          pickerModalState.showPickerYearModal) && (
+          <SelectMonthAndYear
+            months={months}
+            years={years}
+            clickedMonth={pickerModalState.tempMonth}
+            clickedYear={pickerModalState.tempYear}
+            isMonthVisible={pickerModalState.showPickerMonthModal}
+            isYearVisible={pickerModalState.showPickerYearModal}
+            setClickedMonth={(month: number) =>
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                tempMonth: month,
+              }))
+            }
+            setClickedYear={(year: number) =>
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                tempYear: year,
+              }))
+            }
+            onClose={() =>
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                showPickerMonthModal: false,
+                showPickerYearModal: false,
+              }))
+            }
+            onDone={() => {
+              handleMonthYearSelection();
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                showPickerMonthModal: false,
+                showPickerYearModal: false,
+              }));
+            }}
+            onNext={() =>
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                showPickerYearModal: true,
+                showPickerMonthModal: false,
+              }))
+            }
+            onBack={() => {
+              setPickerModalState((prevState) => ({
+                ...prevState,
+                showPickerYearModal: false,
+                showPickerMonthModal: true,
+              }));
+            }}
           />
         )}
       </ScrollView>
@@ -273,5 +348,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  pickerContainer: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+  },
+  picker: {
+    width: "100%",
+  },
+  confirmButton: {
+    backgroundColor: Colors.darkBlue,
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 20,
+    width: "100%",
+    alignItems: "center",
   },
 });
