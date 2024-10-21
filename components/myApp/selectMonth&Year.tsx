@@ -59,7 +59,7 @@ export default function SelectMonthAndYear({
   return (
     <SafeAreaView>
       <Modal transparent={true} visible={true} animationType="fade">
-        <Pressable style={styles.modalBackground} onPress={onClose}>
+        <Pressable style={styles.modalBackground}>
           <View style={styles.modalContainerWrapper}>
             {isMonthVisible ? (
               <Pressable onPress={(e) => e.stopPropagation()}>

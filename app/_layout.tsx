@@ -110,7 +110,7 @@ function RootLayoutNav() {
       <Image
         source={darkTheme ? darkLogo : lightLogo}
         style={{
-          width: 120,
+          width: 100,
           height: 40,
           objectFit: "contain",
         }}
@@ -118,8 +118,38 @@ function RootLayoutNav() {
     </SafeAreaView>
   );
 
-  // Custom headerLeft function
-  const headerLeft = () => (
+  // Left header
+  const headerLeft = (name: string) => (
+    <Pressable
+      style={{
+        gap: 10,
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "row",
+      }}
+      onPress={() => {
+        navigation.goBack();
+      }}
+    >
+      <FontAwesome6
+        size={20}
+        name="arrow-left"
+        style={{ color: Colors[darkTheme ? "dark" : "light"].text }}
+      />
+      <Text
+        style={{
+          fontSize: 18,
+          fontWeight: 500,
+          color: Colors[darkTheme ? "dark" : "light"].text,
+        }}
+      >
+        {name}
+      </Text>
+    </Pressable>
+  );
+
+  // Custom headerLeft with image function
+  const imageHeaderLeft = () => (
     <Pressable
       style={{
         gap: 10,
@@ -134,7 +164,7 @@ function RootLayoutNav() {
       <Text>
         <FontAwesome6
           name="arrow-left"
-          size={18}
+          size={20}
           style={{
             color: Colors[!darkTheme ? "dark" : "light"].background,
           }}
@@ -163,17 +193,44 @@ function RootLayoutNav() {
         headerStyle: {
           backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
         },
-        headerLeft,
-        headerRight,
-        headerTitle: "",
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
-      <Stack.Screen name="applyLeave" />
-      <Stack.Screen name="morePage" />
-      <Stack.Screen name="holidaysList" />
+      <Stack.Screen name="applyLeave" options={{ headerShown: false }} />
+      <Stack.Screen name="holidaysList" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="morePage"
+        options={{ headerLeft: imageHeaderLeft, headerRight, headerTitle: "" }}
+      />
+      <Stack.Screen
+        name="profileDetails"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Profile Details"),
+        }}
+      />
+      <Stack.Screen
+        name="bankDetails"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Bank Details"),
+        }}
+      />
+      <Stack.Screen
+        name="leavesPage"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Leaves"),
+        }}
+      />
     </Stack>
   );
 }

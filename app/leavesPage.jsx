@@ -18,11 +18,14 @@ export default function LeavesPage() {
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
+        <View style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={backgroundImage} style={styles.backImage} />
 
-            <ScrollView style={{ padding: 15 }}></ScrollView>
-        </SafeAreaView>
+            {/* Top section */}
+            <ScrollView style={{ padding: 20 }}>
+             
+            </ScrollView>
+        </View>
     );
 }
 

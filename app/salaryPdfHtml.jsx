@@ -6,7 +6,7 @@ import Colors from '@/constants/Colors';
 
 const salaryPdfHtml = () => {
   const { darkTheme } = useAppTheme();
-  console.log(darkTheme);
+  // console.log(darkTheme);
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
@@ -20,7 +20,7 @@ const salaryPdfHtml = () => {
           background-color: ${bgColor};
         }
         body {
-          padding: 20px;
+          padding: 100px;
         }
         .payslip-container {
           padding: 20px;
@@ -116,7 +116,7 @@ const salaryPdfHtml = () => {
           }
 
           body{
-            padding: 50px;
+            padding: 100px;
           }
           
           .payslip-container,
@@ -141,6 +141,81 @@ const salaryPdfHtml = () => {
             /* Remove all padding */
           }
         }
+
+         @media (max-width: 320px) {
+          body{
+            padding: 100px;  
+          }
+
+          .payslip-details {
+            flex-direction: column;
+            padding: 10px;
+          }
+          
+          .vertical-line {
+            display: none;
+          }
+          
+          .employee-details,
+          .other-details {
+            width: 100%;
+            padding: 10px 0;
+          }
+        }
+          
+        .employee-details,
+        .other-details {
+          width: 48%;
+          padding: 10px;
+        }
+        .employee-details p {
+          margin-bottom: 0.3rem;
+        }
+        .other-details p {
+          margin-bottom: 0.3rem;
+        }
+        .payslip-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+        }
+
+        .payslip-table th,
+        .payslip-table td {
+          border: 1px solid ${textColor};
+          padding: 8px;
+          text-align: left;
+        }
+        .payslip-table th {
+          font-weight: bold;
+        }
+        
+        .net-salary,
+        .footer-note {
+          text-align: center;
+          font-weight: bold;
+        }
+        .footer-note {
+          font-size: 13px;
+          margin-top: 10px;
+        }
+
+         .key {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          text-align: center;
+          position: relative;
+          border: 1px solid ${textColor};
+          padding: 15px;
+        }
+        
+        .vertical-line {
+          width: 2px;
+          background-color: ${textColor};
+          height: 100%;
+          margin: 0 auto;
+        }
       </style>
     </head>
 
@@ -149,9 +224,9 @@ const salaryPdfHtml = () => {
         <div class="key">
         <img
             src=${darkTheme
-              ? 'https://ultrakeyit.com/wp-content/uploads/2020/01/Ultrakey_IT_Solutions_Private_Limited_Logo_White-1024x318.png'
-              : 'https://ultrakeyit.com/wp-content/uploads/2024/01/Ultrakey_IT_Solutions_Private_Limited_Logo_Color.png'
-            }
+      ? 'https://ultrakeyit.com/wp-content/uploads/2020/01/Ultrakey_IT_Solutions_Private_Limited_Logo_White-1024x318.png'
+      : 'https://ultrakeyit.com/wp-content/uploads/2024/01/Ultrakey_IT_Solutions_Private_Limited_Logo_Color.png'
+    }
             alt="Ultrakey IT Solutons Pvt. Ltd."
             class="company-logo"
           />
