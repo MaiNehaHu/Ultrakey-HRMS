@@ -13,7 +13,10 @@ import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import TaskDetails from "@/components/myApp/taskDetails";
 import { FontAwesome6 } from "@expo/vector-icons";
+
 import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
+import months from "@/constants/months";
+import taskStatus from "@/constants/taskStatus";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -60,20 +63,13 @@ const tasks = [
   },
 ];
 
-const taskStatus = {
-  Ongoing: "Ongoing",
-  Completed: "Completed",
-  Deferred: "Deferred",
-  Overdue: "Overdue",
-};
-
 const TaskScreen = () => {
   const { darkTheme } = useAppTheme();
   const [showModal, setShowModal] = useState(false);
   const [clickedTask, setClickedTask] = useState<Task>();
   const [pickerModalState, setPickerModalState] = useState({
-    tempYear: 2024,
-    selectedYear: 2024,
+    tempYear: new Date().getFullYear(),
+    selectedYear: new Date().getFullYear(),
     tempMonth: new Date().getMonth(),
     selectedMonth: new Date().getMonth(),
     showPickerMonthModal: false,
@@ -103,20 +99,6 @@ const TaskScreen = () => {
     }).format(new Date(date));
   };
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
@@ -165,67 +147,60 @@ const TaskScreen = () => {
 
         <SafeAreaView style={styles.cardsContainer}>
           {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
-              <Pressable
-                key={task.task_id}
-                onPress={() => handleModalDisplay(task.task_id)}
-              >
-                <View
-                  style={[
-                    styles.duplicateTaskCard,
-                    {
-                      backgroundColor:
-                        task.status === taskStatus.Ongoing
-                          ? "orange"
-                          : task.status === taskStatus.Completed
-                          ? Colors.lightBlue
-                          : task.status === taskStatus.Deferred
-                          ? Colors.lightBlue
-                          : "red",
-                    },
-                  ]}
-                />
-                <View style={styles.taskCard}>
-                  <View style={styles.flex_row_top}>
-                    <Text
-                      style={{
-                        width: "70%",
-                        fontSize: 16,
-                        fontWeight: "500",
-                        color: Colors.darkBlue,
-                      }}
-                    >
-                      {task.name}
+            filteredTasks.map((task) => {
+              const statusColor =
+                task.status === taskStatus.Ongoing
+                  ? "orange"
+                  : task.status === taskStatus.Completed
+                  ? Colors.lightBlue
+                  : task.status === taskStatus.Deferred
+                  ? Colors.lightBlue
+                  : "red";
+
+              return (
+                <Pressable
+                  key={task.task_id}
+                  onPress={() => handleModalDisplay(task.task_id)}
+                >
+                  <View
+                    style={[
+                      styles.duplicateTaskCard,
+                      { backgroundColor: statusColor },
+                    ]}
+                  />
+                  <View style={styles.taskCard}>
+                    <View style={styles.flex_row_top}>
+                      <Text
+                        style={{
+                          width: "70%",
+                          fontSize: 16,
+                          fontWeight: "500",
+                          color: Colors.darkBlue,
+                        }}
+                      >
+                        {task.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.status,
+                          { backgroundColor: statusColor },
+                        ]}
+                      >
+                        {task.status}
+                      </Text>
+                    </View>
+
+                    <Text style={{ color: "#000", fontSize: 12 }}>
+                      Created: {formatDate(task.deadline)}
                     </Text>
-                    <Text
-                      style={[
-                        styles.status,
-                        {
-                          backgroundColor:
-                            task.status === taskStatus.Ongoing
-                              ? "orange"
-                              : task.status === taskStatus.Completed
-                              ? Colors.lightBlue
-                              : task.status === taskStatus.Deferred
-                              ? Colors.lightBlue
-                              : "red",
-                        },
-                      ]}
-                    >
-                      {task.status}
+
+                    <Text style={{ color: "#000", fontSize: 12 }}>
+                      Deadline: {formatDate(task.deadline)}
                     </Text>
                   </View>
-
-                  <Text style={{ color: "#000" }}>
-                    Created: {formatDate(task.deadline)}
-                  </Text>
-
-                  <Text style={{ color: "#000" }}>
-                    Deadline: {formatDate(task.deadline)}
-                  </Text>
-                </View>
-              </Pressable>
-            ))
+                </Pressable>
+              );
+            })
           ) : (
             <Text
               style={{ color: textColor, textAlign: "center", marginTop: 30 }}
@@ -318,12 +293,13 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     display: "flex",
     borderWidth: 0.5,
-    borderColor: "#D4D4D4",
+    borderTopWidth: 0,
+    borderColor: "#929394",
     backgroundColor: Colors.white,
   },
   duplicateTaskCard: {
     position: "absolute",
-    top: -7,
+    top: -6,
     left: 0,
     right: 0,
     zIndex: -1,

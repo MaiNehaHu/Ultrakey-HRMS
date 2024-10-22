@@ -1,13 +1,15 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, ActivityIndicator } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, ActivityIndicator, Alert } from 'react-native';
 import React, { useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { Animated } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only using DateTimePickerModal
+import { useLeavesContext } from '@/contexts/Leaves';
 
 const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     const { darkTheme } = useAppTheme();
+    const { leaves } = useLeavesContext()
 
     const bgColor = Colors[darkTheme ? 'dark' : 'light'].background;
     const oppBgColor = Colors[!darkTheme ? 'dark' : 'light'].background;
@@ -15,9 +17,9 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    const [reason, setReason] = useState('Reason');
+    const [reason, setReason] = useState('');
     const [fromDate, setFromDate] = useState(new Date());
-    const [toDate, setToDate] = useState(new Date());
+    const [toDate, setToDate] = useState(fromDate);
     const [fromSession, setFromSession] = useState(1);
     const [toSession, setToSession] = useState(2);
     const [leaveType, setLeaveType] = useState('Unpaid Leave');
@@ -44,10 +46,23 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
     const handleSaveLeave = () => {
         setLoading(true);
+        const existFlag = leaves.filter((leave) => (
+            leave.from.date.getDate() === fromDate.getDate() || leave.to.date.getDate() === toDate.getDate()
+        ));
+
+        if (fromDate > toDate) {
+            Alert.alert("From date can't be ahead of the to date");
+            setLoading(false);
+            return;
+        } else if (existFlag.length > 0) {
+            Alert.alert("You have already applied leave for this date");
+            setLoading(false);
+            return;
+        }
 
         const newLeave = {
             id: Date.now(), // Unique ID
-            reason,
+            reason: reason === "" ? "N/A" : reason,
             from: { date: fromDate, session: fromSession },
             to: { date: toDate, session: toSession },
             type: leaveType,
@@ -123,7 +138,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     };
 
     return (
-        <Modal visible={isVisible} transparent={true} animationType='fade'>
+        <Modal visible={isVisible} transparent={true} animationType='slide'>
             <View style={styles.modalContainer}>
                 <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
                     <View style={styles.flex_row_top}>
@@ -136,12 +151,18 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <TextInput
-                        style={[styles.input, { color: textColor, borderColor: textColor }]}
-                        placeholder="Reason"
-                        value={reason}
-                        onChangeText={setReason}
-                    />
+                    <View style={{ padding: 5, marginBottom: 10 }}>
+                        <View style={[styles.cardContainer, { borderColor: textColor }]}>
+                            <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
+                            <TextInput
+                                style={{ color: textColor, borderColor: textColor }}
+                                placeholder="Reason for leave"
+                                value={reason}
+                                onChangeText={setReason}
+                                placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                            />
+                        </View>
+                    </View>
 
                     <Text style={{ color: textColor, marginBottom: 8 }}>Duration:</Text>
 
@@ -208,7 +229,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                         <DateTimePickerModal
                             isVisible={isToPickerVisible}
                             mode="date"
-                            minimumDate={new Date()}
+                            minimumDate={fromDate}
                             onConfirm={handleToConfirm}
                             onCancel={hideToDatePicker}
                         />
@@ -353,7 +374,6 @@ const styles = StyleSheet.create({
     modalContent: {
         width: "100%",
         padding: 20,
-        paddingBottom: 30,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
     },
@@ -361,12 +381,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 15,
-    },
-    input: {
-        borderBottomWidth: 1,
-        marginBottom: 15,
-        paddingVertical: 5,
-        paddingHorizontal: 2,
     },
     flex_row_top: {
         display: "flex",
@@ -416,5 +430,23 @@ const styles = StyleSheet.create({
     },
     dateButtonText: {
         color: "#000",
+    },
+    cardContainer: {
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 10,
+        position: 'relative',
+    },
+    headerText: {
+        top: -10,
+        left: 10,
+        fontSize: 12,
+        fontWeight: '500',
+        position: 'absolute',
+        paddingHorizontal: 5,
+    },
+    bodyText: {
+        fontSize: 14,
+        fontWeight: '400',
     },
 });

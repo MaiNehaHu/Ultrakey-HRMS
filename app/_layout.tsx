@@ -198,7 +198,6 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
-      <Stack.Screen name="applyLeave" options={{ headerShown: false }} />
       <Stack.Screen name="holidaysList" options={{ headerShown: false }} />
       <Stack.Screen
         name="morePage"
@@ -227,7 +226,7 @@ function RootLayoutNav() {
         options={{
           headerShown: true,
           headerTitle: "",
-          headerRight,
+          // headerRight,
           headerLeft: () => headerLeft("Leaves"),
         }}
       />

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,7 +11,7 @@ import { Calendar } from "react-native-calendars";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import moment from "moment";
-import ApplyLeave from "@/app/applyLeave";
+import ApplyLeave from "@/components/myApp/applyLeave";
 import LeaveDetails from "@/components/myApp/leaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
 import PunchDetails from "@/components/myApp/punchDetails";

@@ -901,7 +901,7 @@ const styles = StyleSheet.create({
   },
   duplicateCard: {
     position: "absolute",
-    top: -7,
+    top: -6,
     left: 0,
     right: 0,
     zIndex: -1,
@@ -914,12 +914,13 @@ const styles = StyleSheet.create({
   },
   cardStyle: {
     display: "flex",
-    gap: 10,
+    gap: 5,
     padding: 15,
     borderRadius: 15,
     backgroundColor: Colors.white,
     borderWidth: 0.5,
-    borderColor: "#D4D4D4",
+    borderTopWidth: 0,
+    borderColor: "#929394",
   },
   flex_row: {
     gap: 10,
