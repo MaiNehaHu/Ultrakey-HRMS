@@ -20,10 +20,10 @@ const salaryPdfHtml = () => {
           background-color: ${bgColor};
         }
         body {
-          padding: 100px;
+          padding: 40px;
         }
         .payslip-container {
-          padding: 20px;
+          padding: 40px;
           margin: 20px auto;
           max-width: 1000px;
           max-height: 800px;

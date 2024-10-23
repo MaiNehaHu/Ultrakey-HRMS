@@ -81,7 +81,7 @@ export default function Leaves() {
                                 onPressOut={handlePressOut}
                                 onPress={() => setIsLeaveModalVisible(true)}
                             >
-                                <Text style={{ fontWeight: 500, color: "#fff" }}>APPLY</Text>
+                                <Text style={{ fontWeight: 500, color: "#fff" }}>Apply Leave</Text>
                             </Pressable>
                         </LinearGradient>
                         :
@@ -90,7 +90,7 @@ export default function Leaves() {
                             onPressOut={handlePressOut}
                             onPress={() => setIsLeaveModalVisible(true)}
                             style={[{ backgroundColor: Colors.lightBlue }, styles.gradient]}>
-                            <Text style={{ fontWeight: 500, color: "#fff" }}>APPLY</Text>
+                            <Text style={{ fontWeight: 500, color: "#fff" }}>Apply Leave</Text>
                         </Pressable>
                     }
                 </Animated.View>

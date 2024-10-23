@@ -164,7 +164,7 @@ export default function TabLayout() {
           // headerTitle: "Your Salary Details",
           tabBarIcon: () => (
             <AwesomeIcons
-              name="mug-hot"
+              name="mug-saucer"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon
