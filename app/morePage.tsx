@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ImageBackground,
   Pressable,
@@ -17,6 +18,7 @@ import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useLogin } from "@/contexts/Login";
 
 const backgroundImage = require("../assets/images/body_bg.png");
 const defaultLogo = require("../assets/images/default_person.webp");
@@ -25,10 +27,14 @@ type RootStackParamList = {
   profileDetails: undefined;
   leavesPage: undefined;
   bankDetails: undefined;
+  paySlips: undefined;
+  index: undefined;
+  login: undefined;
 };
 
 export default function MorePage() {
   const { darkTheme } = useAppTheme();
+  const { setIsLogged } = useLogin();
   const navigate =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [image, setImage] = useState<{ uri: string } | number>(defaultLogo);
@@ -95,6 +101,22 @@ export default function MorePage() {
   }
   function handleBankDetails() {
     navigate.navigate("bankDetails");
+  }
+  function handlePaySlips() {
+    navigate.navigate("paySlips");
+  }
+  function handleLogout() {
+    Alert.alert("Are you sure?", "You want to LOGOUT?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Yes, I'm Sure",
+        style: "destructive",
+        onPress: () => {
+          navigate.navigate("login");
+          setIsLogged(false);
+        },
+      },
+    ]);
   }
 
   return (
@@ -213,6 +235,7 @@ export default function MorePage() {
             </View>
           </Pressable>
           <Pressable
+            onPress={handlePaySlips}
             onPressIn={() => setTouchedButton(3)}
             onPressOut={() => setTouchedButton(0)}
             style={[
@@ -280,6 +303,7 @@ export default function MorePage() {
           </View>
         </Pressable> */}
           <Pressable
+            onPress={handleLogout}
             onPressIn={() => setTouchedButton(5)}
             onPressOut={() => setTouchedButton(0)}
             style={[

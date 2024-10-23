@@ -21,6 +21,7 @@ import LeaveDetails from '../components/myApp/leaveDetails'
 import ApplyLeave from '../components/myApp/applyLeave'
 import SelectMonthAndYear from '../components/myApp/selectMonth&Year';
 import months from "../constants/months";
+import years from "../constants/years";
 import leaveStatus from "../constants/leaveStatus";
 
 const backgroundImage = require("../assets/images/body_bg.png");
@@ -30,9 +31,6 @@ const leavesData = [
     { name: "Causal Leaves", granted: 5, balance: 5 },
     { name: "Sick Leaves", granted: 5, balance: 5 },
 ];
-
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
 export default function LeavesPage() {
     const navigation = useNavigation()
@@ -64,14 +62,6 @@ export default function LeavesPage() {
             fromDate.getMonth() === pickerModalState.selectedMonth
         );
     });
-
-    const handleMonthYearSelection = () => {
-        setPickerModalState((prevState) => ({
-            ...prevState,
-            selectedMonth: prevState.tempMonth,
-            selectedYear: prevState.tempYear,
-        }));
-    };
 
     useEffect(() => {
         navigation.setOptions({
@@ -168,51 +158,11 @@ export default function LeavesPage() {
                     <SelectMonthAndYear
                         months={months}
                         years={years}
+                        setPickerModalState={setPickerModalState}
                         clickedMonth={pickerModalState.tempMonth}
                         clickedYear={pickerModalState.tempYear}
                         isMonthVisible={pickerModalState.showPickerMonthModal}
                         isYearVisible={pickerModalState.showPickerYearModal}
-                        setClickedMonth={(month) =>
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                tempMonth: month,
-                            }))
-                        }
-                        setClickedYear={(year) =>
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                tempYear: year,
-                            }))
-                        }
-                        onClose={() =>
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                showPickerMonthModal: false,
-                                showPickerYearModal: false,
-                            }))
-                        }
-                        onDone={() => {
-                            handleMonthYearSelection();
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                showPickerMonthModal: false,
-                                showPickerYearModal: false,
-                            }));
-                        }}
-                        onNext={() =>
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                showPickerYearModal: true,
-                                showPickerMonthModal: false,
-                            }))
-                        }
-                        onBack={() => {
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                showPickerYearModal: false,
-                                showPickerMonthModal: true,
-                            }));
-                        }}
                     />
                 )
             }

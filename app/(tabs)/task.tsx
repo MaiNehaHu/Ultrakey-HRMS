@@ -16,6 +16,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 
 import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 import months from "@/constants/months";
+import years from "@/constants/years";
 import taskStatus from "@/constants/taskStatus";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
@@ -99,8 +100,8 @@ const TaskScreen = () => {
     }).format(new Date(date));
   };
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  // const currentYear = new Date().getFullYear();
+  // const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   const filteredTasks = tasks.filter((task) => {
     const createdAtDate = new Date(task.createdAt);
@@ -113,14 +114,6 @@ const TaskScreen = () => {
         deadlineDate.getMonth() === pickerModalState.selectedMonth)
     );
   });
-
-  const handleMonthYearSelection = () => {
-    setPickerModalState((prevState) => ({
-      ...prevState,
-      selectedMonth: prevState.tempMonth,
-      selectedYear: prevState.tempYear,
-    }));
-  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
@@ -223,51 +216,11 @@ const TaskScreen = () => {
           <SelectMonthAndYear
             months={months}
             years={years}
+            setPickerModalState={setPickerModalState}
             clickedMonth={pickerModalState.tempMonth}
             clickedYear={pickerModalState.tempYear}
             isMonthVisible={pickerModalState.showPickerMonthModal}
             isYearVisible={pickerModalState.showPickerYearModal}
-            setClickedMonth={(month: number) =>
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                tempMonth: month,
-              }))
-            }
-            setClickedYear={(year: number) =>
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                tempYear: year,
-              }))
-            }
-            onClose={() =>
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                showPickerMonthModal: false,
-                showPickerYearModal: false,
-              }))
-            }
-            onDone={() => {
-              handleMonthYearSelection();
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                showPickerMonthModal: false,
-                showPickerYearModal: false,
-              }));
-            }}
-            onNext={() =>
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                showPickerYearModal: true,
-                showPickerMonthModal: false,
-              }))
-            }
-            onBack={() => {
-              setPickerModalState((prevState) => ({
-                ...prevState,
-                showPickerYearModal: false,
-                showPickerMonthModal: true,
-              }));
-            }}
           />
         )}
       </ScrollView>

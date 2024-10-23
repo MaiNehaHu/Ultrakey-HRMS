@@ -37,14 +37,14 @@ export const LoginProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchLoginStatus(); // Fetch login status when the component mounts
+    fetchLoginStatus();
   }, []);
 
   useEffect(() => {
     if (isLogged !== null) {
-      storeLogins(isLogged); // Store login status when `isLogged` changes
+      storeLogins(isLogged);
     }
-  }, [isLogged]); // Only trigger when `isLogged` state changes
+  }, [isLogged]);
 
   return (
     <LoginContext.Provider value={{ isLogged, setIsLogged }}>

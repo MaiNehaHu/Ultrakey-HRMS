@@ -20,5 +20,6 @@
     "app/holidaysList",
     "app/profileDetails",
     "app/bankDetails",
+    "app/paySlips",
   ]
 }

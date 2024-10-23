@@ -45,22 +45,29 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
         hideToDatePicker();
     };
 
+    const getDateOnly = (date) => {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    };
+
     const handleSaveLeave = () => {
         setLoading(true);
 
         const existFlag = leaves.filter((leave) => {
-            const leaveFromDate = leave.from.date.getDate()
-            const leaveToDate = leave.to.date.getDate()
+            const leaveFromDate = getDateOnly(new Date(leave.from.date));
+            const leaveToDate = getDateOnly(new Date(leave.to.date));
+            const selectedFromDate = getDateOnly(new Date(fromDate));
+            const selectedToDate = getDateOnly(new Date(toDate));
+
             const leaveFromSession = leave.from.session
             const leaveToSession = leave.to.session
 
             const isDateOverlap =
                 // New leave starts within an existing leave
-                (fromDate.getDate() >= leaveFromDate && fromDate.getDate() <= leaveToDate) ||
+                (selectedFromDate >= leaveFromDate && selectedFromDate <= leaveToDate) ||
                 // New leave ends within an existing leave
-                (toDate.getDate() >= leaveFromDate && toDate.getDate() <= leaveToDate) ||
+                (selectedToDate >= leaveFromDate && selectedToDate <= leaveToDate) ||
                 // New leave completely wraps around an existing leave
-                (fromDate.getDate() <= leaveFromDate && toDate.getDate() >= leaveToDate);
+                (selectedFromDate <= leaveFromDate && selectedToDate >= leaveToDate);
 
             const isSessionOverlap =
                 (fromSession === leaveFromSession || toSession === leaveToSession)
@@ -69,7 +76,11 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
         });
 
         if (fromDate > toDate) {
-            Alert.alert("From date can't be ahead of the to date");
+            Alert.alert("Incorrect Date Order", "From Date can't be ahead of the To Date");
+            setLoading(false);
+            return;
+        } else if (calculateNoOfDays(fromDate, fromSession, toDate, toSession) === 0) {
+            Alert.alert("Incorrect Sessions Selected", "You selected sessions in reverse order for the day.");
             setLoading(false);
             return;
         } else if (existFlag.length > 0) {
@@ -98,7 +109,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     function calculateNoOfDays(fromDate, fromSession, toDate, toSession) {
         const startDate = new Date(fromDate.setHours(0, 0, 0, 0));
         const endDate = new Date(toDate.setHours(0, 0, 0, 0));
-        const daysDiff = (endDate - startDate) / (1000 * 60 * 60 * 24); // Calculate full days between the two dates
+        // Calculate full days between the two dates
+        const daysDiff = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
         let noOfDays = 0;
 
@@ -214,7 +226,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: fromSession === 1 ? "600" : "300",
+                                        fontWeight: fromSession === 1 ? "600" : "400",
                                         color: fromSession === 1 ? '#fff' : textColor,
                                     }
                                 ]}>Session 1</Text>
@@ -234,7 +246,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: fromSession === 2 ? "600" : "300",
+                                        fontWeight: fromSession === 2 ? "600" : "400",
                                         color: fromSession === 2 ? '#fff' : textColor,
                                     }
                                 ]}>Session 2</Text>
@@ -269,7 +281,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: toSession === 1 ? "600" : "300",
+                                        fontWeight: toSession === 1 ? "600" : "400",
                                         color: toSession === 1 ? '#fff' : textColor,
                                     }
                                 ]}>Session 1</Text>
@@ -289,7 +301,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: toSession === 2 ? "600" : "300",
+                                        fontWeight: toSession === 2 ? "600" : "400",
                                         color: toSession === 2 ? '#fff' : textColor,
                                     }
                                 ]}>Session 2</Text>
@@ -313,7 +325,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: leaveType === "Paid Leave" ? "600" : "300",
+                                        fontWeight: leaveType === "Paid Leave" ? "600" : "400",
                                         color: leaveType === "Paid Leave" ? '#fff' : textColor,
                                     }
                                 ]}>Paid Leave</Text>
@@ -332,7 +344,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: leaveType === "Unpaid Leave" ? "600" : "300",
+                                        fontWeight: leaveType === "Unpaid Leave" ? "600" : "400",
                                         color: leaveType === "Unpaid Leave" ? '#fff' : textColor,
                                     }
                                 ]}>Unpaid Leave</Text>
@@ -351,7 +363,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: leaveType === "Sick Leave" ? "600" : "300",
+                                        fontWeight: leaveType === "Sick Leave" ? "600" : "400",
                                         color: leaveType === "Sick Leave" ? '#fff' : textColor,
                                     }
                                 ]}>Sick Leave</Text>

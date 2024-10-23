@@ -10,7 +10,7 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { useAppTheme } from "@/contexts/AppTheme";
 import { SafeAreaView } from "react-native";
 
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
   morePage: undefined;
@@ -32,7 +32,8 @@ function IoniconsIcon(props: {
   return <Ionicons {...props} />; // Use Ionicons
 }
 export default function TabLayout() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { darkTheme, setDarkTheme } = useAppTheme();
 
   const toggleTheme = () => {
@@ -77,7 +78,7 @@ export default function TabLayout() {
               alignItems: "center",
             }}
             onPress={() => {
-              navigation.navigate("morePage")
+              navigation.navigate("morePage");
             }}
           >
             <Image
@@ -151,21 +152,6 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="salary"
-        options={{
-          title: "Salary",
-          // headerTitle: "Your Salary Details",
-          tabBarIcon: () => (
-            <AwesomeIcons
-              name="wallet"
-              size={20}
-              color={Colors[darkTheme ? "dark" : "light"].background}
-            /> // Use AwesomeIcon
-          ),
-        }}
-      />
-
-      <Tabs.Screen
         name="calendar"
         options={{
           title: "Calendar",
@@ -180,13 +166,13 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="profile"
+        name="salary"
         options={{
-          title: "You",
-          // headerTitle: "Your Profile",
+          title: "Salary",
+          // headerTitle: "Your Salary Details",
           tabBarIcon: () => (
-            <IoniconsIcon
-              name="person"
+            <AwesomeIcons
+              name="wallet"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon

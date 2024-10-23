@@ -230,6 +230,15 @@ function RootLayoutNav() {
           headerLeft: () => headerLeft("Leaves"),
         }}
       />
+      <Stack.Screen
+        name="paySlips"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Pay Slips"),
+        }}
+      />
     </Stack>
   );
 }

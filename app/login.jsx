@@ -118,7 +118,10 @@ const Login = () => {
                                 placeholder='AKEY....'
                                 name="userId"
                                 id="userId"
-                                style={styles.inputfield}
+                                style={[styles.inputfield, {
+                                    borderWidth: 1,
+                                    borderColor: Colors.darkBlue
+                                }]}
                                 onFocus={() => setIsFocused(true)}
                                 onBlur={() => setIsFocused(false)}
                             />
@@ -126,14 +129,17 @@ const Login = () => {
 
                         <SafeAreaView>
                             <Text style={{ color: textColor, textAlign: 'left', fontWeight: 500, marginBottom: 5, fontSize: 16, marginLeft: 5 }}>Password</Text>
-                            <View style={styles.passwordContainer}>
+                            <View style={[styles.passwordContainer, {
+                                borderWidth: 1,
+                                borderColor: Colors.darkBlue
+                            }]}>
                                 <TextInput
                                     type="text"
                                     keyboardType='default'
                                     placeholder='Enter Your Password'
                                     name="password"
                                     id="password"
-                                    style={[styles.inputfield, { flex: 1 }]}
+                                    style={[styles.inputfield, { flex: 1, }]}
                                     secureTextEntry={!passwordVisible} // Show/hide password
                                     onFocus={() => setIsFocused(true)}
                                     onBlur={() => setIsFocused(false)}
@@ -142,7 +148,7 @@ const Login = () => {
                                     <Icon
                                         name={passwordVisible ? 'eye' : 'eye-off'}
                                         size={24}
-                                        color={textColor}
+                                        color={"#000"}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -156,7 +162,7 @@ const Login = () => {
                     </SafeAreaView>
 
                     <Animated.View style={{ transform: [{ scale: scaleValue }], width: '100%' }}>
-                        <LinearGradient
+                        {!darkTheme ? <LinearGradient
                             colors={['#1F366A', '#1A6FA8']}
                             style={styles.gradient}
                             start={{ x: 0, y: 0 }}
@@ -170,6 +176,16 @@ const Login = () => {
                                 <Text style={{ textAlign: 'center', fontWeight: '600', color: '#fff', fontSize: 18 }}>Login</Text>
                             </Pressable>
                         </LinearGradient>
+                            :
+                            <Pressable
+                                onPressIn={onPressIn}
+                                onPressOut={onPressOut}
+                                onPress={handleLogin}
+                                style={[styles.gradient, { backgroundColor: "#fff" }]}
+                            >
+                                <Text style={{ textAlign: 'center', fontWeight: '600', color: Colors.darkBlue, fontSize: 18 }}>Login</Text>
+                            </Pressable>
+                        }
                     </Animated.View>
                 </ScrollView>
             </SafeAreaView>
@@ -195,14 +211,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingHorizontal: 15,
         paddingVertical: 7,
-        backgroundColor: '#E7E7E7'
+        backgroundColor: '#fff'
     },
     passwordContainer: {
         display: 'flex',
         borderRadius: 30,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E7E7E7',
+        backgroundColor: '#fff',
     },
     eyeIcon: {
         paddingHorizontal: 10,

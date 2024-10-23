@@ -17,31 +17,21 @@ const backgroundImage = require("../../assets/images/body_bg.png");
 interface Props {
   months: string[];
   years: number[];
-  onNext: () => void;
-  onBack: () => void;
-  onDone: () => void;
-  onClose: () => void;
   clickedMonth: number;
   clickedYear: number;
   isMonthVisible: boolean;
   isYearVisible: boolean;
-  setClickedMonth: (month: number) => void;
-  setClickedYear: (year: number) => void;
+  setPickerModalState: any;
 }
 
 export default function SelectMonthAndYear({
   isMonthVisible,
   isYearVisible,
-  onClose,
   clickedMonth,
   clickedYear,
-  setClickedMonth,
-  setClickedYear,
   months,
   years,
-  onNext,
-  onDone,
-  onBack,
+  setPickerModalState,
 }: Props) {
   const { darkTheme } = useAppTheme();
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -55,6 +45,57 @@ export default function SelectMonthAndYear({
   const handleYearClick = (year: number) => {
     setClickedYear(year);
   };
+
+  function setClickedMonth(month: number) {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      tempMonth: month,
+    }));
+  }
+
+  function setClickedYear(year: number) {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      tempYear: year,
+    }));
+  }
+
+  function onClose() {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      showPickerMonthModal: false,
+      showPickerYearModal: false,
+    }));
+  }
+
+  function onDone() {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      selectedMonth: prevState.tempMonth,
+      selectedYear: prevState.tempYear,
+    }));
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      showPickerMonthModal: false,
+      showPickerYearModal: false,
+    }));
+  }
+
+  function onNext() {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      showPickerYearModal: true,
+      showPickerMonthModal: false,
+    }));
+  }
+
+  function onBack() {
+    setPickerModalState((prevState: any) => ({
+      ...prevState,
+      showPickerYearModal: false,
+      showPickerMonthModal: true,
+    }));
+  }
 
   return (
     <SafeAreaView>
