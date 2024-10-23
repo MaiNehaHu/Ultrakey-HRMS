@@ -222,15 +222,6 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen
-        name="leavesPage"
-        options={{
-          headerShown: true,
-          headerTitle: "",
-          // headerRight,
-          headerLeft: () => headerLeft("Leaves"),
-        }}
-      />
-      <Stack.Screen
         name="paySlips"
         options={{
           headerShown: true,

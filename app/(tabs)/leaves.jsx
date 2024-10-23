@@ -15,16 +15,17 @@ import Colors from "@/constants/Colors";
 import { TouchableOpacity } from "react-native";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
-import { useLeavesContext } from '../contexts/Leaves'
+import { useLeavesContext } from '../../contexts/Leaves'
 
-import LeaveDetails from '../components/myApp/leaveDetails'
-import ApplyLeave from '../components/myApp/applyLeave'
-import SelectMonthAndYear from '../components/myApp/selectMonth&Year';
-import months from "../constants/months";
-import years from "../constants/years";
-import leaveStatus from "../constants/leaveStatus";
+import LeaveDetails from '../../components/myApp/leaveDetails'
+import ApplyLeave from '../../components/myApp/applyLeave'
+import SelectMonthAndYear from '../../components/myApp/selectMonth&Year';
+import months from "../../constants/months";
+import years from "../../constants/years";
+import leaveStatus from "../../constants/leaveStatus";
+import { LinearGradient } from "expo-linear-gradient";
 
-const backgroundImage = require("../assets/images/body_bg.png");
+const backgroundImage = require("../../assets/images/body_bg.png");
 
 const leavesData = [
     { name: "Work From Home", granted: 5, balance: 5 },
@@ -32,7 +33,7 @@ const leavesData = [
     { name: "Sick Leaves", granted: 5, balance: 5 },
 ];
 
-export default function LeavesPage() {
+export default function Leaves() {
     const navigation = useNavigation()
     const { darkTheme } = useAppTheme();
     const { leaves, setLeaves } = useLeavesContext();
@@ -66,14 +67,32 @@ export default function LeavesPage() {
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                    <Pressable
-                        onPressIn={handlePressIn}
-                        onPressOut={handlePressOut}
-                        onPress={() => setIsLeaveModalVisible(true)}
-                        style={{ backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border, borderRadius: 30, paddingHorizontal: 15, paddingVertical: 7, }}>
-                        <Text style={{ fontWeight: 500, color: "#fff" }}>APPLY</Text>
-                    </Pressable>
+                <Animated.View style={{ transform: [{ scale: scaleAnim }], marginRight: 10 }}>
+                    {!darkTheme ?
+                        <LinearGradient
+                            colors={['#1F366A', '#1A6FA8']}
+                            style={styles.gradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        >
+
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                onPress={() => setIsLeaveModalVisible(true)}
+                            >
+                                <Text style={{ fontWeight: 500, color: "#fff" }}>APPLY</Text>
+                            </Pressable>
+                        </LinearGradient>
+                        :
+                        <Pressable
+                            onPressIn={handlePressIn}
+                            onPressOut={handlePressOut}
+                            onPress={() => setIsLeaveModalVisible(true)}
+                            style={[{ backgroundColor: Colors.lightBlue }, styles.gradient]}>
+                            <Text style={{ fontWeight: 500, color: "#fff" }}>APPLY</Text>
+                        </Pressable>
+                    }
                 </Animated.View>
             )
         })
@@ -135,7 +154,7 @@ export default function LeavesPage() {
                 </View>
 
                 {/* filtered Leaves List */}
-                <ScrollView style={{ marginTop: 20 }}>
+                <ScrollView style={{ marginTop: 20 }} showsVerticalScrollIndicator={false}>
                     {filteredLeavesList.length !== 0 ? filteredLeavesList.map((leave) => (
                         <LeaveCard leave={leave}
                             key={leave?.id}
@@ -175,7 +194,6 @@ export default function LeavesPage() {
                     setLeaves={setLeaves}
                 />
             )}
-
 
             {showLeaveDetailsModal && (
                 <LeaveDetails
@@ -308,7 +326,7 @@ const styles = StyleSheet.create({
     },
     cardStyle: {
         display: "flex",
-        padding: 10,
+        padding: 12,
         borderRadius: 15,
         borderWidth: 0.5,
         borderTopWidth: 0,
@@ -337,4 +355,9 @@ const styles = StyleSheet.create({
         alignItems: "flex-start",
         justifyContent: "space-between",
     },
+    gradient: {
+        borderRadius: 30,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+    }
 });

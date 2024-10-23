@@ -24,13 +24,6 @@ function AwesomeIcons(props: {
   return <AwesomeIcon {...props} />; // Use AwesomeIcon
 }
 
-function IoniconsIcon(props: {
-  name: React.ComponentProps<typeof Ionicons>["name"];
-  color: string;
-  size: number;
-}) {
-  return <Ionicons {...props} />; // Use Ionicons
-}
 export default function TabLayout() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -46,9 +39,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[!darkTheme ? "dark" : "light"].text,
         tabBarStyle: {
           backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
-          height: 60,
-          paddingBottom: 10,
-          paddingTop: 10,
+          paddingBottom: 5,
+          paddingTop: 5,
         },
         headerShown: useClientOnlyValue(false, true),
         headerTitleStyle: {
@@ -166,13 +158,13 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="salary"
+        name="leaves"
         options={{
-          title: "Salary",
+          title: "Leaves",
           // headerTitle: "Your Salary Details",
           tabBarIcon: () => (
             <AwesomeIcons
-              name="wallet"
+              name="mug-hot"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon

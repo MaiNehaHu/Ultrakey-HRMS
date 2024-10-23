@@ -25,7 +25,7 @@ const defaultLogo = require("../assets/images/default_person.webp");
 
 type RootStackParamList = {
   profileDetails: undefined;
-  leavesPage: undefined;
+  // leaves: undefined;
   bankDetails: undefined;
   paySlips: undefined;
   index: undefined;
@@ -96,9 +96,9 @@ export default function MorePage() {
   function handleProfileDetails() {
     navigate.navigate("profileDetails");
   }
-  function handleLeaves() {
-    navigate.navigate("leavesPage");
-  }
+  // function handleLeaves() {
+  //   navigate.navigate("leaves");
+  // }
   function handleBankDetails() {
     navigate.navigate("bankDetails");
   }
@@ -261,7 +261,8 @@ export default function MorePage() {
               </Text>
             </View>
           </Pressable>
-          <Pressable
+
+          {/* <Pressable
             onPress={handleLeaves}
             onPressIn={() => setTouchedButton(4)}
             onPressOut={() => setTouchedButton(0)}
@@ -287,7 +288,7 @@ export default function MorePage() {
                 Apply, balance, calendar
               </Text>
             </View>
-          </Pressable>
+          </Pressable> */}
           {/* <Pressable onPress={()=> setTouchedButton(1)} style={[styles.button,{backgroundColor:touchedButton?"transparent":#1a2c54"transparent"}]}>
           <Text style={{ padding: 25, color: textColor }}>
             <FontAwesome6 name="gear" size={20} />

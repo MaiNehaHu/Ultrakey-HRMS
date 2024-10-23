@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     borderRadius: 15,
-    padding: 15,
+    padding: 12,
     shadowColor: "#000",
     display: "flex",
     borderWidth: 0.5,

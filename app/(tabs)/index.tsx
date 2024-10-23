@@ -23,7 +23,7 @@ const backgroundImage = require("../../assets/images/body_bg.png");
 type RootStackParamList = {
   task: undefined;
   holidaysList: undefined;
-  leavesPage: undefined;
+  leaves: undefined;
 };
 
 interface PunchRecord {
@@ -823,7 +823,7 @@ const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
           <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => {
-              navigation.navigate("leavesPage");
+              navigation.navigate("leaves");
             }}
           >
             <Text style={styles.viewAllButtonText}>
@@ -915,7 +915,7 @@ const styles = StyleSheet.create({
   cardStyle: {
     display: "flex",
     gap: 5,
-    padding: 15,
+    padding: 12,
     borderRadius: 15,
     borderWidth: 0.5,
     borderTopWidth: 0,

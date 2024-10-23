@@ -7,6 +7,7 @@ import { Animated } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only using DateTimePickerModal
 import { useLeavesContext } from '@/contexts/Leaves';
 import leaveStatus from '@/constants/leaveStatus';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     const { darkTheme } = useAppTheme();
@@ -148,7 +149,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
     const handlePressIn = () => {
         Animated.spring(scaleAnim, {
-            toValue: 0.95,
+            toValue: 0.97,
             useNativeDriver: true,
         }).start();
     };
@@ -168,7 +169,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     };
 
     return (
-        <Modal visible={isVisible} transparent={true} animationType='slide'>
+        <Modal visible={isVisible} transparent={true} animationType='fade'>
             <Pressable style={styles.modalContainer} onPress={toggleModal}>
 
                 <Pressable onPress={(e) => e.stopPropagation()}>
@@ -217,8 +218,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: fromSession === 1 ? Colors.tintColorLight : "transparent",
-                                        borderColor: fromSession === 1 ? Colors.tintColorLight : textColor,
+                                        backgroundColor: fromSession === 1 ? Colors.darkBlue : "transparent",
+                                        borderColor: fromSession === 1 ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setFromSession(1)}
@@ -237,8 +238,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: fromSession === 2 ? Colors.tintColorLight : "transparent",
-                                        borderColor: fromSession === 2 ? Colors.tintColorLight : textColor,
+                                        backgroundColor: fromSession === 2 ? Colors.darkBlue : "transparent",
+                                        borderColor: fromSession === 2 ? Colors.darkBlue : textColor,
                                     }
                                 ]}
                                 onPress={() => setFromSession(2)}
@@ -272,8 +273,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: toSession === 1 ? Colors.tintColorLight : "transparent",
-                                        borderColor: toSession === 1 ? Colors.tintColorLight : textColor,
+                                        backgroundColor: toSession === 1 ? Colors.darkBlue : "transparent",
+                                        borderColor: toSession === 1 ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setToSession(1)}
@@ -292,8 +293,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: toSession === 2 ? Colors.tintColorLight : "transparent",
-                                        borderColor: toSession === 2 ? Colors.tintColorLight : textColor,
+                                        backgroundColor: toSession === 2 ? Colors.darkBlue : "transparent",
+                                        borderColor: toSession === 2 ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setToSession(2)}
@@ -316,8 +317,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: leaveType === "Paid Leave" ? Colors.tintColorLight : "transparent",
-                                        borderColor: leaveType === "Paid Leave" ? Colors.tintColorLight : textColor,
+                                        backgroundColor: leaveType === "Paid Leave" ? Colors.darkBlue : "transparent",
+                                        borderColor: leaveType === "Paid Leave" ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setLeaveType("Paid Leave")}
@@ -335,8 +336,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : "transparent",
-                                        borderColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : textColor,
+                                        backgroundColor: leaveType === "Unpaid Leave" ? Colors.darkBlue : "transparent",
+                                        borderColor: leaveType === "Unpaid Leave" ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setLeaveType("Unpaid Leave")}
@@ -354,8 +355,8 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: leaveType === "Sick Leave" ? Colors.tintColorLight : "transparent",
-                                        borderColor: leaveType === "Sick Leave" ? Colors.tintColorLight : textColor,
+                                        backgroundColor: leaveType === "Sick Leave" ? Colors.darkBlue : "transparent",
+                                        borderColor: leaveType === "Sick Leave" ? Colors.darkBlue : textColor,
                                     },
                                 ]}
                                 onPress={() => setLeaveType("Sick Leave")}
@@ -370,24 +371,46 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                             </Pressable>
                         </View>
 
-                        <View style={{ marginVertical: 10, }}>
+                        <View style={{ marginVertical: 5, }}>
                             <Text style={{ color: textColor }}>Remaining Paid Leaves: 2</Text>
                         </View>
 
                         {/* Apply Button or Loader */}
                         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                            <Pressable
-                                onPressIn={handlePressIn}
-                                onPressOut={handlePressOut}
-                                onPress={handleSaveLeave}
-                                style={[styles.applyButton, { backgroundColor: oppBgColor }]}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator size="small" color={Colors.tintColorLight} />
-                                ) : (
-                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
-                                )}
-                            </Pressable>
+                            {!darkTheme ?
+                                <LinearGradient
+                                    colors={['#1F366A', '#1A6FA8']}
+                                    style={styles.applyButton}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                >
+                                    <Pressable
+                                        onPressIn={handlePressIn}
+                                        onPressOut={handlePressOut}
+                                        onPress={handleSaveLeave}
+                                    >
+                                        {loading ? (
+                                            <ActivityIndicator size="small" color={Colors.darkBlue} />
+                                        ) : (
+                                            <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                        )}
+                                    </Pressable>
+                                </LinearGradient>
+                                :
+                                <Pressable
+                                    onPressIn={handlePressIn}
+                                    onPressOut={handlePressOut}
+                                    onPress={handleSaveLeave}
+                                    style={[styles.applyButton, { backgroundColor: oppBgColor }]}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator size="small" color={Colors.darkBlue} />
+                                    ) : (
+                                        <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                    )}
+                                </Pressable>
+                            }
+
                         </Animated.View>
                     </View>
                 </Pressable>
@@ -417,6 +440,7 @@ const styles = StyleSheet.create({
     },
     flex_row_top: {
         display: "flex",
+        marginBottom: 10,
         flexDirection: "row",
         alignItems: "flex-start",
         justifyContent: "space-between",
@@ -446,7 +470,7 @@ const styles = StyleSheet.create({
     saveButtonText: {
         textAlign: "center",
         fontWeight: 500,
-        fontSize: 16
+        fontSize: 14
     },
     closeButton: {
         marginTop: 10,
