@@ -632,7 +632,7 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
         </SafeAreaView>
 
         {/* Table */}
-        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+        <SafeAreaView>
           <SafeAreaView style={styles.flex_row}>
             <Text
               style={{ width: "60%", color: Colors.black, overflow: "scroll" }}
@@ -707,7 +707,7 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
         </SafeAreaView>
 
         {/* Table */}
-        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+        <SafeAreaView>
           <SafeAreaView style={styles.flex_row}>
             <Text
               style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
@@ -796,7 +796,7 @@ const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
         </SafeAreaView>
 
         {/* Table */}
-        <SafeAreaView style={{ display: "flex", gap: 5 }}>
+        <SafeAreaView>
           <SafeAreaView style={styles.flex_row}>
             <Text
               style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
@@ -917,10 +917,10 @@ const styles = StyleSheet.create({
     gap: 5,
     padding: 15,
     borderRadius: 15,
-    backgroundColor: Colors.white,
     borderWidth: 0.5,
     borderTopWidth: 0,
     borderColor: "#929394",
+    backgroundColor: Colors.white,
   },
   flex_row: {
     gap: 10,

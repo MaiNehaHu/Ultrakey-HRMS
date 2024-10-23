@@ -1,9 +1,11 @@
-import { Animated, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { useLeavesContext } from '@/contexts/Leaves';
+
+import LeaveStatus from '@/constants/leaveStatus'
 
 const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => {
     const { darkTheme } = useAppTheme();
@@ -14,133 +16,116 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
+    // Conditionally set statusColor based on leaveData's status, with fallback values
+    const statusColor = leaveData?.status === LeaveStatus.Pending
+        ? "orange"
+        : leaveData?.status === LeaveStatus.Approved
+            ? Colors.lightBlue
+            : leaveData?.status === LeaveStatus.Rejected
+                ? "red"
+                : "gray";
+
     function handleWithdraw() {
         setLeaves((prevLeaves) => {
-            // Find the index of the leave to be withdrawn
             const leaveIndex = prevLeaves.findIndex((leave) => leave.id === leaveModalId);
-
-            if (leaveIndex === -1) {
-                return prevLeaves;
-            }
-
-            // Create a copy of the leaves array
+            if (leaveIndex === -1) return prevLeaves;
             const updatedLeaves = [...prevLeaves];
-
-            // Update the status of the selected leave
-            updatedLeaves[leaveIndex] = {
-                ...updatedLeaves[leaveIndex],
-                status: "Withdrawn",
-            };
-
+            updatedLeaves[leaveIndex] = { ...updatedLeaves[leaveIndex], status: "Withdrawn" };
             return updatedLeaves;
         });
-
         setShowLeaveDetailsModal(false);
     }
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+    const formatDate = (date) => {
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime())) {
+            console.error("Invalid date:", date);
+            return "Invalid date";
+        }
+        return new Intl.DateTimeFormat("en-US", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        }).format(parsedDate);
     };
 
     useEffect(() => {
         const currentLeave = leaves.find((leave) => leave.id === leaveModalId);
-        setLeaveData(currentLeave || {});  // Fallback to empty object if not found
+        setLeaveData(currentLeave || {});  // Fallback to an empty object if not found
     }, [leaveModalId, leaves]);
 
     const handlePressIn = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 0.95,
-            useNativeDriver: true,
-        }).start();
+        Animated.spring(scaleAnim, { toValue: 0.95, useNativeDriver: true }).start();
     };
 
     const handlePressOut = () => {
-        Animated.spring(scaleAnim, {
-            toValue: 1,
-            useNativeDriver: true,
-        }).start();
+        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
     };
 
-    return (
-        <Modal visible={isVisible} transparent={true} animationType="none">
-            <Pressable style={styles.modalBackground} onPress={() => setShowLeaveDetailsModal(false)}>
-                <View style={styles.modalContainerWrapper}>
-                    <Pressable style={[styles.modalContainer, { backgroundColor: bgColor }]} onPress={(e) => e.stopPropagation()}>
-                        <View style={[styles.ModalCard, { backgroundColor: bgColor }]}>
-                            <View>
-                                <View style={
-                                    [styles.flex_row_top,
-                                    { borderBottomWidth: 1, borderColor: '#e0e0e0', paddingBottom: 8, marginBottom: 10 }]
-                                }>
-                                    {leaveData && (
-                                        <>
-                                            <Text
-                                                style={[
-                                                    styles.status,
-                                                    {
-                                                        backgroundColor:
-                                                            leaveData.status === "Pending"
-                                                                ? "orange"
-                                                                : leaveData.status === "Approved"
-                                                                    ? "green"
-                                                                    : "red",
-                                                    },
-                                                ]}
-                                            >
-                                                {leaveData.status}
-                                            </Text>
-
-                                            <TouchableOpacity onPress={() => setShowLeaveDetailsModal(false)}>
-                                                <Text style={{ color: textColor }}>
-                                                    <AwesomeIcon name='xmark' size={22} />
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </>
-                                    )}
-                                </View>
-
-                                {leaveData && (
-                                    <View style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                        <Text style={{ fontSize: 32, color: textColor, padding: 5, textAlign: 'center' }}>{leaveData.noOfDays || 'N/A'}
-                                            <Text style={{ fontSize: 12 }}> day(s)</Text>
-                                        </Text>
-
-                                        <Text style={{ color: textColor }}>Type: {leaveData.type || 'No type provided'}</Text>
-                                        <Text style={{ color: textColor }}>Reason for leave: {leaveData.reason || 'No reason provided'}</Text>
-                                        <Text style={{ color: textColor }}>From Session {leaveData.from?.session || 'N/A'} of {leaveData.from?.date ? formatDate(leaveData.from.date) : 'N/A'}</Text>
-                                        <Text style={{ color: textColor }}>To Session {leaveData.to?.session || 'N/A'} of {leaveData.to?.date ? formatDate(leaveData.to.date) : 'N/A'}</Text>
-                                    </View>
-                                )}
-                            </View>
-
-                            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                                <Pressable
-                                    onPressIn={handlePressIn}
-                                    onPressOut={handlePressOut}
-                                    onPress={() => {
-                                        setTimeout(() => {
-                                            handleWithdraw()
-                                        }, 100);
-                                    }}
-                                    disabled={leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? true : false}
-                                    style={[styles.withdrawButton, {
-                                        backgroundColor: leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? '#e83c3c' : 'red'
-                                    }]}
+    return leaveData && (
+        <Modal visible={isVisible} transparent={true} animationType="slide">
+            <Pressable style={styles.modalContainer} onPress={() => setShowLeaveDetailsModal(false)}>
+                <Pressable onPress={(e) => e.stopPropagation()}>
+                    <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
+                        <View>
+                            {/* Header */}
+                            <SafeAreaView style={[styles.flex_row_top, { paddingBottom: 8, marginBottom: 10 }]}>
+                                <Text
+                                    style={[
+                                        styles.status,
+                                        { backgroundColor: statusColor },
+                                    ]}
                                 >
-                                    <Text style={[styles.buttonText, {
-                                        color: leaveData?.status == "Withdrawn" || leaveData?.status == "Approved" ? '#cccccc' : '#fff',
-                                    }]}>
-                                        Withdraw Leave
+                                    {leaveData?.status || 'No Status'}
+                                </Text>
+                                <TouchableOpacity onPress={() => setShowLeaveDetailsModal(false)}>
+                                    <Text style={{ color: textColor }}>
+                                        <AwesomeIcon name='xmark' size={22} />
                                     </Text>
-                                </Pressable>
-                            </Animated.View>
+                                </TouchableOpacity>
+                            </SafeAreaView>
+
+                            <DataCard header={"Reason"} data={leaveData?.reason || 'No reason provided'} />
+                            <DataCard header={"Type"} data={leaveData?.type || 'No type specified'} />
+                            <DataCard header={"From"} data={`Session ${leaveData?.from?.session || 'N/A'} of ${formatDate(leaveData?.from?.date)}`} />
+                            <DataCard header={"To"} data={`Session ${leaveData?.to?.session || 'N/A'} of ${formatDate(leaveData?.to?.date)}`} />
                         </View>
-                    </Pressable>
-                </View>
+
+                        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                onPress={() => setTimeout(handleWithdraw, 100)}
+                                disabled={leaveData?.status === LeaveStatus.Withdrawn ||
+                                    leaveData?.status === LeaveStatus.Rejected ||
+                                    leaveData?.status === LeaveStatus.Approved}
+                                style={[
+                                    styles.withdrawButton,
+                                    {
+                                        backgroundColor: leaveData?.status === LeaveStatus.Withdrawn ||
+                                            leaveData?.status === LeaveStatus.Rejected ||
+                                            leaveData?.status === LeaveStatus.Approved ? 'gray' : 'red'
+                                    }
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.withdrawButtonText,
+                                        {
+                                            color: leaveData?.status === LeaveStatus.Withdrawn ||
+                                                leaveData?.status === LeaveStatus.Rejected ||
+                                                leaveData?.status === LeaveStatus.Approved ? '#cccccc' : '#fff'
+                                        }
+                                    ]}
+                                >
+                                    Withdraw Leave
+                                </Text>
+                            </Pressable>
+                        </Animated.View>
+                    </View>
+                </Pressable>
             </Pressable>
         </Modal>
     );
@@ -148,28 +133,41 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
 
 export default LeaveDetails;
 
+const DataCard = ({ header, data }) => {
+    const { darkTheme } = useAppTheme();
+
+    const bgColor = Colors[darkTheme ? "dark" : "light"].background;
+    const textColor = Colors[darkTheme ? "dark" : "light"].text;
+    const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
+
+    return (
+        <View style={{ padding: 5, marginBottom: 10 }}>
+            <View style={[styles.cardContainer, { borderColor: textColor }]}>
+                <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
+                <Text style={{ color: textColor, borderColor: textColor }}>
+                    {data}
+                </Text>
+            </View>
+        </View>
+    )
+}
+
 const styles = StyleSheet.create({
-    modalBackground: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.6)',
-    },
-    modalContainerWrapper: {
-        width: "85%",
-    },
     modalContainer: {
-        borderRadius: 20,
-        padding: 15,
-        flexDirection: 'column',
-        justifyContent: 'space-between',
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0,0,0,0.5)'
     },
-    ModalCard: {
-        width: '100%',
-        height: 280,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
+    modalContent: {
+        width: "100%",
+        padding: 20,
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 15,
     },
     flex_row_top: {
         flexDirection: "row",
@@ -178,8 +176,8 @@ const styles = StyleSheet.create({
     },
     status: {
         color: "#fff",
-        paddingVertical: 2,
-        paddingHorizontal: 8,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
         fontSize: 14,
         borderRadius: 20,
         fontWeight: '500',
@@ -188,10 +186,35 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         padding: 10,
         paddingHorizontal: 20,
+        marginTop: 5,
     },
-    buttonText: {
+    withdrawButtonText: {
         fontSize: 14,
         textAlign: "center",
-        fontWeight: "500",
+        fontWeight: '500',
+    },
+    flex_row_top: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+    },
+    buttonText: {
+        textAlign: "center",
+        fontSize: 12,
+    },
+    cardContainer: {
+        padding: 13,
+        borderWidth: 1,
+        borderRadius: 10,
+        position: 'relative',
+    },
+    headerText: {
+        top: -10,
+        left: 10,
+        fontSize: 12,
+        fontWeight: '500',
+        position: 'absolute',
+        paddingHorizontal: 5,
     },
 });

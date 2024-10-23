@@ -17,6 +17,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useLeavesContext } from '../contexts/Leaves'
 
+import LeaveDetails from '../components/myApp/leaveDetails'
 import ApplyLeave from '../components/myApp/applyLeave'
 import SelectMonthAndYear from '../components/myApp/selectMonth&Year';
 import months from "../constants/months";
@@ -42,7 +43,10 @@ export default function LeavesPage() {
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    const [isLeaveModalVisible, setIsLeaveModalVisible] = useState(false)
+    const [isLeaveModalVisible, setIsLeaveModalVisible] = useState(false);
+    const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
+    const [leaveModalId, setLeaveModalId] = useState(null);
+
     const [pickerModalState, setPickerModalState] = useState({
         tempYear: new Date().getFullYear(),
         selectedYear: new Date().getFullYear(),
@@ -141,9 +145,13 @@ export default function LeavesPage() {
                 </View>
 
                 {/* filtered Leaves List */}
-                <ScrollView style={{ marginTop: 10 }}>
+                <ScrollView style={{ marginTop: 20 }}>
                     {filteredLeavesList.length !== 0 ? filteredLeavesList.map((leave) => (
-                        <LeaveCard leave={leave} key={leave?.id} />
+                        <LeaveCard leave={leave}
+                            key={leave?.id}
+                            setLeaveModalId={setLeaveModalId}
+                            setShowLeaveDetailsModal={setShowLeaveDetailsModal}
+                        />
                     ))
                         :
                         <Text
@@ -217,10 +225,20 @@ export default function LeavesPage() {
                     setLeaves={setLeaves}
                 />
             )}
+
+
+            {showLeaveDetailsModal && (
+                <LeaveDetails
+                    leaveModalId={leaveModalId}
+                    isVisible={showLeaveDetailsModal}
+                    setShowLeaveDetailsModal={setShowLeaveDetailsModal}
+                />
+            )}
         </View >
     );
 }
-function LeaveCard({ leave }) {
+
+function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsModal }) {
     const formatDate = (date) => {
         const parsedDate = new Date(date);
 
@@ -238,20 +256,25 @@ function LeaveCard({ leave }) {
         }).format(parsedDate);
     };
 
+    function handleClick(id) {
+        setLeaveModalId(id);
+        setShowLeaveDetailsModal(true)
+    }
+
     const statusColor =
         leave.status === leaveStatus.Pending
             ? "orange"
             : leave.status === leaveStatus.Approved
                 ? Colors.lightBlue
-                : leave.status === leaveStatus.Deferred
-                    ? Colors.lightBlue
-                    : "red";
+                : leave.status === leaveStatus.Rejected
+                    ? "red"
+                    : "gray";
 
     return (
-        <View style={{ marginVertical: 10 }}>
+        <Pressable style={{ marginVertical: 10 }} onPress={() => handleClick(leave.id)}>
             <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
             <View style={styles.cardStyle}>
-                <View style={styles.flex_row_top}>
+                <SafeAreaView style={styles.flex_row_top}>
                     <Text
                         style={{
                             width: "70%",
@@ -266,19 +289,19 @@ function LeaveCard({ leave }) {
                     <Text style={[styles.status, { backgroundColor: statusColor }]} >
                         {leave.status}
                     </Text>
-                </View>
+                </SafeAreaView>
 
                 <Text style={{ color: "#000", fontSize: 12 }}>
-                    From: {formatDate(leave.from?.date || leave.from)}
+                    From: Session {leave.from.session} of {formatDate(leave.from?.date || leave.from)}
                 </Text>
                 <Text style={{ color: "#000", fontSize: 12 }}>
-                    To: {formatDate(leave.to?.date || leave.to)}
+                    To: Session {leave.to.session} of {formatDate(leave.to?.date || leave.to)}
                 </Text>
                 <Text style={{ color: "#000", fontSize: 12 }}>
                     Reason: {leave.reason}
                 </Text>
             </View>
-        </View>
+        </Pressable>
     );
 }
 

@@ -6,6 +6,7 @@ import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { Animated } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only using DateTimePickerModal
 import { useLeavesContext } from '@/contexts/Leaves';
+import leaveStatus from '@/constants/leaveStatus';
 
 const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     const { darkTheme } = useAppTheme();
@@ -46,16 +47,33 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
     const handleSaveLeave = () => {
         setLoading(true);
-        const existFlag = leaves.filter((leave) => (
-            leave.from.date.getDate() === fromDate.getDate() || leave.to.date.getDate() === toDate.getDate()
-        ));
+
+        const existFlag = leaves.filter((leave) => {
+            const leaveFromDate = leave.from.date.getDate()
+            const leaveToDate = leave.to.date.getDate()
+            const leaveFromSession = leave.from.session
+            const leaveToSession = leave.to.session
+
+            const isDateOverlap =
+                // New leave starts within an existing leave
+                (fromDate.getDate() >= leaveFromDate && fromDate.getDate() <= leaveToDate) ||
+                // New leave ends within an existing leave
+                (toDate.getDate() >= leaveFromDate && toDate.getDate() <= leaveToDate) ||
+                // New leave completely wraps around an existing leave
+                (fromDate.getDate() <= leaveFromDate && toDate.getDate() >= leaveToDate);
+
+            const isSessionOverlap =
+                (fromSession === leaveFromSession || toSession === leaveToSession)
+
+            return isDateOverlap && isSessionOverlap && (leave.status === leaveStatus.Approved || leave.status === leaveStatus.Pending);
+        });
 
         if (fromDate > toDate) {
             Alert.alert("From date can't be ahead of the to date");
             setLoading(false);
             return;
         } else if (existFlag.length > 0) {
-            Alert.alert("You have already applied leave for this date");
+            Alert.alert("Already applied", "You already have an overlapping leave for these dates and sessions.");
             setLoading(false);
             return;
         }
@@ -66,7 +84,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             from: { date: fromDate, session: fromSession },
             to: { date: toDate, session: toSession },
             type: leaveType,
-            status: 'Pending',
+            status: leaveStatus.Pending,
             noOfDays: calculateNoOfDays(fromDate, fromSession, toDate, toSession)
         };
 
@@ -139,227 +157,230 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
     return (
         <Modal visible={isVisible} transparent={true} animationType='slide'>
-            <View style={styles.modalContainer}>
-                <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
-                    <View style={styles.flex_row_top}>
-                        <Text style={[styles.modalTitle, { color: textColor }]}>Apply for Leave</Text>
+            <Pressable style={styles.modalContainer} onPress={toggleModal}>
 
-                        <TouchableOpacity onPress={toggleModal}>
-                            <Text style={{ color: textColor }}>
-                                <AwesomeIcon name='xmark' size={22} />
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                <Pressable onPress={(e) => e.stopPropagation()}>
+                    <View style={[styles.modalContent, { backgroundColor: bgColor }]} >
+                        <View style={styles.flex_row_top}>
+                            <Text style={[styles.modalTitle, { color: textColor }]}>Apply for Leave</Text>
 
-                    <View style={{ padding: 5, marginBottom: 10 }}>
-                        <View style={[styles.cardContainer, { borderColor: textColor }]}>
-                            <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
-                            <TextInput
-                                style={{ color: textColor, borderColor: textColor }}
-                                placeholder="Reason for leave"
-                                value={reason}
-                                onChangeText={setReason}
-                                placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
-                            />
+                            <TouchableOpacity onPress={toggleModal}>
+                                <Text style={{ color: textColor }}>
+                                    <AwesomeIcon name='xmark' size={22} />
+                                </Text>
+                            </TouchableOpacity>
                         </View>
+
+                        <View style={{ padding: 5, marginBottom: 10 }}>
+                            <View style={[styles.cardContainer, { borderColor: textColor }]}>
+                                <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
+                                <TextInput
+                                    style={{ color: textColor, borderColor: textColor }}
+                                    placeholder="Reason for leave"
+                                    value={reason}
+                                    onChangeText={setReason}
+                                    placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                                />
+                            </View>
+                        </View>
+
+                        <Text style={{ color: textColor, marginBottom: 8 }}>Duration:</Text>
+
+                        <View style={styles.flex_row_center}>
+                            {/* From Date Picker */}
+                            <TouchableOpacity onPress={showFromDatePicker} style={styles.dateButton}>
+                                <Text style={styles.dateButtonText}>From Date: {formatDate(fromDate)}</Text>
+                            </TouchableOpacity>
+                            <DateTimePickerModal
+                                isVisible={isFromPickerVisible}
+                                mode="date"
+                                minimumDate={new Date()}
+                                onConfirm={handleFromConfirm}
+                                onCancel={hideFromDatePicker}
+                            />
+
+                            {/* Session Toggle */}
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: fromSession === 1 ? Colors.tintColorLight : "transparent",
+                                        borderColor: fromSession === 1 ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setFromSession(1)}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: fromSession === 1 ? "600" : "300",
+                                        color: fromSession === 1 ? '#fff' : textColor,
+                                    }
+                                ]}>Session 1</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: fromSession === 2 ? Colors.tintColorLight : "transparent",
+                                        borderColor: fromSession === 2 ? Colors.tintColorLight : textColor,
+                                    }
+                                ]}
+                                onPress={() => setFromSession(2)}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: fromSession === 2 ? "600" : "300",
+                                        color: fromSession === 2 ? '#fff' : textColor,
+                                    }
+                                ]}>Session 2</Text>
+                            </Pressable>
+                        </View>
+
+                        <View style={styles.flex_row_center}>
+                            {/* To Date Picker */}
+                            <Pressable onPress={showToDatePicker} style={styles.dateButton}>
+                                <Text style={styles.dateButtonText}>To Date: {formatDate(toDate)}</Text>
+                            </Pressable>
+                            <DateTimePickerModal
+                                isVisible={isToPickerVisible}
+                                mode="date"
+                                minimumDate={fromDate}
+                                onConfirm={handleToConfirm}
+                                onCancel={hideToDatePicker}
+                            />
+
+                            {/* Session Toggle */}
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: toSession === 1 ? Colors.tintColorLight : "transparent",
+                                        borderColor: toSession === 1 ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setToSession(1)}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: toSession === 1 ? "600" : "300",
+                                        color: toSession === 1 ? '#fff' : textColor,
+                                    }
+                                ]}>Session 1</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: toSession === 2 ? Colors.tintColorLight : "transparent",
+                                        borderColor: toSession === 2 ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setToSession(2)}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: toSession === 2 ? "600" : "300",
+                                        color: toSession === 2 ? '#fff' : textColor,
+                                    }
+                                ]}>Session 2</Text>
+                            </Pressable>
+                        </View>
+
+                        <Text style={{ color: textColor, marginBottom: 8 }}>Type:</Text>
+
+                        <View style={styles.flex_row_center}>
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: leaveType === "Paid Leave" ? Colors.tintColorLight : "transparent",
+                                        borderColor: leaveType === "Paid Leave" ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setLeaveType("Paid Leave")}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: leaveType === "Paid Leave" ? "600" : "300",
+                                        color: leaveType === "Paid Leave" ? '#fff' : textColor,
+                                    }
+                                ]}>Paid Leave</Text>
+                            </Pressable>
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : "transparent",
+                                        borderColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setLeaveType("Unpaid Leave")}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: leaveType === "Unpaid Leave" ? "600" : "300",
+                                        color: leaveType === "Unpaid Leave" ? '#fff' : textColor,
+                                    }
+                                ]}>Unpaid Leave</Text>
+                            </Pressable>
+                            <Pressable
+                                style={[
+                                    styles.buttonContainer,
+                                    {
+                                        borderWidth: 1,
+                                        backgroundColor: leaveType === "Sick Leave" ? Colors.tintColorLight : "transparent",
+                                        borderColor: leaveType === "Sick Leave" ? Colors.tintColorLight : textColor,
+                                    },
+                                ]}
+                                onPress={() => setLeaveType("Sick Leave")}
+                            >
+                                <Text style={[
+                                    styles.buttonText,
+                                    {
+                                        fontWeight: leaveType === "Sick Leave" ? "600" : "300",
+                                        color: leaveType === "Sick Leave" ? '#fff' : textColor,
+                                    }
+                                ]}>Sick Leave</Text>
+                            </Pressable>
+                        </View>
+
+                        <View style={{ marginVertical: 10, }}>
+                            <Text style={{ color: textColor }}>Remaining Paid Leaves: 2</Text>
+                        </View>
+
+                        {/* Apply Button or Loader */}
+                        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                onPress={handleSaveLeave}
+                                style={[styles.applyButton, { backgroundColor: oppBgColor }]}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator size="small" color={Colors.tintColorLight} />
+                                ) : (
+                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
+                                )}
+                            </Pressable>
+                        </Animated.View>
                     </View>
-
-                    <Text style={{ color: textColor, marginBottom: 8 }}>Duration:</Text>
-
-                    <View style={styles.flex_row_center}>
-                        {/* From Date Picker */}
-                        <TouchableOpacity onPress={showFromDatePicker} style={styles.dateButton}>
-                            <Text style={styles.dateButtonText}>From Date: {formatDate(fromDate)}</Text>
-                        </TouchableOpacity>
-                        <DateTimePickerModal
-                            isVisible={isFromPickerVisible}
-                            mode="date"
-                            minimumDate={new Date()}
-                            onConfirm={handleFromConfirm}
-                            onCancel={hideFromDatePicker}
-                        />
-
-                        {/* Session Toggle */}
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: fromSession === 1 ? Colors.tintColorLight : "transparent",
-                                    borderColor: fromSession === 1 ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setFromSession(1)}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: fromSession === 1 ? "600" : "300",
-                                    color: fromSession === 1 ? '#fff' : textColor,
-                                }
-                            ]}>Session 1</Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: fromSession === 2 ? Colors.tintColorLight : "transparent",
-                                    borderColor: fromSession === 2 ? Colors.tintColorLight : textColor,
-                                }
-                            ]}
-                            onPress={() => setFromSession(2)}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: fromSession === 2 ? "600" : "300",
-                                    color: fromSession === 2 ? '#fff' : textColor,
-                                }
-                            ]}>Session 2</Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.flex_row_center}>
-                        {/* To Date Picker */}
-                        <Pressable onPress={showToDatePicker} style={styles.dateButton}>
-                            <Text style={styles.dateButtonText}>To Date: {formatDate(toDate)}</Text>
-                        </Pressable>
-                        <DateTimePickerModal
-                            isVisible={isToPickerVisible}
-                            mode="date"
-                            minimumDate={fromDate}
-                            onConfirm={handleToConfirm}
-                            onCancel={hideToDatePicker}
-                        />
-
-                        {/* Session Toggle */}
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: toSession === 1 ? Colors.tintColorLight : "transparent",
-                                    borderColor: toSession === 1 ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setToSession(1)}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: toSession === 1 ? "600" : "300",
-                                    color: toSession === 1 ? '#fff' : textColor,
-                                }
-                            ]}>Session 1</Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: toSession === 2 ? Colors.tintColorLight : "transparent",
-                                    borderColor: toSession === 2 ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setToSession(2)}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: toSession === 2 ? "600" : "300",
-                                    color: toSession === 2 ? '#fff' : textColor,
-                                }
-                            ]}>Session 2</Text>
-                        </Pressable>
-                    </View>
-
-                    <Text style={{ color: textColor, marginBottom: 8 }}>Type:</Text>
-
-                    <View style={styles.flex_row_center}>
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: leaveType === "Paid Leave" ? Colors.tintColorLight : "transparent",
-                                    borderColor: leaveType === "Paid Leave" ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setLeaveType("Paid Leave")}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: leaveType === "Paid Leave" ? "600" : "300",
-                                    color: leaveType === "Paid Leave" ? '#fff' : textColor,
-                                }
-                            ]}>Paid Leave</Text>
-                        </Pressable>
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : "transparent",
-                                    borderColor: leaveType === "Unpaid Leave" ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setLeaveType("Unpaid Leave")}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: leaveType === "Unpaid Leave" ? "600" : "300",
-                                    color: leaveType === "Unpaid Leave" ? '#fff' : textColor,
-                                }
-                            ]}>Unpaid Leave</Text>
-                        </Pressable>
-                        <Pressable
-                            style={[
-                                styles.buttonContainer,
-                                {
-                                    borderWidth: 1,
-                                    backgroundColor: leaveType === "Sick Leave" ? Colors.tintColorLight : "transparent",
-                                    borderColor: leaveType === "Sick Leave" ? Colors.tintColorLight : textColor,
-                                },
-                            ]}
-                            onPress={() => setLeaveType("Sick Leave")}
-                        >
-                            <Text style={[
-                                styles.buttonText,
-                                {
-                                    fontWeight: leaveType === "Sick Leave" ? "600" : "300",
-                                    color: leaveType === "Sick Leave" ? '#fff' : textColor,
-                                }
-                            ]}>Sick Leave</Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={{ marginVertical: 10, }}>
-                        <Text style={{ color: textColor }}>Remaining Paid Leaves: 2</Text>
-                    </View>
-
-                    {/* Apply Button or Loader */}
-                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                        <Pressable
-                            onPressIn={handlePressIn}
-                            onPressOut={handlePressOut}
-                            onPress={handleSaveLeave}
-                            style={[styles.applyButton, { backgroundColor: oppBgColor }]}
-                        >
-                            {loading ? (
-                                <ActivityIndicator size="small" color={Colors.tintColorLight} />
-                            ) : (
-                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
-                            )}
-                        </Pressable>
-                    </Animated.View>
-                </View>
-            </View>
-        </Modal>
+                </Pressable>
+            </Pressable>
+        </Modal >
     );
 };
 
