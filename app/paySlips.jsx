@@ -5,10 +5,12 @@ import Colors from '../constants/Colors';
 import { TouchableOpacity } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import salaryPdfHtml from "@/app/salaryPdfHtml";
 import { shareAsync } from "expo-sharing";
 import { printToFileAsync } from 'expo-print';
 import * as FileSystem from "expo-file-system";
-import salaryPdfHtml from "@/app/salaryPdfHtml";
+import * as Print from 'expo-print';
+import { Alert } from 'react-native';
 
 import months from '../constants/months';
 import years from '../constants/years';
@@ -36,22 +38,42 @@ export default function paySlips() {
 
     const handleShare = async () => {
         try {
+            // Generate the PDF file
             const file = await printToFileAsync({
                 html: html,
                 base64: false,
             });
 
             const newFilePath = `${FileSystem.documentDirectory
-                }PaySlip_${pickerModalState.selectedMonth}_${pickerModalState.selectedYear}.pdf`;
+                }PaySlip_${months[pickerModalState.selectedMonth]}_${pickerModalState.selectedYear}.pdf`;
 
             await FileSystem.moveAsync({
                 from: file.uri,
                 to: newFilePath,
             });
 
-            await shareAsync(newFilePath);
+            // Give the user an option to either share or print the file
+            Alert.alert(
+                "Share or Print",
+                "Do you want to share the PDF or print it?",
+                [
+                    {
+                        text: "Print",
+                        onPress: async () => {
+                            await Print.printAsync({ uri: newFilePath });
+                        },
+                    },
+                    {
+                        text: "Share",
+                        onPress: async () => {
+                            await shareAsync(newFilePath);
+                        },
+                    },
+                    { text: "Cancel", style: "cancel" },
+                ]
+            );
         } catch (error) {
-            console.error("Error sharing screenshot:", error);
+            console.error("Error sharing or printing file:", error);
         }
     };
 
@@ -136,7 +158,7 @@ export default function paySlips() {
                                     onPressIn={handlePressIn}
                                     onPressOut={handlePressOut}
                                     style={[{ backgroundColor: Colors.white }, styles.gradient]}>
-                                    <Text style={{ color: Colors.darkBlue, fontWeight: 500, fontSize: 14 }}>Download PaySlip</Text>
+                                    <Text style={{ color: Colors.darkBlue, fontWeight: 500, fontSize: 14 }}>Get PaySlip</Text>
                                 </Pressable>
                             }
                         </Animated.View>
