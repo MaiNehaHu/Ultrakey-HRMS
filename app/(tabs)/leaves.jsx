@@ -75,7 +75,6 @@ export default function Leaves() {
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                         >
-
                             <Pressable
                                 onPressIn={handlePressIn}
                                 onPressOut={handlePressOut}

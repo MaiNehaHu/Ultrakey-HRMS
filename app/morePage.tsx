@@ -26,6 +26,7 @@ const defaultLogo = require("../assets/images/default_person.webp");
 type RootStackParamList = {
   profileDetails: undefined;
   // leaves: undefined;
+  holidaysList: undefined;
   bankDetails: undefined;
   paySlips: undefined;
   index: undefined;
@@ -104,6 +105,9 @@ export default function MorePage() {
   }
   function handlePaySlips() {
     navigate.navigate("paySlips");
+  }
+  function handleHolidaysList() {
+    navigate.navigate("holidaysList");
   }
   function handleLogout() {
     Alert.alert("Are you sure?", "You want to LOGOUT?", [
@@ -258,6 +262,34 @@ export default function MorePage() {
               </Text>
               <Text style={[styles.button_text_body, { color: textColor }]}>
                 Salary slips, LOPs
+              </Text>
+            </View>
+          </Pressable>
+
+          <Pressable
+            onPress={handleHolidaysList}
+            onPressIn={() => setTouchedButton(4)}
+            onPressOut={() => setTouchedButton(0)}
+            style={[
+              styles.button,
+              {
+                backgroundColor:
+                  touchedButton === 4
+                    ? Colors[darkTheme ? "dark" : "light"].buttonBackground
+                    : "transparent",
+              },
+            ]}
+          >
+            <Text style={{ padding: 25, color: textColor }}>
+              <FontAwesome6 name="mug-hot" size={20} />
+            </Text>
+
+            <View>
+              <Text style={[styles.button_text_head, { color: textColor }]}>
+                Holidays List
+              </Text>
+              <Text style={[styles.button_text_body, { color: textColor }]}>
+                List of all holidays in a year
               </Text>
             </View>
           </Pressable>

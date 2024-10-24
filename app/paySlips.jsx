@@ -130,7 +130,9 @@ export default function paySlips() {
                         <TableRow left={"Convyeance"} right={"₹900"} />
                         <TableRow left={"Medical Allowance"} right={"₹900"} />
                         <TableRow left={"Special Allowance"} right={"₹4400"} />
-                        <TableRow left={"Total"} right={"₹15000"} />
+                        <TableRow left={"Tax"} right={"-₹200"} />
+                        <TableRow left={"LOP"} right={"-₹750"} />
+                        <TableRow left={"Total"} right={"₹14050"} />
                     </View>
 
                     <Text style={{ color: textColor, fontSize: 16, fontWeight: 500, marginVertical: 20 }}>Net Pay For {months[pickerModalState.selectedMonth]}: {"₹15000"}</Text>
@@ -149,7 +151,7 @@ export default function paySlips() {
                                         onPressIn={handlePressIn}
                                         onPressOut={handlePressOut}
                                     >
-                                        <Text style={{ color: oppTextColor, fontWeight: 500, fontSize: 14 }}>Download PaySlip</Text>
+                                        <Text style={{ color: oppTextColor, fontWeight: 500, fontSize: 14 }}>Get PaySlip</Text>
                                     </Pressable>
                                 </LinearGradient>
                                 :

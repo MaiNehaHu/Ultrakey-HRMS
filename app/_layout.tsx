@@ -198,7 +198,6 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
-      <Stack.Screen name="holidaysList" options={{ headerShown: false }} />
       <Stack.Screen
         name="morePage"
         options={{ headerLeft: imageHeaderLeft, headerRight, headerTitle: "" }}
@@ -228,6 +227,15 @@ function RootLayoutNav() {
           headerTitle: "",
           headerRight,
           headerLeft: () => headerLeft("Pay Slips"),
+        }}
+      />
+      <Stack.Screen
+        name="holidaysList"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("All Holidays"),
         }}
       />
     </Stack>

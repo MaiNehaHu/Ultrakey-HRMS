@@ -20,7 +20,7 @@ const salaryPdfHtml = () => {
           background-color: ${bgColor};
         }
         body {
-          padding: 40px;
+          padding: 20px;
         }
         .payslip-container {
           padding: 40px;
@@ -116,7 +116,7 @@ const salaryPdfHtml = () => {
           }
 
           body{
-            padding: 100px;
+            padding: 30px;
           }
           
           .payslip-container,
@@ -125,20 +125,10 @@ const salaryPdfHtml = () => {
           }
           
           .payslip-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+            position: relative;
             margin: 0;
-            padding: 0;
-          }
-
-          .payslip-container {
-            width: 100vw;
-            margin: 0;
-            /* Remove all margins */
-            padding: 0;
-            /* Remove all padding */
+            width: 95%;
+            padding:20px;
           }
         }
 

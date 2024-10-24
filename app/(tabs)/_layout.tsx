@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs, useNavigation } from "expo-router";
+import { router, Tabs, useNavigation } from "expo-router";
 import { View, TouchableOpacity, Image, Text, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
@@ -25,8 +25,8 @@ function AwesomeIcons(props: {
 }
 
 export default function TabLayout() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  // const navigation =
+  //   useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { darkTheme, setDarkTheme } = useAppTheme();
 
   const toggleTheme = () => {
@@ -70,7 +70,8 @@ export default function TabLayout() {
               alignItems: "center",
             }}
             onPress={() => {
-              navigation.navigate("morePage");
+              router.push("/morePage");
+              // navigation.navigate("morePage");
             }}
           >
             <Image

@@ -1,20 +1,13 @@
-import React, { useMemo, useRef, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  ScrollView,
-  Animated,
-} from "react-native";
+import React, { useMemo, useState } from "react";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { Calendar } from "react-native-calendars";
+import moment from "moment";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
-import moment from "moment";
-import ApplyLeave from "@/components/myApp/applyLeave";
-import LeaveDetails from "@/components/myApp/leaveDetails";
 import { useLeavesContext } from "@/contexts/Leaves";
 import PunchDetails from "@/components/myApp/punchDetails";
+
+import holidays from "@/constants/holidaysList";
 
 interface LeaveSession {
   date: string;
@@ -135,37 +128,6 @@ const CalendarScreen = () => {
         },
       ],
     },
-  ];
-
-  const holidays = [
-    { date: "2024-01-01T00:00:00.857Z", name: "New Year’s Day" },
-    { date: "2024-01-15T00:00:00.857Z", name: "Makar Sankranti" },
-    { date: "2024-01-26T00:00:00.857Z", name: "Republic Day" },
-    { date: "2024-03-08T00:00:00.857Z", name: "Maha Shivaratri" },
-    { date: "2024-04-09T00:00:00.857Z", name: "Udgadi" },
-    { date: "2024-06-02T00:00:00.857Z", name: "Telangana State Formation Day" },
-    { date: "2024-05-01T00:00:00.857Z", name: "May Day" },
-    { date: "2024-08-15T00:00:00.857Z", name: "Independence Day" },
-    { date: "2024-04-17T00:00:00.857Z", name: "Rama Navami" },
-    { date: "2024-09-07T00:00:00.857Z", name: "Ganesh Chaturthi" },
-    { date: "2024-10-02T00:00:00.857Z", name: "Gandhi Jayanti" },
-    { date: "2024-10-12T00:00:00.857Z", name: "Dussehra" },
-    { date: "2024-10-31T00:00:00.857Z", name: "Diwali (Deepavali)" },
-    { date: "2024-12-25T00:00:00.857Z", name: "Christmas" },
-    { date: "2025-01-01T00:00:00.857Z", name: "New Year’s Day" },
-    { date: "2025-01-14T00:00:00.857Z", name: "Makar Sankranti" },
-    { date: "2025-01-26T00:00:00.857Z", name: "Republic Day" },
-    { date: "2025-02-26T00:00:00.857Z", name: "Maha Shivaratri" },
-    { date: "2025-03-30T00:00:00.857Z", name: "Udgadi" },
-    { date: "2025-05-01T00:00:00.857Z", name: "May Day" },
-    { date: "2025-06-02T00:00:00.857Z", name: "Telangana State Formation Day" },
-    { date: "2025-08-15T00:00:00.857Z", name: "Independence Day" },
-    { date: "2025-04-06T00:00:00.857Z", name: "Rama Navami" },
-    { date: "2025-08-27T00:00:00.857Z", name: "Ganesh Chaturthi" },
-    { date: "2025-10-02T00:00:00.857Z", name: "Gandhi Jayanti" },
-    { date: "2025-10-02T00:00:00.857Z", name: "Dussehra" },
-    { date: "2025-10-21T00:00:00.857Z", name: "Diwali (Deepavali)" },
-    { date: "2025-12-25T00:00:00.857Z", name: "Christmas" },
   ];
 
   // Function to get all Sundays in the selected month
@@ -402,13 +364,6 @@ const CalendarScreen = () => {
       moment(holiday.date).year() === currentDate.year()
   );
 
-  // Toggle the modal visibility
-  const toggleModal = () => {
-    setTimeout(() => {
-      setLeaveModalVisible(!isLeaveModalVisible);
-    }, 100);
-  };
-
   return (
     <ScrollView
       style={{
@@ -418,90 +373,18 @@ const CalendarScreen = () => {
         paddingBottom: 110,
       }}
     >
-      <View style={styles.buttonContainer}>
-        <Pressable
-          onPress={() => setShowAttendance(true)}
-          style={[
-            styles.button,
-            {
-              backgroundColor: showAttendance ? oppBgColor : "transparent",
-              borderWidth: 2,
-              borderColor: oppBgColor,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              { color: !showAttendance ? oppBgColor : bgColor },
-            ]}
-          >
-            Attendance
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setShowAttendance(false)}
-          style={[
-            styles.button,
-            {
-              backgroundColor: !showAttendance ? oppBgColor : "transparent",
-              borderWidth: 2,
-              borderColor: oppBgColor,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              { color: showAttendance ? oppBgColor : bgColor },
-            ]}
-          >
-            Leaves
-          </Text>
-        </Pressable>
-      </View>
-
       <View style={{ marginTop: 15, flex: 1 }}>
-        {showAttendance ? (
-          <CalendarAndHolidays
-            textColor={textColor}
-            darkTheme={darkTheme}
-            markedDates={markedDates}
-            onMonthChange={onMonthChange}
-            onDayPress={onDayPress}
-            currentDate={currentDate}
-            formatDate={formatDate}
-            currentMonthHolidays={currentMonthHolidays}
-          />
-        ) : (
-          <Leaves
-            leaves={leaves}
-            toggleModal={toggleModal}
-            textColor={textColor}
-            oppBgColor={oppBgColor}
-            oppTextColor={oppTextColor}
-            setLeaveModalId={setLeaveModalId}
-            setShowLeaveDetailsModal={setShowLeaveDetailsModal}
-          />
-        )}
+        <CalendarAndHolidays
+          textColor={textColor}
+          darkTheme={darkTheme}
+          markedDates={markedDates}
+          onMonthChange={onMonthChange}
+          onDayPress={onDayPress}
+          currentDate={currentDate}
+          formatDate={formatDate}
+          currentMonthHolidays={currentMonthHolidays}
+        />
       </View>
-
-      {/* Add Leave Modal */}
-      {isLeaveModalVisible && (
-        <ApplyLeave
-          isVisible={isLeaveModalVisible}
-          toggleModal={toggleModal}
-          setLeaves={setLeaves}
-        />
-      )}
-
-      {showLeaveDetailsModal && (
-        <LeaveDetails
-          leaveModalId={leaveModalId}
-          isVisible={showLeaveDetailsModal}
-          setShowLeaveDetailsModal={setShowLeaveDetailsModal}
-        />
-      )}
 
       {/* Date Detail Modal */}
       <PunchDetails
@@ -617,126 +500,6 @@ const CalendarAndHolidays = ({
         </ScrollView>
       </View>
     </>
-  );
-};
-
-// Leaves Component
-const Leaves = ({
-  leaves,
-  textColor,
-  toggleModal,
-  oppBgColor,
-  oppTextColor,
-  setLeaveModalId,
-  setShowLeaveDetailsModal,
-}: {
-  leaves: any;
-  textColor: string;
-  toggleModal: any;
-  oppBgColor: string;
-  oppTextColor: string;
-  setLeaveModalId: any;
-  setShowLeaveDetailsModal: any;
-}) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const formatDate = (date: Date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  const leaveStatus = {
-    Pending: "Pending",
-    Approved: "Approved",
-    Withdrawn: "Withdrawn",
-  };
-
-  return (
-    <View>
-      <View style={styles.flex_row_top}>
-        <Text style={{ color: textColor, fontSize: 16, fontWeight: 500 }}>
-          Your Leaves:
-        </Text>
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          <Pressable
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            onPress={toggleModal}
-            style={[styles.addButton, { backgroundColor: "#2f95dc" }]}
-          >
-            <Text style={[styles.buttonText, { color: "#fff", fontSize: 12 }]}>
-              Apply Now
-            </Text>
-          </Pressable>
-        </Animated.View>
-      </View>
-
-      <ScrollView style={{ marginTop: 15 }}>
-        {leaves.length === 0 ? (
-          <Text style={[styles.noDataText, { color: textColor }]}>
-            No Leaves data found
-          </Text>
-        ) : (
-          leaves.map((leave: any) => (
-            <Pressable
-              key={leave.id}
-              onPress={() => {
-                setLeaveModalId(leave.id);
-                setShowLeaveDetailsModal(true);
-              }}
-              style={[styles.leaveCard, { backgroundColor: oppBgColor }]}
-            >
-              <View style={styles.flex_row_top}>
-                <View>
-                  <Text style={{ color: oppTextColor }}>
-                    From {formatDate(leave.from.date)}
-                    {" - "}
-                    Session {leave.from.session}
-                  </Text>
-                  <Text style={{ color: oppTextColor }}>
-                    To {formatDate(leave.to.date)}
-                    {" - "}
-                    Session {leave.to.session}
-                  </Text>
-                </View>
-
-                <Text
-                  style={[
-                    styles.status,
-                    {
-                      backgroundColor:
-                        leave.status === leaveStatus.Pending
-                          ? "orange"
-                          : leave.status === leaveStatus.Pending
-                          ? "green"
-                          : "red",
-                    },
-                  ]}
-                >
-                  {leave.status}
-                </Text>
-              </View>
-            </Pressable>
-          ))
-        )}
-      </ScrollView>
-    </View>
   );
 };
 
