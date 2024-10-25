@@ -1,26 +1,17 @@
 import React from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity, Pressable } from "react-native";
 import moment from "moment";
-import FontAwesome6Icon from "react-native-vector-icons/FontAwesome6";
 
 const DateDetailModal = ({
-  isVisible,
-  data,
-  onClose,
+  clickedDate,
   textColor,
-  bgColor,
 }) => {
-  // Format the date fields
-  const formattedSelectedDate = data?.selectedAttendance?.date
-    ? moment(data.selectedAttendance?.date).format("MMM D, YYYY")
-    : moment(data?.clickedDate).format("MMM D, YYYY");
-
-  const formattedFromDate = data?.selectedLeave?.from?.date
-    ? moment(data.selectedLeave.from.date).format("MMM D, YYYY")
+  const formattedFromDate = clickedDate?.selectedLeave?.from?.date
+    ? moment(clickedDate.selectedLeave.from.date).format("MMM D, YYYY")
     : "N/A";
 
-  const formattedToDate = data?.selectedLeave?.to?.date
-    ? moment(data.selectedLeave.to.date).format("MMM D, YYYY")
+  const formattedToDate = clickedDate?.selectedLeave?.to?.date
+    ? moment(clickedDate.selectedLeave.to.date).format("MMM D, YYYY")
     : "N/A";
 
   // Format punch time
@@ -39,7 +30,6 @@ const DateDetailModal = ({
   const workHoursRecords = (from, to) => {
     if (from && to) {
       const workedMilliseconds = to - from;
-      console.log(formatTime(from), formatTime(to));
 
       const formattedWorkedHours = formatWorkedHours(workedMilliseconds); // Convert milliseconds to readable format
 
@@ -129,14 +119,14 @@ const DateDetailModal = ({
     if (workedMilliseconds > nineHoursInMilliseconds) {
       const overtimeMilliseconds = workedMilliseconds - nineHoursInMilliseconds;
       return (
-        <Text style={[styles.modalContent, { color: textColor, textAlign: "center", marginBottom: 20 }]}>
+        <Text style={[styles.modalContent, { color: textColor }]}>
           Over Time: {formatWorkedHours(overtimeMilliseconds)}
         </Text>
       );
     } else {
       const dueTimeMilliseconds = nineHoursInMilliseconds - workedMilliseconds;
       return (
-        <Text style={[styles.modalContent, { color: textColor, textAlign: "center", marginBottom: 20 }]}>
+        <Text style={[styles.modalContent, { color: textColor }]}>
           Due Time: {formatWorkedHours(dueTimeMilliseconds)}
         </Text>
       );
@@ -145,126 +135,77 @@ const DateDetailModal = ({
 
 
   return (
-    <Modal transparent={true} visible={isVisible} animationType="none">
-      <Pressable style={styles.modalBackground} onPress={() => onClose(false)}>
-        <View style={styles.modalContainerWrapper}>
-          <Pressable style={[styles.modalContainer, { backgroundColor: bgColor }]} onPress={(e) => e.stopPropagation()}>
-            {data && (
-              <View
-                style={[styles.flex_row_top, {
-                  borderBottomWidth: 1,
-                  borderColor: "#e0e0e0",
-                  paddingBottom: 8,
-                  marginBottom: 10,
-                }]}>
-                <Text style={{ color: textColor, fontSize: 16, fontWeight: "600" }}>
-                  {formattedSelectedDate}
-                </Text>
+    <View style={{ flex: 1 }}>
+      <Text style={{ fontSize: 32, color: textColor, padding: 5, textAlign: 'center' }}>
+        {clickedDate?.selectedAttendance?.percentage
+          ? `${clickedDate.selectedAttendance.percentage}`
+          : clickedDate?.selectedLeave?.noOfDays
+            ? clickedDate.selectedLeave.noOfDays
+            : moment(clickedDate?.clickedDate).format("MMM D")}
 
-                <TouchableOpacity onPress={() => onClose(false)}>
-                  <Text style={{ color: textColor }}>
-                    <FontAwesome6Icon name="xmark" size={22} />
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
+        {/**tag */}
+        <Text style={{ fontSize: 12 }}>
+          {clickedDate.selectedAttendance?.percentage ?
+            " %"
+            : clickedDate.selectedHoliday ?
+              " Holiday"
+              : clickedDate.selectedLeave ?
+                " Day(s) Leave"
+                : " Working day"}
+        </Text>
+      </Text>
 
-            <Text style={{ fontSize: 32, color: textColor, padding: 5, textAlign: 'center' }}>
-              {data?.selectedAttendance?.percentage
-                ? `${data.selectedAttendance.percentage}`
-                : data?.selectedLeave?.noOfDays
-                  ? data.selectedLeave.noOfDays
-                  : moment(data?.clickedDate).format("MMM D")}
+      {clickedDate.selectedHoliday &&
+        <Text style={[styles.modalContent, { color: textColor, textAlign: 'center', marginBottom: 15 }]}>
+          {`${clickedDate.selectedHoliday?.name} ✨` || 'N/A'}
+        </Text>
+      }
 
-              {/**tag */}
-              <Text style={{ fontSize: 12 }}>
-                {data.selectedAttendance?.percentage ?
-                  " %"
-                  : data.selectedHoliday ?
-                    " Holiday"
-                    : data.selectedLeave ?
-                      " Day(s) Leave"
-                      : " Working day"}
-              </Text>
-            </Text>
+      {clickedDate.selectedLeave &&
+        <>
+          <Text style={[styles.modalContent, { color: textColor, textAlign: 'center' }]}>
+            From: {formattedFromDate} - Session {clickedDate.selectedLeave?.from.session}
+          </Text>
+          <Text style={[styles.modalContent, { color: textColor, textAlign: 'center', marginBottom: 10 }]}>
+            To: {formattedToDate} - Session {clickedDate.selectedLeave?.to.session}
+          </Text>
+        </>
+      }
 
-            {data.selectedHoliday &&
-              <Text style={[styles.modalContent, { color: textColor, textAlign: 'center', marginBottom: 15 }]}>
-                {`${data.selectedHoliday?.name} ✨` || 'N/A'}
-              </Text>
-            }
+      {clickedDate.selectedAttendance && (
+        <View style={{ display: "flex", alignItems: "center" }}>
+          {/* Render Overtime or Due Time */}
+          {renderOvertimeOrDueTime(
+            clickedDate.selectedAttendance?.punchRecords?.[0]?.punchIn,
+            clickedDate.selectedAttendance?.punchRecords?.[clickedDate.selectedAttendance.punchRecords.length - 1]?.punchOut
+          )}
 
-            {data.selectedLeave &&
-              <>
-                <Text style={[styles.modalContent, { color: textColor, textAlign: 'center' }]}>
-                  From: {formattedFromDate} - Session {data.selectedLeave?.from.session}
-                </Text>
-                <Text style={[styles.modalContent, { color: textColor, textAlign: 'center', marginBottom: 10 }]}>
-                  To: {formattedToDate} - Session {data.selectedLeave?.to.session}
-                </Text>
-              </>
-            }
+          {/* Punch Records */}
+          {renderPunchRecords(clickedDate.selectedAttendance?.punchRecords)}
 
-            {data.selectedAttendance && (
-              <View style={{ display: "flex", alignItems: "center" }}>
-                {/* Render Overtime or Due Time */}
-                {renderOvertimeOrDueTime(
-                  data.selectedAttendance?.punchRecords?.[0]?.punchIn,
-                  data.selectedAttendance?.punchRecords?.[data.selectedAttendance.punchRecords.length - 1]?.punchOut
-                )}
-
-                {/* Punch Records */}
-                {renderPunchRecords(data.selectedAttendance?.punchRecords)}
-
-                {/* Break Records */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 5 }}>
-                  <Text style={[styles.punchTableHeading, { color: textColor }]}>Break Start</Text>
-                  <Text style={[styles.punchTableHeading, { color: textColor }]}>Break End</Text>
-                </View>
-                {renderBreakRecords(data.selectedAttendance?.breakRecords)}
-              </View>
-            )}
-
-            {/* Work Hours */}
-            {workHoursRecords(
-              data.selectedAttendance?.punchRecords?.[0]?.punchIn,
-              data.selectedAttendance?.punchRecords?.[data.selectedAttendance.punchRecords.length - 1]?.punchOut
-            )}
-          </Pressable>
+          {/* Break Records */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%', marginBottom: 5 }}>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>Break Start</Text>
+            <Text style={[styles.punchTableHeading, { color: textColor }]}>Break End</Text>
+          </View>
+          {renderBreakRecords(clickedDate.selectedAttendance?.breakRecords)}
         </View>
-      </Pressable>
-    </Modal>
+      )}
+
+      {/* Work Hours */}
+      {workHoursRecords(
+        clickedDate.selectedAttendance?.punchRecords?.[0]?.punchIn,
+        clickedDate.selectedAttendance?.punchRecords?.[clickedDate.selectedAttendance.punchRecords.length - 1]?.punchOut
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainerWrapper: {
-    width: "85%",
-  },
-  modalContainer: {
-    gap: 10,
-    padding: 15,
-    borderRadius: 20,
-    display: "flex",
-    flexDirection: "column",
-  },
-  flex_row_top: {
-    display: "flex",
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   modalContent: {
-    fontSize: 16,
     color: "#333",
+    textAlign: "center",
+    marginBottom: 20
   },
   punchRecord: {
     marginBottom: 5,
@@ -278,14 +219,14 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   breakTableRow: {
-    marginBottom: 0,
+    marginBottom: 5,
   },
   punchTableHeading: {
     fontSize: 16,
     fontWeight: "600",
   },
   punchTableTime: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '400',
   },
 });

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
 import { Calendar } from "react-native-calendars";
 import moment from "moment";
 import Colors from "@/constants/Colors";
@@ -46,26 +46,19 @@ interface ClickedDate {
 }
 
 const CalendarScreen = () => {
-  const [showAttendance, setShowAttendance] = useState(true);
-  const [isLeaveModalVisible, setLeaveModalVisible] = useState(false);
-  const [leaveModalId, setLeaveModalId] = useState(null);
-  const [isPunchModalVisible, setPunchModalVisible] = useState(false);
-  const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
   const [currentDate, setCurrentDate] = useState(moment());
   const [clickedDate, setClickedDate] = useState<ClickedDate>({
     selectedAttendance: null,
     selectedHoliday: null,
     selectedLeave: null,
-    clickedDate: null,
+    clickedDate: new Date(),
   });
 
   const { darkTheme } = useAppTheme();
-  const { leaves, setLeaves } = useLeavesContext();
+  const { leaves } = useLeavesContext();
 
-  const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
-  const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
 
   // Sample attendance data
   const attendace = [
@@ -145,10 +138,11 @@ const CalendarScreen = () => {
         // Sunday
         marked[date.format("YYYY-MM-DD")] = {
           selected: true,
-          selectedColor: "gray",
+          selectedColor: "#666666",
         };
       }
     }
+
     return marked;
   };
 
@@ -157,12 +151,7 @@ const CalendarScreen = () => {
     const attendanceMarked: Record<string, any> = {};
     attendace.forEach((entry) => {
       const date = moment(entry.date).format("YYYY-MM-DD");
-      const color =
-        entry.percentage === 100
-          ? "green"
-          : entry.percentage >= 80 && entry.percentage <= 50
-          ? "orange"
-          : "red";
+      const color = entry.percentage >= 100 ? "green" : "orange";
       attendanceMarked[date] = {
         selected: true,
         selectedColor: color,
@@ -179,8 +168,10 @@ const CalendarScreen = () => {
     holidays.forEach((holiday) => {
       const date = moment(holiday.date).format("YYYY-MM-DD");
       holidayMarked[date] = {
-        selected: true,
-        selectedColor: "navy",
+        marked: true,
+        dotColor: "#2b79ff",
+        // selected: true,
+        // selectedColor: "#ff752b",
         holidayName: holiday.name, // Store holiday name
       };
     });
@@ -192,8 +183,10 @@ const CalendarScreen = () => {
     );
     Object.keys(fourthSaturdays).forEach((date) => {
       holidayMarked[date] = {
-        selected: true,
-        selectedColor: "navy", // Color for 4th Saturday
+        marked: true,
+        dotColor: "#2b79ff",
+        // selected: true,
+        // selectedColor: "#ff752b", // Color for 4th Saturday
         holidayName: "4th Saturday", // Distinct name for 4th Saturday
       };
     });
@@ -213,8 +206,10 @@ const CalendarScreen = () => {
         while (start.isSameOrBefore(end)) {
           const formattedDate = start.format("YYYY-MM-DD");
           leaveMarkedDates[formattedDate] = {
+            // selected: true,
+            // selectedColor: "red",
             marked: true,
-            dotColor: "navy", // Color for leaves
+            dotColor: "red", // Color for leaves
           };
           start.add(1, "days");
         }
@@ -240,8 +235,10 @@ const CalendarScreen = () => {
         saturdayCount++;
         if (saturdayCount === 4) {
           marked[date.format("YYYY-MM-DD")] = {
-            selected: true,
-            selectedColor: "navy", // Color for 4th Saturday
+            marked: true,
+            dotColor: "#2b79ff",
+            // selected: true,
+            // selectedColor: "navy", // Color for 4th Saturday
           };
         }
       }
@@ -334,65 +331,22 @@ const CalendarScreen = () => {
           }
         : null,
     });
-
-    setPunchModalVisible(true);
   };
-
-  // Close the modal
-  const closeModal = () => {
-    setPunchModalVisible(false);
-    setClickedDate({
-      selectedAttendance: null,
-      selectedHoliday: null,
-      selectedLeave: null,
-      clickedDate: null,
-    });
-  };
-
-  // Format date
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
-      day: "2-digit",
-      month: "short",
-    }).format(new Date(date));
-  };
-
-  // Filter holidays based on current month and year
-  const currentMonthHolidays = holidays.filter(
-    (holiday) =>
-      moment(holiday.date).month() === currentDate.month() &&
-      moment(holiday.date).year() === currentDate.year()
-  );
 
   return (
     <ScrollView
       style={{
-        backgroundColor: bgColor,
         flex: 1,
-        padding: 15,
-        paddingBottom: 110,
+        backgroundColor: oppBgColor,
       }}
     >
-      <View style={{ marginTop: 15, flex: 1 }}>
-        <CalendarAndHolidays
-          textColor={textColor}
-          darkTheme={darkTheme}
-          markedDates={markedDates}
-          onMonthChange={onMonthChange}
-          onDayPress={onDayPress}
-          currentDate={currentDate}
-          formatDate={formatDate}
-          currentMonthHolidays={currentMonthHolidays}
-        />
-      </View>
-
-      {/* Date Detail Modal */}
-      <PunchDetails
-        isVisible={isPunchModalVisible}
-        data={clickedDate}
-        onClose={closeModal}
+      <CalendarAndTexts
         textColor={textColor}
-        bgColor={bgColor}
+        darkTheme={darkTheme}
+        markedDates={markedDates}
+        onMonthChange={onMonthChange}
+        onDayPress={onDayPress}
+        clickedDate={clickedDate}
       />
     </ScrollView>
   );
@@ -400,50 +354,61 @@ const CalendarScreen = () => {
 
 export default CalendarScreen;
 
-const CalendarAndHolidays = ({
+const CalendarAndTexts = ({
   textColor,
   darkTheme,
   markedDates,
   onMonthChange,
   onDayPress,
-  currentDate,
-  formatDate,
-  currentMonthHolidays,
+  clickedDate,
 }: {
   textColor: string;
   darkTheme: boolean;
   markedDates: any;
   onMonthChange: any;
   onDayPress: any;
-  currentDate: any;
-  formatDate: any;
-  currentMonthHolidays: any;
+  clickedDate: any;
 }) => {
+  const oppBgColor = !darkTheme ? "#1e3669" : "#fff";
+  const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
+  const bgColor = Colors[!darkTheme ? "dark" : "light"].background;
+
+  const calendarStyles = {
+    textDayFontSize: 16,
+    textMonthFontSize: 20,
+    textDisabledColor: "#e3e3e3",
+    arrowColor: oppTextColor,
+    dayTextColor: oppTextColor,
+    monthTextColor: oppTextColor,
+    indicatorColor: oppTextColor,
+    textSectionTitleColor: oppTextColor,
+    backgroundColor: bgColor,
+    calendarBackground: bgColor,
+    textDayFontWeight: "600",
+    todayTextColor: darkTheme ? "#2f00ff" : "#2fff00",
+  };
+
   return (
-    <>
+    <SafeAreaView style={{ flex: 1, marginTop: 5 }}>
       <Calendar
-        markedDates={markedDates} // Marked Sundays, attendance, holidays, and leaves
-        onMonthChange={onMonthChange} // Handle month change
-        onDayPress={onDayPress} // Handle day press
-        style={{
-          borderRadius: 5,
-          borderWidth: 2,
-          borderColor: textColor,
-        }}
+        theme={calendarStyles}
+        onDayPress={onDayPress}
+        onMonthChange={onMonthChange}
+        key={darkTheme ? "dark" : "light"}
+        style={{ backgroundColor: oppBgColor }}
+        markedDates={markedDates} // Your marked dates for Sundays, attendance, holidays, etc.
       />
 
       <View
-        style={{
-          marginTop: 20,
-          flex: 1,
-          minHeight: "47%",
-          marginBottom: 50,
-        }}
+        style={[
+          styles.contextContainer,
+          { backgroundColor: darkTheme ? Colors.darkBlue : Colors.white },
+        ]}
       >
         {/* Display Holidays */}
         <Text
           style={[
-            styles.holiday_header,
+            styles.date_header,
             {
               color: textColor,
               borderWidth: 2,
@@ -451,55 +416,13 @@ const CalendarAndHolidays = ({
             },
           ]}
         >
-          Holidays for {formatDate(currentDate, "MMM YYYY")}
+          {moment(clickedDate.clickedDate).format("DD MMMM, YYYY")}
         </Text>
 
-        <ScrollView>
-          {currentMonthHolidays.length > 0 ? (
-            currentMonthHolidays.map(
-              ({ date, name }: { date: Date; name: string }, index: number) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.holiday_card,
-                    {
-                      backgroundColor: darkTheme
-                        ? "#001f3f"
-                        : Colors.dark.background,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      color: "#FFFFFF",
-                      fontSize: 16,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {formatDate(date)}
-                    <Text style={{ fontSize: 13, color: "#D3D3D3" }}>
-                      {" "}
-                      for {name}
-                    </Text>
-                  </Text>
-                </View>
-              )
-            )
-          ) : (
-            <Text
-              style={{
-                color: textColor,
-                fontSize: 16,
-                textAlign: "center",
-                marginTop: 10,
-              }}
-            >
-              No holidays in this month
-            </Text>
-          )}
-        </ScrollView>
+        {/* Date Detail */}
+        <PunchDetails clickedDate={clickedDate} textColor={textColor} />
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -561,11 +484,18 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     marginBottom: 5,
   },
-  holiday_header: {
+  date_header: {
     padding: 8,
     borderRadius: 25,
     textAlign: "center",
     fontWeight: "500",
-    marginBottom: 10,
+    marginBottom: 5,
+  },
+  contextContainer: {
+    flex: 1,
+    padding: 20,
+    marginTop: 10,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
 });
