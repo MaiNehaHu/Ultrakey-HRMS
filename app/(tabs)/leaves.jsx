@@ -279,12 +279,23 @@ function CountCards({ name, granted, balance }) {
 
     return (
         <SafeAreaView style={styles.cardContainer}>
-            <View
-                style={[
-                    styles.duplicateCard,
-                    { backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border },
-                ]}
-            />
+            {
+                !darkTheme ?
+                    <LinearGradient
+                        colors={['#1F366A', '#1A6FA8']}
+                        style={styles.duplicateCard}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                    />
+                    :
+                    <View
+                        style={[
+                            styles.duplicateCard,
+                            { backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border },
+                        ]}
+                    />
+            }
+            
             <View style={styles.cardStyle}>
                 <SafeAreaView>
                     <Text style={{ fontWeight: 500, fontSize: 14, color: textColor }}>{name}</Text>
