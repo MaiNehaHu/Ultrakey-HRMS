@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import { Calendar } from "react-native-calendars";
 import moment from "moment";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import { useLeavesContext } from "@/contexts/Leaves";
-import PunchDetails from "@/components/myApp/punchDetails";
+import DateDetails from "@/components/myApp/dateDetails";
 
 import holidays from "@/constants/holidaysList";
+import calendarColors from "@/constants/calendarColors";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface LeaveSession {
   date: string;
@@ -58,7 +60,6 @@ const CalendarScreen = () => {
   const { leaves } = useLeavesContext();
 
   const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
-  const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
   // Sample attendance data
   const attendace = [
@@ -151,7 +152,7 @@ const CalendarScreen = () => {
     const attendanceMarked: Record<string, any> = {};
     attendace.forEach((entry) => {
       const date = moment(entry.date).format("YYYY-MM-DD");
-      const color = entry.percentage >= 100 ? "green" : "orange";
+      const color = entry.percentage >= 100 ? "#3f8a53" : "#e68f73";
       attendanceMarked[date] = {
         selected: true,
         selectedColor: color,
@@ -207,9 +208,9 @@ const CalendarScreen = () => {
           const formattedDate = start.format("YYYY-MM-DD");
           leaveMarkedDates[formattedDate] = {
             // selected: true,
-            // selectedColor: "red",
+            // selectedColor: "#ff3838",
             marked: true,
-            dotColor: "red", // Color for leaves
+            dotColor: "#ff3838", // Color for leaves
           };
           start.add(1, "days");
         }
@@ -253,9 +254,9 @@ const CalendarScreen = () => {
     const holidayMarks = markHolidays();
 
     return {
-      ...sundays,
       ...attendanceMarks,
       ...leaveMarks,
+      ...sundays,
       ...holidayMarks,
     };
   }, [leaves, currentDate]);
@@ -334,41 +335,44 @@ const CalendarScreen = () => {
   };
 
   return (
-    <ScrollView
+    <View
       style={{
         flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
         backgroundColor: oppBgColor,
       }}
     >
-      <CalendarAndTexts
-        textColor={textColor}
+      {/* <ScrollView> */}
+      <CalendarAndDetails
         darkTheme={darkTheme}
         markedDates={markedDates}
-        onMonthChange={onMonthChange}
-        onDayPress={onDayPress}
         clickedDate={clickedDate}
+        onDayPress={onDayPress}
+        onMonthChange={onMonthChange}
       />
-    </ScrollView>
+      {/* </ScrollView> */}
+    </View>
   );
 };
 
 export default CalendarScreen;
 
-const CalendarAndTexts = ({
-  textColor,
+const CalendarAndDetails = ({
   darkTheme,
   markedDates,
   onMonthChange,
   onDayPress,
   clickedDate,
 }: {
-  textColor: string;
   darkTheme: boolean;
   markedDates: any;
   onMonthChange: any;
   onDayPress: any;
   clickedDate: any;
 }) => {
+  const textColor = Colors[darkTheme ? "dark" : "light"].text;
   const oppBgColor = !darkTheme ? "#1e3669" : "#fff";
   const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
   const bgColor = Colors[!darkTheme ? "dark" : "light"].background;
@@ -376,7 +380,7 @@ const CalendarAndTexts = ({
   const calendarStyles = {
     textDayFontSize: 16,
     textMonthFontSize: 20,
-    textDisabledColor: "#e3e3e3",
+    textDisabledColor: "#949494",
     arrowColor: oppTextColor,
     dayTextColor: oppTextColor,
     monthTextColor: oppTextColor,
@@ -389,7 +393,7 @@ const CalendarAndTexts = ({
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, marginTop: 5 }}>
+    <>
       <Calendar
         theme={calendarStyles}
         onDayPress={onDayPress}
@@ -401,28 +405,74 @@ const CalendarAndTexts = ({
 
       <View
         style={[
-          styles.contextContainer,
+          styles.detailsContainer,
           { backgroundColor: darkTheme ? Colors.darkBlue : Colors.white },
         ]}
       >
         {/* Display Holidays */}
-        <Text
-          style={[
-            styles.date_header,
-            {
-              color: textColor,
-              borderWidth: 2,
-              borderColor: textColor,
-            },
-          ]}
+        <LinearGradient
+          colors={!darkTheme ? ["#1F366A", "#1A6FA8"] : ["#fff", "#fff"]}
+          style={{ borderRadius: 30, marginBottom: 5 }}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
         >
-          {moment(clickedDate.clickedDate).format("DD MMMM, YYYY")}
-        </Text>
+          <Text
+            style={[
+              styles.date_header,
+              {
+                color: oppTextColor,
+              },
+            ]}
+          >
+            {moment(clickedDate.clickedDate).format("DD MMMM, YYYY")}
+          </Text>
+        </LinearGradient>
 
         {/* Date Detail */}
-        <PunchDetails clickedDate={clickedDate} textColor={textColor} />
+        <DateDetails clickedDate={clickedDate} textColor={textColor} />
+
+        {/* Color code */}
+        <CalendarColorsList />
       </View>
-    </SafeAreaView>
+    </>
+  );
+};
+
+const CalendarColorsList = () => {
+  const { darkTheme } = useAppTheme();
+  const textColor = Colors[darkTheme ? "dark" : "light"].text;
+  // Convert calendarColors object to an array of items for rendering
+  const calendarData = Object.entries(calendarColors).map(
+    ([status, color]) => ({
+      status,
+      color,
+    })
+  );
+
+  return (
+    <View style={{ marginTop: 20 }}>
+      <SafeAreaView style={styles.display_flex}>
+        {calendarData.map((item) => (
+          <View key={item.status} style={styles.itemContainer}>
+            <View style={[styles.circle, { backgroundColor: item.color }]}>
+              <Text
+                style={{
+                  fontSize: 9,
+                  textAlign: "center",
+                  color: "#fff",
+                  fontWeight: 500,
+                }}
+              >
+                {item.status.slice(0, 1)}
+              </Text>
+            </View>
+            <Text style={{ fontSize: 12, color: textColor }}>
+              {item.status}
+            </Text>
+          </View>
+        ))}
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -485,17 +535,37 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   date_header: {
-    padding: 8,
+    padding: 10,
     borderRadius: 25,
     textAlign: "center",
     fontWeight: "500",
-    marginBottom: 5,
+    // marginBottom: 5,
   },
-  contextContainer: {
+  detailsContainer: {
     flex: 1,
     padding: 20,
     marginTop: 10,
-    borderTopEndRadius: 40,
-    borderTopStartRadius: 40,
+    borderTopEndRadius: 35,
+    borderTopStartRadius: 35,
+  },
+  itemContainer: {
+    width: "33%",
+    paddingVertical: 3,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  circle: {
+    width: 15,
+    height: 15,
+    borderRadius: 4,
+    marginRight: 5,
+    display: "flex",
+    justifyContent: "center",
+  },
+  display_flex: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
 });

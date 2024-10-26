@@ -211,6 +211,7 @@ export default function MorePage() {
               </Text>
             </View>
           </Pressable>
+
           <Pressable
             onPress={handleBankDetails}
             onPressIn={() => setTouchedButton(2)}
@@ -238,6 +239,7 @@ export default function MorePage() {
               </Text>
             </View>
           </Pressable>
+
           <Pressable
             onPress={handlePaySlips}
             onPressIn={() => setTouchedButton(3)}
@@ -262,6 +264,34 @@ export default function MorePage() {
               </Text>
               <Text style={[styles.button_text_body, { color: textColor }]}>
                 Salary slips, LOPs
+              </Text>
+            </View>
+          </Pressable>
+          
+          <Pressable
+            // onPress={handlePaySlips}
+            onPressIn={() => setTouchedButton(6)}
+            onPressOut={() => setTouchedButton(0)}
+            style={[
+              styles.button,
+              {
+                backgroundColor:
+                  touchedButton === 6
+                    ? Colors[darkTheme ? "dark" : "light"].buttonBackground
+                    : "transparent",
+              },
+            ]}
+          >
+            <Text style={{ padding: 25, color: textColor }}>
+              <FontAwesome6 name="calendar-exclamation" size={20} />
+            </Text>
+
+            <View>
+              <Text style={[styles.button_text_head, { color: textColor }]}>
+                Regularizations
+              </Text>
+              <Text style={[styles.button_text_body, { color: textColor }]}>
+                Apply for attendace regularizations
               </Text>
             </View>
           </Pressable>
