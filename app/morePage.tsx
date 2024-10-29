@@ -268,7 +268,7 @@ export default function MorePage() {
             </View>
           </Pressable>
           
-          <Pressable
+          {/* <Pressable
             // onPress={handlePaySlips}
             onPressIn={() => setTouchedButton(6)}
             onPressOut={() => setTouchedButton(0)}
@@ -283,7 +283,7 @@ export default function MorePage() {
             ]}
           >
             <Text style={{ padding: 25, color: textColor }}>
-              <FontAwesome6 name="calendar-exclamation" size={20} />
+              <FontAwesome6 name="calendar" size={20} />
             </Text>
 
             <View>
@@ -294,7 +294,7 @@ export default function MorePage() {
                 Apply for attendace regularizations
               </Text>
             </View>
-          </Pressable>
+          </Pressable> */}
 
           <Pressable
             onPress={handleHolidaysList}

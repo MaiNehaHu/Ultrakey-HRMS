@@ -154,7 +154,7 @@ export default function Leaves() {
 
                 {/* filtered Leaves List */}
                 <ScrollView style={{ marginTop: 20 }} showsVerticalScrollIndicator={false}>
-                    {filteredLeavesList.length !== 0 ? filteredLeavesList.map((leave) => (
+                    {filteredLeavesList.length > 0 ? filteredLeavesList.map((leave) => (
                         <LeaveCard leave={leave}
                             key={leave?.id}
                             setLeaveModalId={setLeaveModalId}
@@ -165,7 +165,7 @@ export default function Leaves() {
                         <Text
                             style={{ color: textColor, textAlign: "center", marginTop: 30 }}
                         >
-                            No tasks for this month.
+                            No leaves applied for this month.
                         </Text>
                     }
                 </ScrollView>
@@ -295,7 +295,7 @@ function CountCards({ name, granted, balance }) {
                         ]}
                     />
             }
-            
+
             <View style={styles.cardStyle}>
                 <SafeAreaView>
                     <Text style={{ fontWeight: 500, fontSize: 14, color: textColor }}>{name}</Text>

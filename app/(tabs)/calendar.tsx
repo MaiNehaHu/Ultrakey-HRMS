@@ -64,61 +64,61 @@ const CalendarScreen = () => {
   // Sample attendance data
   const attendace = [
     {
-      date: "2024-09-19T00:00:00.857Z",
+      date: "2024-10-19T00:00:00.857Z",
       percentage: 100,
       latePunchIn: 800,
       punchRecords: [
         {
-          punchIn: "2024-09-19T09:39:00.857Z",
-          punchOut: "2024-09-19T0018:09:00.857Z",
+          punchIn: "2024-10-19T09:39:00.857Z",
+          punchOut: "2024-10-19T0018:09:00.857Z",
         },
         {
-          punchIn: "2024-09-19T09:39:00.857Z",
-          punchOut: "2024-09-19T0020:09:00.857Z",
+          punchIn: "2024-10-19T09:39:00.857Z",
+          punchOut: "2024-10-19T0020:09:00.857Z",
         },
       ],
       breakRecords: [
         {
-          breakStartAt: "2024-09-13T18:39:00.857Z",
-          breakEndAt: "2024-09-13T09:39:00.857Z",
+          breakStartAt: "2024-10-13T09:39:00.857Z",
+          breakEndAt: "2024-10-13T09:60:00.857Z",
         },
         {
-          breakStartAt: "2024-09-13T18:39:00.857Z",
-          breakEndAt: "2024-09-13T09:39:00.857Z",
+          breakStartAt: "2024-10-13T02:40:00.857Z",
+          breakEndAt: "2024-10-13T02:50:00.857Z",
         },
       ],
     },
     {
-      date: "2024-09-13T00:00:00.857Z",
-      percentage: 60,
+      date: "2024-10-18T00:00:00.857Z",
+      percentage: 96,
       latePunchIn: 800,
       punchRecords: [
         {
-          punchIn: "2024-09-13T09:39:00.857Z",
-          punchOut: "2024-09-13T0018:09:00.857Z",
+          punchIn: "2024-10-18T09:39:00.857Z",
+          punchOut: "2024-10-18T0017:09:00.857Z",
         },
       ],
       breakRecords: [
         {
-          breakStartAt: "2024-09-13T09:39:00.857Z",
-          breakEndAt: "2024-09-13T09:39:00.857Z",
+          breakStartAt: "2024-10-18T09:39:00.857Z",
+          breakEndAt: "2024-10-18T09:45:00.857Z",
         },
       ],
     },
     {
-      date: "2024-09-12T00:00:00.857Z",
-      percentage: 20,
+      date: "2024-10-17T00:00:00.857Z",
+      percentage: 80,
       latePunchIn: 800,
       punchRecords: [
         {
-          punchIn: "2024-09-13T09:39:00.857Z",
-          punchOut: "2024-09-13T0018:09:00.857Z",
+          punchIn: "2024-10-17T09:39:00.857Z",
+          punchOut: "2024-10-17T0016:09:00.857Z",
         },
       ],
       breakRecords: [
         {
-          breakStartAt: "2024-09-13T09:39:00.857Z",
-          breakEndAt: "2024-09-13T09:39:00.857Z",
+          breakStartAt: "2024-10-17T09:20:00.857Z",
+          breakEndAt: "2024-10-17T09:39:00.857Z",
         },
       ],
     },
@@ -152,7 +152,7 @@ const CalendarScreen = () => {
     const attendanceMarked: Record<string, any> = {};
     attendace.forEach((entry) => {
       const date = moment(entry.date).format("YYYY-MM-DD");
-      const color = entry.percentage >= 100 ? "#3f8a53" : "#e68f73";
+      const color = entry.percentage >= 95 ? "#3f8a53" : "#e68f73";
       attendanceMarked[date] = {
         selected: true,
         selectedColor: color,
@@ -450,7 +450,7 @@ const CalendarColorsList = () => {
   );
 
   return (
-    <View style={{ marginTop: 20 }}>
+    <View style={{ marginTop: 10 }}>
       <SafeAreaView style={styles.display_flex}>
         {calendarData.map((item) => (
           <View key={item.status} style={styles.itemContainer}>
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flex: 1,
     padding: 20,
-    marginTop: 10,
+    marginTop: 20,
     borderTopEndRadius: 35,
     borderTopStartRadius: 35,
   },

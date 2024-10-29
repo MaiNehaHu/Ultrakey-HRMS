@@ -238,6 +238,15 @@ function RootLayoutNav() {
           headerLeft: () => headerLeft("All Holidays"),
         }}
       />
+      <Stack.Screen
+        name="applyRegularization"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Apply Regularization"),
+        }}
+      />
     </Stack>
   );
 }

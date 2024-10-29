@@ -1,5 +1,5 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, ActivityIndicator, Alert } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
@@ -96,7 +96,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             from: { date: fromDate, session: fromSession },
             to: { date: toDate, session: toSession },
             type: leaveType,
-            status: leaveStatus.Approved,
+            status: leaveStatus.Pending,
             noOfDays: calculateNoOfDays(fromDate, fromSession, toDate, toSession)
         };
 
@@ -167,6 +167,10 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     };
+
+    useEffect(() => {
+        setToDate(fromDate)
+    }, [fromDate])
 
     return (
         <Modal visible={isVisible} transparent={true} animationType='fade'>

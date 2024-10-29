@@ -1,9 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
 import moment from "moment";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "expo-router";
 
 const formatTime = (date) => moment(date).format("h:mm A");
 
@@ -32,17 +33,6 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
     };
   }
 
-  const workHoursRecordsCard = (from, to) => {
-    if (from && to) {
-      const workedMilliseconds = to - from;
-      const formattedWorkedHours = formatWorkedHours(workedMilliseconds);
-
-      return (
-        <CardUI header={"Worked for"} data={formattedWorkedHours} />
-      );
-    }
-    return null;
-  };
 
   const renderPunchRecordsCard = (punchRecords) => {
     if (punchRecords && punchRecords.length > 0) {
@@ -59,15 +49,26 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
     return null;
   };
 
+  const breaksRecordsCard = (from, to, index) => {
+    if (from && to) {
+      const workedMilliseconds = to - from;
+      const formattedWorkedHours = formatWorkedHours(workedMilliseconds);
+
+      return (
+        <CardUI
+          key={index}
+          header={`Break ${index + 1} for${formattedWorkedHours}`}
+          data={`${formatTime(from)} - ${formatTime(to)}`}
+        />
+      );
+    }
+    return null;
+  };
+
   const renderBreakRecords = (breakRecords) => {
     if (breakRecords && breakRecords.length > 0) {
       return breakRecords.map((breakRecord, index) => (
-        <View key={index} style={[styles.breakRecord, { flexDirection: 'column', alignItems: 'center' }]}>
-          <View style={[styles.breakTableRow, { flexDirection: 'row', justifyContent: 'space-between', width: '100%' }]}>
-            <Text style={[styles.punchTableTime, { color: textColor }]}>{formatTime(breakRecord.breakStartAt)}</Text>
-            <Text style={[styles.punchTableTime, { color: textColor }]}>{formatTime(breakRecord.breakEndAt)}</Text>
-          </View>
-        </View>
+        breaksRecordsCard(breakRecord.breakStartAt, breakRecord.breakEndAt, index)
       ));
     }
     return null;
@@ -90,9 +91,13 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
     return <CardUI header={"Work In Percent"} data={`${clickedDate.selectedAttendance?.percentage}%`} />
   }
 
+  const regularizationsCard = () => {
+    return <CardUI header={"Need regularization"} data={`Request`} />
+  }
+
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ fontSize: 16, fontWeight: 500, color: textColor, textAlign: 'center', marginTop: 10, }}>
+      <Text style={{ fontWeight: 500, color: textColor, textAlign: 'center', marginTop: 10, }}>
         {clickedDate?.selectedAttendance?.percentage
           ? `You Worked For` : clickedDate?.selectedLeave?.noOfDays
             ? `You are on leave for` : clickedDate.selectedHoliday
@@ -135,25 +140,27 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
             {/* Punch records */}
             {renderPunchRecordsCard(clickedDate.selectedAttendance?.punchRecords)}
 
-            {/*  WOrked for in hours */}
-            {/* {workHoursRecordsCard(
-                clickedDate.selectedAttendance?.punchRecords?.[0]?.punchIn,
-                clickedDate.selectedAttendance?.punchRecords?.[clickedDate.selectedAttendance.punchRecords.length - 1]?.punchOut
-              )} */}
-
             {/* Over time or due time */}
             {renderOvertimeOrDueTimeCard(
               clickedDate.selectedAttendance?.punchRecords?.[0]?.punchIn,
               clickedDate.selectedAttendance?.punchRecords?.[clickedDate.selectedAttendance.punchRecords.length - 1]?.punchOut
             )}
 
+            {/* Percetage */}
             {workPercentageCard()}
 
-            {/* Total working hours */}
-            <CardUI header={"Standard Hours"} data={"9"} />
+            {/* Breaks */}
+            {renderBreakRecords(clickedDate.selectedAttendance?.breakRecords)}
 
+            {/* Total working hours */}
+            <CardUI header={"Standard Hours"} data={"9 hrs"} />
+
+            {/* Regularization request */}
+            {clickedDate.selectedAttendance?.percentage < 95
+              ? <RegularizationCard />
+              :
+              ""}
           </View>
-          {/* {renderBreakRecords(clickedDate.selectedAttendance?.breakRecords)} */}
         </ScrollView>
       )}
     </View>
@@ -184,8 +191,42 @@ const CardUI = ({ header, data }) => {
       }
 
       <View style={styles.cardStyle}>
-        <Text style={{ color: Colors.lightBlue, fontSize: 12, fontWeight: 500, paddingHorizontal: 10, }}>{header}</Text>
+        <Text style={{ color: Colors.lightBlue, fontSize: 12, fontWeight: 500 }}>{header}</Text>
         <Text style={{ color: textColor, fontSize: 16, fontWeight: 400 }}>{typeof data === "object" ? formatTime(data) : data}</Text>
+      </View>
+    </SafeAreaView>
+  )
+}
+
+const RegularizationCard = () => {
+  const { darkTheme } = useAppTheme();
+  const navigation = useNavigation()
+  const textColor = Colors[darkTheme ? "dark" : "light"].text;
+
+  return (
+    <SafeAreaView style={styles.cardContainer}>
+      {
+        !darkTheme ?
+          <LinearGradient
+            colors={['#1F366A', '#1A6FA8']}
+            style={styles.duplicateCard}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          />
+          :
+          <View
+            style={[
+              styles.duplicateCard,
+              { backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border },
+            ]}
+          />
+      }
+
+      <View style={styles.cardStyle}>
+        <Text style={{ color: Colors.lightBlue, fontSize: 12, fontWeight: 500 }}>Need regularization</Text>
+        <TouchableOpacity onPress={()=> navigation.navigate('applyRegularization')}>
+          <Text style={{ color: textColor, fontSize: 16, fontWeight: 400, textDecorationLine: 'underline' }}>Request</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )
@@ -220,7 +261,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   cardContainer: {
-    height: "75%", //modify
+    height: 80, //modify
     marginTop: 10,
     position: "relative",
   },
@@ -239,14 +280,15 @@ const styles = StyleSheet.create({
   },
   cardStyle: {
     gap: 10,
-    // flex: 1,
-    padding: 12,
+    flex: 1,
+    padding: 25,
     height: "100%",
     display: "flex",
     borderRadius: 15,
     borderWidth: 0.5,
     borderTopWidth: 0,
     alignItems: 'center',
+    justifyContent: 'center',
     borderColor: "#929394",
     backgroundColor: Colors.white,
   },
