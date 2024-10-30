@@ -64,6 +64,7 @@ export default function HolidaysList() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={backgroundImage} style={styles.backImage} />
+            
             <ScrollView style={{ padding: 15 }}>
                 <View style={{ display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center' }}>
                     <TouchableOpacity

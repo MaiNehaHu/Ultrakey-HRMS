@@ -122,6 +122,23 @@ const CalendarScreen = () => {
         },
       ],
     },
+    {
+      date: "2024-10-16T00:00:00.857Z",
+      percentage: 80,
+      latePunchIn: 800,
+      punchRecords: [
+        {
+          punchIn: "2024-10-16T09:39:00.857Z",
+          punchOut: "2024-10-16T0016:09:00.857Z",
+        },
+      ],
+      breakRecords: [
+        {
+          breakStartAt: "2024-10-16T09:20:00.857Z",
+          breakEndAt: "2024-10-16T09:39:00.857Z",
+        },
+      ],
+    },
   ];
 
   // Function to get all Sundays in the selected month
@@ -170,7 +187,7 @@ const CalendarScreen = () => {
       const date = moment(holiday.date).format("YYYY-MM-DD");
       holidayMarked[date] = {
         marked: true,
-        dotColor: "#2b79ff",
+        dotColor: "#fcba03",
         // selected: true,
         // selectedColor: "#ff752b",
         holidayName: holiday.name, // Store holiday name
@@ -409,6 +426,9 @@ const CalendarAndDetails = ({
           { backgroundColor: darkTheme ? Colors.darkBlue : Colors.white },
         ]}
       >
+        {/* Color code */}
+        <CalendarColorsList />
+
         {/* Display Holidays */}
         <LinearGradient
           colors={!darkTheme ? ["#1F366A", "#1A6FA8"] : ["#fff", "#fff"]}
@@ -430,9 +450,6 @@ const CalendarAndDetails = ({
 
         {/* Date Detail */}
         <DateDetails clickedDate={clickedDate} textColor={textColor} />
-
-        {/* Color code */}
-        <CalendarColorsList />
       </View>
     </>
   );
@@ -450,12 +467,12 @@ const CalendarColorsList = () => {
   );
 
   return (
-    <View style={{ marginTop: 10 }}>
+    <View style={{ marginBottom: 20 }}>
       <SafeAreaView style={styles.display_flex}>
         {calendarData.map((item) => (
           <View key={item.status} style={styles.itemContainer}>
             <View style={[styles.circle, { backgroundColor: item.color }]}>
-              <Text
+              {/* <Text
                 style={{
                   fontSize: 9,
                   textAlign: "center",
@@ -464,9 +481,9 @@ const CalendarColorsList = () => {
                 }}
               >
                 {item.status.slice(0, 1)}
-              </Text>
+              </Text> */}
             </View>
-            <Text style={{ fontSize: 12, color: textColor }}>
+            <Text style={{ fontSize: 11, color: textColor }}>
               {item.status}
             </Text>
           </View>
@@ -544,9 +561,10 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flex: 1,
     padding: 20,
+    paddingBottom: 0,
     marginTop: 20,
-    borderTopEndRadius: 35,
-    borderTopStartRadius: 35,
+    borderTopEndRadius: 25,
+    borderTopStartRadius: 25,
   },
   itemContainer: {
     width: "33%",
@@ -555,10 +573,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   circle: {
-    width: 15,
-    height: 15,
-    borderRadius: 4,
-    marginRight: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 15,
+    marginRight: 10,
     display: "flex",
     justifyContent: "center",
   },

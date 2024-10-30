@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -24,13 +23,14 @@ const backgroundImage = require("../assets/images/body_bg.png");
 const defaultLogo = require("../assets/images/default_person.webp");
 
 type RootStackParamList = {
-  profileDetails: undefined;
   // leaves: undefined;
-  holidaysList: undefined;
-  bankDetails: undefined;
-  paySlips: undefined;
   index: undefined;
   login: undefined;
+  paySlips: undefined;
+  bankDetails: undefined;
+  holidaysList: undefined;
+  profileDetails: undefined;
+  regularizationsPage: undefined;
 };
 
 export default function MorePage() {
@@ -105,6 +105,9 @@ export default function MorePage() {
   }
   function handlePaySlips() {
     navigate.navigate("paySlips");
+  }
+  function handleRegularizations() {
+    navigate.navigate("regularizationsPage");
   }
   function handleHolidaysList() {
     navigate.navigate("holidaysList");
@@ -267,9 +270,9 @@ export default function MorePage() {
               </Text>
             </View>
           </Pressable>
-          
-          {/* <Pressable
-            // onPress={handlePaySlips}
+
+          <Pressable
+            onPress={handleRegularizations}
             onPressIn={() => setTouchedButton(6)}
             onPressOut={() => setTouchedButton(0)}
             style={[
@@ -291,10 +294,10 @@ export default function MorePage() {
                 Regularizations
               </Text>
               <Text style={[styles.button_text_body, { color: textColor }]}>
-                Apply for attendace regularizations
+                Applied attendace regularizations
               </Text>
             </View>
-          </Pressable> */}
+          </Pressable>
 
           <Pressable
             onPress={handleHolidaysList}

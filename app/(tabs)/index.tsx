@@ -285,6 +285,7 @@ export default function TabOneScreen() {
   return (
     <ScrollView style={{ backgroundColor: bgColor, flex: 1 }}>
       <ImageBackground source={backgroundImage} style={styles.backImage} />
+      
       <SafeAreaView style={{ padding: 15 }}>
         {/**Wishes */}
         <Wish hour={hour} ampm={ampm} textColor={textColor} />

@@ -408,7 +408,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                         onPress={handleSaveLeave}
                                     >
                                         {loading ? (
-                                            <ActivityIndicator size="small" color={Colors.lightBlue} />
+                                            <ActivityIndicator size="small" color={textColor} />
                                         ) : (
                                             <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
                                         )}
@@ -422,7 +422,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                     style={[styles.applyButton, { backgroundColor: oppBgColor }]}
                                 >
                                     {loading ? (
-                                        <ActivityIndicator size="small" color={Colors.lightBlue} />
+                                        <ActivityIndicator size="small" color={oppBgColor} />
                                     ) : (
                                         <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
                                     )}

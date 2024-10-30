@@ -15,6 +15,7 @@ import { AppThemeProvider, useAppTheme } from "@/contexts/AppTheme";
 import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
 import { LoginProvider, useLogin } from "@/contexts/Login";
+import { RegularizationProvider } from "@/contexts/RegularizationRequest";
 import { Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { Text } from "react-native";
@@ -72,17 +73,20 @@ function Root() {
       <LoginProvider>
         <PunchProvider>
           <LeavesProvider>
-            <ThemeProvider
-              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-            >
-              <RootLayoutNav />
-            </ThemeProvider>
+            <RegularizationProvider>
+              <ThemeProvider
+                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+              >
+                <RootLayoutNav />
+              </ThemeProvider>
+            </RegularizationProvider>
           </LeavesProvider>
         </PunchProvider>
       </LoginProvider>
     </AppThemeProvider>
   );
 }
+
 function RootLayoutNav() {
   const { isLogged } = useLogin();
   const navigation = useNavigation();
@@ -245,6 +249,15 @@ function RootLayoutNav() {
           headerTitle: "",
           headerRight,
           headerLeft: () => headerLeft("Apply Regularization"),
+        }}
+      />
+      <Stack.Screen
+        name="regularizationsPage"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Regularizations"),
         }}
       />
     </Stack>

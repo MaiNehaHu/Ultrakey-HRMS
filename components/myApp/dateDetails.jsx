@@ -1,10 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity, Alert } from "react-native";
 import moment from "moment";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "expo-router";
+import { router } from "expo-router";
+import { useRegularization } from "@/contexts/RegularizationRequest";
 
 const formatTime = (date) => moment(date).format("h:mm A");
 
@@ -32,7 +33,6 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
       return formattedWorkedHours;
     };
   }
-
 
   const renderPunchRecordsCard = (punchRecords) => {
     if (punchRecords && punchRecords.length > 0) {
@@ -89,10 +89,6 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
 
   const workPercentageCard = () => {
     return <CardUI header={"Work In Percent"} data={`${clickedDate.selectedAttendance?.percentage}%`} />
-  }
-
-  const regularizationsCard = () => {
-    return <CardUI header={"Need regularization"} data={`Request`} />
   }
 
   return (
@@ -157,7 +153,7 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
 
             {/* Regularization request */}
             {clickedDate.selectedAttendance?.percentage < 95
-              ? <RegularizationCard />
+              ? <RegularizationCard clickedDate={clickedDate.selectedAttendance} />
               :
               ""}
           </View>
@@ -198,10 +194,30 @@ const CardUI = ({ header, data }) => {
   )
 }
 
-const RegularizationCard = () => {
+const RegularizationCard = ({ clickedDate }) => {
   const { darkTheme } = useAppTheme();
-  const navigation = useNavigation()
-  const textColor = Colors[darkTheme ? "dark" : "light"].text;
+  const { regularizationRequest } = useRegularization();
+
+  function handleRegularization() {
+    const alreadyApplied = regularizationRequest.some((req) => {
+      const reqDate = new Date(req.date).toISOString().split("T")[0];
+      const clickedReqDate = new Date(clickedDate.date).toISOString().split("T")[0];
+      return reqDate === clickedReqDate;
+    });
+
+    if (!alreadyApplied) {
+      router.push({
+        pathname: 'applyRegularization',
+        params: {
+          firstPunchIn: new Date(clickedDate.punchRecords[0].punchIn).toISOString(),
+          lastPunchOut: new Date(clickedDate.punchRecords[clickedDate.punchRecords?.length - 1].punchOut).toISOString(),
+          date: new Date(clickedDate.date).toISOString()
+        }
+      })
+    } else {
+      Alert.alert("Already applied",`Regularization request already received for ${moment(clickedDate.date).format("MMM D, YYYY")}`)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.cardContainer}>
@@ -224,8 +240,8 @@ const RegularizationCard = () => {
 
       <View style={styles.cardStyle}>
         <Text style={{ color: Colors.lightBlue, fontSize: 12, fontWeight: 500 }}>Need regularization</Text>
-        <TouchableOpacity onPress={()=> navigation.navigate('applyRegularization')}>
-          <Text style={{ color: textColor, fontSize: 16, fontWeight: 400, textDecorationLine: 'underline' }}>Request</Text>
+        <TouchableOpacity onPress={handleRegularization}>
+          <Text style={{ color: '#000', fontSize: 16, fontWeight: 400, textDecorationLine: 'underline' }}>Request</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
