@@ -5,6 +5,7 @@ import { useAppTheme } from '../contexts/AppTheme';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useRegularization } from '../contexts/RegularizationRequest';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import leaveStatus from '../constants/leaveStatus';
 
 const backgroundImage = require('../assets/images/body_bg.png');
 
@@ -40,6 +41,8 @@ export default function ApplyRegularization() {
             ...prev,
             {
                 date,
+                reg_id: date,
+                status: leaveStatus.Pending,
                 punchIn: punchRecords.firstPunchIn,
                 punchOut: punchRecords.lastPunchOut,
                 appliedOn: new Date().toISOString()
