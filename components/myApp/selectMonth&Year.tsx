@@ -8,6 +8,7 @@ import {
   Text,
   Pressable,
   ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import { View } from "react-native";
 import FontAwesome6Icon from "react-native-vector-icons/FontAwesome6";
@@ -112,24 +113,60 @@ export default function SelectMonthAndYear({
                     style={styles.backImage}
                   />
 
-                  <Text
-                    style={[
-                      styles.modalTitle,
-                      {
-                        color: darkTheme ? Colors.white : Colors.darkBlue,
-                        borderColor: textColor,
-                      },
-                    ]}
-                  >
-                    Select Month
-                  </Text>
-                  <SafeAreaView style={styles.monthsContainer}>
+                  <SafeAreaView style={styles.optionsContainer}>
+                    <View
+                      style={[
+                        styles.flexRowRight,
+                        { borderBottomColor: textColor },
+                      ]}
+                    >
+                      <TouchableOpacity
+                        onPress={onClose}
+                        style={styles.actionButton}
+                      >
+                        <Text
+                          style={[
+                            styles.actionButtonText,
+                            { color: textColor },
+                          ]}
+                        >
+                          <FontAwesome6Icon name="circle-xmark" size={18} />
+                        </Text>
+                      </TouchableOpacity>
+
+                      <Text
+                        style={[
+                          styles.modalTitle,
+                          {
+                            color: darkTheme ? Colors.white : Colors.black,
+                            borderColor: textColor,
+                          },
+                        ]}
+                      >
+                        Select Month
+                      </Text>
+
+                      <TouchableOpacity
+                        onPress={onNext}
+                        style={styles.actionButton}
+                      >
+                        <Text
+                          style={[
+                            styles.actionButtonText,
+                            { color: textColor },
+                          ]}
+                        >
+                          <FontAwesome6Icon name="arrow-right" size={18} />
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
                     {months.map((month, index) => (
                       <Pressable
                         key={index}
                         onPress={() => handleMonthClick(index)}
                         style={[
-                          styles.monthButton,
+                          styles.optionButton,
                           {
                             backgroundColor:
                               clickedMonth === index
@@ -150,49 +187,6 @@ export default function SelectMonthAndYear({
                       </Pressable>
                     ))}
                   </SafeAreaView>
-                  <View style={styles.flexRowRight}>
-                    <Pressable
-                      onPress={onClose}
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: darkTheme
-                            ? Colors.white
-                            : Colors.darkBlue,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: oppTextColor },
-                        ]}
-                      >
-                        <FontAwesome6Icon name="circle-xmark" /> Close
-                      </Text>
-                    </Pressable>
-
-                    <Pressable
-                      onPress={onNext}
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: darkTheme
-                            ? Colors.white
-                            : Colors.darkBlue,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: oppTextColor },
-                        ]}
-                      >
-                        Next <FontAwesome6Icon name="arrow-right" />
-                      </Text>
-                    </Pressable>
-                  </View>
                 </SafeAreaView>
               </Pressable>
             ) : (
@@ -205,24 +199,54 @@ export default function SelectMonthAndYear({
                     style={styles.backImage}
                   />
 
-                  <Text
+                  <View
                     style={[
-                      styles.modalTitle,
-                      {
-                        color: darkTheme ? Colors.white : Colors.darkBlue,
-                        borderColor: textColor,
-                      },
+                      styles.flexRowRight,
+                      { borderBottomColor: textColor, marginBottom: 15 },
                     ]}
                   >
-                    Select Year
-                  </Text>
-                  <SafeAreaView style={styles.monthsContainer}>
+                    <TouchableOpacity
+                      onPress={onBack}
+                      style={styles.actionButton}
+                    >
+                      <Text
+                        style={[styles.actionButtonText, { color: textColor }]}
+                      >
+                        <FontAwesome6Icon name="arrow-left" size={18} />
+                      </Text>
+                    </TouchableOpacity>
+
+                    <Text
+                      style={[
+                        styles.modalTitle,
+                        {
+                          color: darkTheme ? Colors.white : Colors.black,
+                          borderColor: textColor,
+                        },
+                      ]}
+                    >
+                      Select Year
+                    </Text>
+
+                    <TouchableOpacity
+                      onPress={onDone}
+                      style={styles.actionButton}
+                    >
+                      <Text
+                        style={[styles.actionButtonText, { color: textColor }]}
+                      >
+                        <FontAwesome6Icon name="check-circle" size={18} />
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <SafeAreaView style={styles.optionsContainer}>
                     {years.map((year, index) => (
                       <Pressable
                         key={index}
                         onPress={() => handleYearClick(year)}
                         style={[
-                          styles.monthButton,
+                          styles.optionButton,
                           {
                             backgroundColor:
                               clickedYear === year
@@ -243,49 +267,6 @@ export default function SelectMonthAndYear({
                       </Pressable>
                     ))}
                   </SafeAreaView>
-                  <View style={styles.flexRowRight}>
-                    <Pressable
-                      onPress={onBack}
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: darkTheme
-                            ? Colors.white
-                            : Colors.darkBlue,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: oppTextColor },
-                        ]}
-                      >
-                        <FontAwesome6Icon name="arrow-left" /> Back
-                      </Text>
-                    </Pressable>
-
-                    <Pressable
-                      onPress={onDone}
-                      style={[
-                        styles.actionButton,
-                        {
-                          backgroundColor: darkTheme
-                            ? Colors.white
-                            : Colors.darkBlue,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          { color: oppTextColor },
-                        ]}
-                      >
-                        Done <FontAwesome6Icon name="check-circle" />
-                      </Text>
-                    </Pressable>
-                  </View>
                 </SafeAreaView>
               </Pressable>
             )}
@@ -313,12 +294,9 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "500",
-    marginBottom: 10,
     textAlign: "center",
-    paddingBottom: 10,
-    borderBottomWidth: 1,
   },
-  monthsContainer: {
+  optionsContainer: {
     rowGap: 7,
     flexDirection: "row",
     flexWrap: "wrap",
@@ -326,11 +304,14 @@ const styles = StyleSheet.create({
   },
   flexRowRight: {
     width: "100%",
-    marginTop: 30,
+    marginBottom: 10,
+    paddingBottom: 5,
     flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
     justifyContent: "space-between",
   },
-  monthButton: {
+  optionButton: {
     width: "32%",
     paddingVertical: 10,
     borderRadius: 20,
@@ -338,10 +319,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   actionButton: {
-    borderRadius: 30,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    backgroundColor: Colors.white,
+    padding: 5,
   },
   actionButtonText: {
     color: Colors.darkBlue,

@@ -17,6 +17,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router, useNavigation } from "expo-router";
 import { ImageBackground } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import holidaysList from "@/constants/holidaysList";
+import { useLeavesContext } from "@/contexts/Leaves";
+import taskStatus from "@/constants/taskStatus";
+import leaveStatus from "@/constants/leaveStatus";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -285,7 +289,7 @@ export default function TabOneScreen() {
   return (
     <ScrollView style={{ backgroundColor: bgColor, flex: 1 }}>
       <ImageBackground source={backgroundImage} style={styles.backImage} />
-      
+
       <SafeAreaView style={{ padding: 15 }}>
         {/**Wishes */}
         <Wish hour={hour} ampm={ampm} textColor={textColor} />
@@ -598,6 +602,39 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const tasksList = [
+    {
+      task_id: 1,
+      assignee: "",
+      assigner: "",
+      name: "Ultrakey HRMS",
+      description: "Create HRMS App for Ulytrakey IT Solutions.",
+      deadline: "2024-11-20T09:00:00.000Z", // November 20, 2024, 09:00 AM UTC
+      createdAt: "2024-09-10T15:30:00.000Z", // September 10, 2024, 03:30 PM UTC
+      status: "Ongoing",
+    },
+  ];
+
+  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  const currentYear = new Date().getFullYear();
+
+  const filteredTasks = tasksList.filter(
+    (task) =>
+      (new Date(task.createdAt).toLocaleString("default", { month: "long" }) ===
+        currentMonth &&
+        new Date(task.createdAt).getFullYear() === currentYear) ||
+      task.status === taskStatus.Ongoing ||
+      task.status === taskStatus.Overdue
+  );
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(date));
+  };
+
   return (
     <SafeAreaView style={styles.cardContainer}>
       <View
@@ -618,7 +655,7 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
               fontWeight: "600",
             }}
           >
-            On Going Tasks
+            Ongoing Tasks
           </Text>
 
           <Text
@@ -628,28 +665,32 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
               fontWeight: 500,
             }}
           >
-            Deadline by
+            {filteredTasks.length > 0 ? "Deadline by" : ""}
           </Text>
         </SafeAreaView>
 
         {/* Table */}
         <SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "60%", color: Colors.black, overflow: "scroll" }}
-            >
-              HRMS for Ultrakey
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "30%" }}>20 Oct</Text>
-          </SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "60%", color: Colors.black, overflow: "scroll" }}
-            >
-              Trending News Guru
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "30%" }}>20 Oct</Text>
-          </SafeAreaView>
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map((task) => (
+              <SafeAreaView key={task.createdAt} style={styles.flex_row}>
+                <Text
+                  style={{
+                    width: "60%",
+                    color: Colors.black,
+                    overflow: "scroll",
+                  }}
+                >
+                  {task.name}
+                </Text>
+                <Text style={{ color: Colors.black, maxWidth: "30%" }}>
+                  {formatDate(task.createdAt)}
+                </Text>
+              </SafeAreaView>
+            ))
+          ) : (
+            <Text style={{ color: Colors.black }}>No tasks assigned</Text>
+          )}
         </SafeAreaView>
 
         <SafeAreaView>
@@ -672,6 +713,23 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
 const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  const currentYear = new Date().getFullYear();
+
+  const filteredHolidays = holidaysList.filter(
+    (holiday) =>
+      new Date(holiday.date).toLocaleString("default", { month: "long" }) ===
+        currentMonth && new Date(holiday.date).getFullYear() === currentYear
+  );
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      // year: "numeric",
+    }).format(new Date(date));
+  };
 
   return (
     <SafeAreaView style={styles.cardContainer}>
@@ -703,42 +761,34 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
               fontWeight: 500,
             }}
           >
-            Deadline by
+            {filteredHolidays.length > 0 ? "Holiday for" : ""}
           </Text>
         </SafeAreaView>
 
         {/* Table */}
         <SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
-            >
-              2 Oct
+          {filteredHolidays.length > 0 ? (
+            filteredHolidays.map((holiday, index) => (
+              <SafeAreaView style={styles.flex_row} key={holiday.date}>
+                <Text
+                  style={{
+                    width: "60%",
+                    color: Colors.black,
+                    overflow: "scroll",
+                  }}
+                >
+                  {formatDate(holiday.date)}
+                </Text>
+                <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+                  {holiday.name}
+                </Text>
+              </SafeAreaView>
+            ))
+          ) : (
+            <Text style={{ color: Colors.black }}>
+              No holidays in {currentMonth}
             </Text>
-            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-              Gandhi Jayanti
-            </Text>
-          </SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
-            >
-              12 Oct
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-              Dassehra
-            </Text>
-          </SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
-            >
-              12 Oct
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-              Diwali/Deepawali
-            </Text>
-          </SafeAreaView>
+          )}
         </SafeAreaView>
 
         <SafeAreaView>
@@ -761,6 +811,28 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
 const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const { leaves } = useLeavesContext();
+
+  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  const currentYear = new Date().getFullYear();
+
+  const filteredLeaves = leaves.filter(
+    (leave: any) =>
+      (new Date(leave.from.date).toLocaleString("default", {
+        month: "long",
+      }) === currentMonth &&
+        new Date(leave.from.date).getFullYear() === currentYear) ||
+      leave.status === leaveStatus.Pending
+  );
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      // year: "numeric",
+    }).format(new Date(date));
+  };
 
   return (
     <SafeAreaView style={styles.cardContainer}>
@@ -792,32 +864,33 @@ const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
               fontWeight: 500,
             }}
           >
-            Status
+            {filteredLeaves.length > 0 ? "Status" : ""}
           </Text>
         </SafeAreaView>
 
         {/* Table */}
         <SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
-            >
-              2 Oct
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-              Gandhi Jayanti
-            </Text>
-          </SafeAreaView>
-          <SafeAreaView style={styles.flex_row}>
-            <Text
-              style={{ width: "30%", color: Colors.black, overflow: "scroll" }}
-            >
-              12 Oct
-            </Text>
-            <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-              Dassehra
-            </Text>
-          </SafeAreaView>
+          {filteredLeaves.length > 0 ? (
+            filteredLeaves.map((leave: any, index: number) => (
+              <SafeAreaView key={index} style={styles.flex_row}>
+                <Text
+                  style={{
+                    width: "60%",
+                    color: Colors.black,
+                    overflow: "scroll",
+                  }}
+                >
+                  From {formatDate(leave.from.date)} for {leave.noOfDays}{" "}
+                  {leave.noOfDays > 1 ? "days" : "day"}
+                </Text>
+                <Text style={{ color: Colors.black, maxWidth: "60%" }}>
+                  {leave.status}
+                </Text>
+              </SafeAreaView>
+            ))
+          ) : (
+            <Text style={{ color: Colors.black }}>No leave requests</Text>
+          )}
         </SafeAreaView>
 
         <SafeAreaView>

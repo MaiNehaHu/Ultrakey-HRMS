@@ -13,7 +13,6 @@ import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import TaskDetails from "@/components/myApp/taskDetails";
 import { FontAwesome6 } from "@expo/vector-icons";
-
 import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 import months from "@/constants/months";
 import years from "@/constants/years";
@@ -28,18 +27,19 @@ interface Task {
   name: string;
   description: string;
   deadline: string;
+  createdAt: string;
   status: string;
 }
 
-const tasks = [
+const tasks: Task[] = [
   {
     task_id: 1,
     assignee: "",
     assigner: "",
     name: "Ultrakey HRMS",
     description: "Create HRMS App for Ulytrakey IT Solutions.",
-    deadline: "2024-11-20T09:00:00.000Z", // November 20, 2024, 09:00 AM UTC
-    createdAt: "2024-09-10T15:30:00.000Z", // September 10, 2024, 03:30 PM UTC
+    deadline: "2024-11-20T09:00:00.000Z",
+    createdAt: "2024-09-10T15:30:00.000Z",
     status: "Ongoing",
   },
   {
@@ -48,8 +48,8 @@ const tasks = [
     assigner: "",
     name: "Trending News Guru App",
     description: "Create Trending News Guru App for Ulytrakey IT Solutions.",
-    deadline: "2024-10-15T12:45:00.000Z", // October 15, 2024, 12:45 PM UTC
-    createdAt: "2024-09-13T09:00:00.000Z", // September 13, 2024, 09:00 AM UTC
+    deadline: "2024-10-15T12:45:00.000Z",
+    createdAt: "2024-09-13T09:00:00.000Z",
     status: "Completed",
   },
   {
@@ -58,8 +58,8 @@ const tasks = [
     assigner: "",
     name: "Ulytrakey CRM",
     description: "Create CRM for Ulytrakey IT Solutions.",
-    deadline: "2024-09-30T18:00:00.000Z", // September 30, 2024, 06:00 PM UTC
-    createdAt: "2024-10-05T08:15:00.000Z", // October 5, 2024, 08:15 AM UTC
+    deadline: "2024-09-30T18:00:00.000Z",
+    createdAt: "2024-10-05T08:15:00.000Z",
     status: "Overdue",
   },
 ];
@@ -81,8 +81,8 @@ const TaskScreen = () => {
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
   const handleModalDisplay = (task_id: number) => {
-    const clickedTask = tasks.find((task) => task.task_id == task_id);
-    setClickedTask(clickedTask);
+    const selectedTask = tasks.find((task) => task.task_id === task_id);
+    setClickedTask(selectedTask);
     setShowModal(true);
   };
 
@@ -90,7 +90,7 @@ const TaskScreen = () => {
     setShowModal(false);
   };
 
-  const formatDate = (date: any) => {
+  const formatDate = (date: string) => {
     return new Intl.DateTimeFormat("en-US", {
       day: "2-digit",
       month: "short",
@@ -99,9 +99,6 @@ const TaskScreen = () => {
       hour12: true,
     }).format(new Date(date));
   };
-
-  // const currentYear = new Date().getFullYear();
-  // const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   const filteredTasks = tasks.filter((task) => {
     const createdAtDate = new Date(task.createdAt);
@@ -146,10 +143,9 @@ const TaskScreen = () => {
                   ? "orange"
                   : task.status === taskStatus.Completed
                   ? Colors.lightBlue
-                  : task.status === taskStatus.Deferred
-                  ? Colors.lightBlue
-                  : "red";
-
+                  : task.status === taskStatus.Overdue
+                  ? "red"
+                  : "grey";
               return (
                 <Pressable
                   key={task.task_id}
@@ -184,7 +180,7 @@ const TaskScreen = () => {
                     </View>
 
                     <Text style={{ color: "#000", fontSize: 12 }}>
-                      Created: {formatDate(task.deadline)}
+                      Created: {formatDate(task.createdAt)}
                     </Text>
 
                     <Text style={{ color: "#000", fontSize: 12 }}>
@@ -203,7 +199,7 @@ const TaskScreen = () => {
           )}
         </SafeAreaView>
 
-        {showModal && (
+        {showModal && clickedTask && (
           <TaskDetails
             isVisible={showModal}
             onClose={onClose}

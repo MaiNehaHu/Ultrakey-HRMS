@@ -92,6 +92,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
 
         const newLeave = {
             id: Date.now(), // Unique ID
+            applyedOn: Date.now(),
             reason: reason === "" ? "N/A" : reason,
             from: { date: fromDate, session: fromSession },
             to: { date: toDate, session: toSession },
