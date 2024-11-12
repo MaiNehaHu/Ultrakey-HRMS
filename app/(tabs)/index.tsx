@@ -21,15 +21,16 @@ import holidaysList from "@/constants/holidaysList";
 import { useLeavesContext } from "@/contexts/Leaves";
 import taskStatus from "@/constants/taskStatus";
 import leaveStatus from "@/constants/leaveStatus";
-import months from "@/constants/months";
+import Wish from "@/components/Index/Wish";
+import Tracker from "@/components/Index/Tracker";
+import OnGoingTasksCard from "@/components/Index/OnGoingTasksCard";
+import UpcomingHolidaysCard from "@/components/Index/UpcomingHolidaysCard";
+import LeavesRequestsCard from "@/components/Index/LeavesRequestsCard";
+import PunchCircle from "@/components/Index/PunchCircle";
+import PunchRecords from "@/components/Index/PunchRecords";
+import BreakRecords from "@/components/Index/BreakRecords";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
-
-type RootStackParamList = {
-  task: undefined;
-  holidaysList: undefined;
-  leaves: undefined;
-};
 
 interface PunchRecord {
   punchIn: Date | null;
@@ -45,28 +46,6 @@ interface BreaksProps {
   darkTheme: boolean;
   textColor: string;
   breakRecords: BreakRecord[];
-}
-
-interface PunchCircleProps {
-  darkTheme: boolean;
-  punchedIn: string;
-  handlePunchClick: any;
-  formattedDate: string;
-  hour: number;
-  second: string;
-  ampm: string;
-  minute: string;
-}
-
-interface PunchProps {
-  darkTheme: boolean;
-  textColor: string;
-  punchRecords: PunchRecord[];
-}
-
-interface TrackerProps {
-  darkTheme: boolean;
-  percentage: number;
 }
 
 export default function TabOneScreen() {
@@ -102,16 +81,6 @@ export default function TabOneScreen() {
 
     return () => clearInterval(interval);
   }, [punchInTime]);
-
-  let hour = currentTime.getHours();
-  const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-  const minute = currentTime.getMinutes().toString().padStart(2, "0");
-  const second = currentTime.getSeconds().toString().padStart(2, "0");
-  const day = currentTime.getDate().toString().padStart(2, "0");
-  const month = currentTime.toLocaleString("default", { month: "short" });
-  const year = currentTime.getFullYear();
-  const formattedDate = `${day} ${month} ${year}`;
 
   // Helper function to check if current time is after 6:30 PM
   const isAfterCutoff = (time: Date): boolean => {
@@ -194,7 +163,7 @@ export default function TabOneScreen() {
 
     // If there's a punch-in without a punch-out, calculate up to the current time
     if (firstPunchIn) {
-      totalWorkDuration += currentTime.getTime() - firstPunchIn.getTime();
+      totalWorkDuration += currentTime?.getTime() - firstPunchIn?.getTime();
     }
 
     // Assuming 9 hours workday (adjust as needed)
@@ -240,7 +209,8 @@ export default function TabOneScreen() {
 
       // Only calculate late punch-in on the first punch-in
       if (punchRecords.length === 0) {
-        calculateLateAndEarlyPunchInTime(newPunchInTime); // Calculate late punch-in time
+        // Calculate late punch-in time
+        calculateLateAndEarlyPunchInTime(newPunchInTime);
       }
 
       setIsRestricted(true);
@@ -293,647 +263,40 @@ export default function TabOneScreen() {
 
       <SafeAreaView style={{ padding: 15 }}>
         {/**Wishes */}
-        <Wish hour={hour} ampm={ampm} textColor={textColor} />
+        <Wish currentTime={currentTime} />
 
         {/* Punch Circle */}
         <PunchCircle
-          hour={hour}
-          minute={minute}
-          second={second}
-          ampm={ampm}
           punchedIn={punchedIn}
-          darkTheme={darkTheme}
+          currentTime={currentTime}
           handlePunchClick={handlePunchClick}
-          formattedDate={formattedDate}
         />
 
         {/* Tracker */}
-        <Tracker darkTheme={darkTheme} percentage={percentage} />
+        <Tracker percentage={percentage} />
 
         {/* Punch in and Punch outs */}
-        <Punch
-          darkTheme={darkTheme}
-          textColor={textColor}
-          punchRecords={punchRecords}
-        />
+        <PunchRecords punchRecords={punchRecords} />
 
         {/* Display break records */}
-        <Breaks
-          darkTheme={darkTheme}
-          breakRecords={breakRecords}
-          textColor={textColor}
-        />
+        <BreakRecords breakRecords={breakRecords} />
 
         <SafeAreaView style={{ marginTop: 30, gap: 20, display: "flex" }}>
-          <OnGoingTasksCard darkTheme={darkTheme} />
+          <OnGoingTasksCard />
 
-          <UpcomingHolidays darkTheme={darkTheme} />
+          <UpcomingHolidaysCard />
 
-          <LeavesRequest darkTheme={darkTheme} />
+          <LeavesRequestsCard />
         </SafeAreaView>
       </SafeAreaView>
     </ScrollView>
   );
 }
 
-const Wish = ({
-  textColor,
-  hour,
-  ampm,
-}: {
-  textColor: string;
-  hour: number;
-  ampm: string;
-}) => {
-  return (
-    <Text
-      style={{
-        color: textColor,
-        fontSize: 20,
-        fontWeight: "500",
-      }}
-    >
-      {hour < 12 && ampm === "AM"
-        ? "Good Morning :)"
-        : (hour <= 4 || hour === 12) && ampm === "PM"
-        ? "Good Afternoon :)"
-        : "Good Evening :)"}
-    </Text>
-  );
-};
-
-const PunchCircle = ({
-  punchedIn,
-  darkTheme,
-  handlePunchClick,
-  formattedDate,
-  hour,
-  second,
-  ampm,
-  minute,
-}: PunchCircleProps) => {
-  const borderColor = darkTheme
-    ? punchedIn
-      ? Colors.lightBlue
-      : Colors.dark.border
-    : Colors.light.border;
-
-  return (
-    <View style={styles.punchContainer}>
-      <View
-        style={[
-          styles.punch,
-          {
-            top: -8,
-            width: 203,
-            height: 203,
-            position: "absolute",
-            backgroundColor: borderColor,
-          },
-        ]}
-      ></View>
-      <Pressable
-        onPress={handlePunchClick}
-        style={[styles.punch, { width: 200, height: 200 }]}
-      >
-        <LinearGradient
-          colors={
-            punchedIn
-              ? [Colors.white, Colors.white]
-              : [Colors.lightBlue, Colors.darkBlue]
-          }
-          style={{ width: "100%", height: "100%", borderRadius: 100 }}
-        >
-          <SafeAreaView
-            style={{
-              gap: 25,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <SafeAreaView>
-              <Text
-                style={{
-                  color: punchedIn ? Colors.darkBlue : Colors.white,
-                  fontSize: 18,
-                  fontWeight: 500,
-                }}
-              >
-                {formattedDate}
-              </Text>
-
-              <Text
-                style={{
-                  color: punchedIn ? Colors.darkBlue : Colors.white,
-                  fontSize: 14,
-                  fontWeight: "400",
-                  textAlign: "center",
-                }}
-              >
-                {new Date().toLocaleDateString("en-GB", {
-                  weekday: "long",
-                })}
-              </Text>
-            </SafeAreaView>
-
-            <Text
-              style={{
-                color: punchedIn ? Colors.darkBlue : Colors.white,
-                fontSize: 22,
-                fontWeight: 500,
-              }}
-            >{`${
-              hour < 10 ? `0${hour}` : hour
-            }:${minute}:${second} ${ampm}`}</Text>
-          </SafeAreaView>
-        </LinearGradient>
-      </Pressable>
-
-      <Text
-        style={{
-          marginTop: 10,
-          fontWeight: "500",
-          fontSize: 18,
-          color: darkTheme ? Colors.white : Colors.light.border,
-        }}
-      >
-        {punchedIn ? "Work Started" : "Work Paused"}
-      </Text>
-    </View>
-  );
-};
-
-const Tracker = ({ darkTheme, percentage }: TrackerProps) => {
-  return (
-    <View style={styles.trackerContainer}>
-      <View
-        style={[
-          styles.track,
-          {
-            borderWidth: 1,
-            backgroundColor: "transparent",
-            borderColor: darkTheme ? Colors.white : Colors.black,
-          },
-        ]}
-      >
-        <View
-          style={[
-            styles.fill,
-            {
-              width: `${percentage < 100 ? percentage : 100}%`,
-              backgroundColor: darkTheme ? Colors.white : Colors.black,
-            },
-          ]}
-        />
-      </View>
-      <Text
-        style={[
-          styles.percentageText,
-          { color: darkTheme ? Colors.white : Colors.black },
-        ]}
-      >{`${Math.round(percentage < 100 ? percentage : 100)}%`}</Text>
-    </View>
-  );
-};
-
-const Punch = ({ darkTheme, punchRecords, textColor }: PunchProps) => {
-  return (
-    <View style={styles.recordContainer}>
-      <SafeAreaView style={styles.recordRow}>
-        <Text
-          style={{
-            color: darkTheme ? Colors.white : Colors.black,
-            fontWeight: "500",
-            fontSize: 16,
-          }}
-        >
-          Punch In:{" "}
-        </Text>
-        <Text
-          style={{
-            fontWeight: "500",
-            fontSize: 16,
-            color: darkTheme ? Colors.white : Colors.black,
-          }}
-        >
-          Punch Out:
-        </Text>
-      </SafeAreaView>
-
-      {punchRecords.length > 0 ? (
-        <SafeAreaView style={styles.recordRow}>
-          <Text style={{ color: textColor }}>
-            {punchRecords[0].punchIn?.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }) ?? "~~"}
-          </Text>
-          <Text style={{ color: textColor }}>
-            {punchRecords[punchRecords.length - 1].punchOut?.toLocaleTimeString(
-              [],
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-              }
-            ) ?? "~~"}
-          </Text>
-        </SafeAreaView>
-      ) : (
-        <Text style={{ color: textColor }}>No punch recorded</Text>
-      )}
-    </View>
-  );
-};
-
-const Breaks = ({ darkTheme, textColor, breakRecords }: BreaksProps) => {
-  return (
-    <View style={styles.recordContainer}>
-      <View style={styles.recordRow}>
-        <Text
-          style={{
-            color: darkTheme ? Colors.white : Colors.black,
-            fontWeight: "500",
-            fontSize: 16,
-          }}
-        >
-          Break Start:
-        </Text>
-        <Text
-          style={{
-            fontWeight: "500",
-            fontSize: 16,
-            color: darkTheme ? Colors.white : Colors.black,
-          }}
-        >
-          Break End:
-        </Text>
-      </View>
-      {breakRecords.length > 0 ? (
-        breakRecords.map((breakRecord, index) => (
-          <View key={index} style={styles.recordRow}>
-            <Text style={{ color: textColor }}>
-              {breakRecord.breakStartAt
-                ? new Date(breakRecord.breakStartAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "~~"}
-            </Text>
-            <Text style={{ color: textColor }}>
-              {breakRecord.breakEndAt
-                ? new Date(breakRecord.breakEndAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "~~"}
-            </Text>
-          </View>
-        ))
-      ) : (
-        <Text style={{ color: textColor }}>No breaks recorded</Text>
-      )}
-    </View>
-  );
-};
-
-const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const tasksList = [
-    {
-      task_id: 1,
-      assignee: "",
-      assigner: "",
-      name: "Ultrakey HRMS",
-      description: "Create HRMS App for Ulytrakey IT Solutions.",
-      deadline: "2024-11-20T09:00:00.000Z", // November 20, 2024, 09:00 AM UTC
-      createdAt: "2024-09-10T15:30:00.000Z", // September 10, 2024, 03:30 PM UTC
-      status: "Ongoing",
-    },
-  ];
-
-  const currentMonth = new Date().toLocaleString("default", { month: "long" });
-  const currentYear = new Date().getFullYear();
-
-  const filteredTasks = tasksList.filter(
-    (task) =>
-      (new Date(task.createdAt).toLocaleString("default", { month: "long" }) ===
-        currentMonth &&
-        new Date(task.createdAt).getFullYear() === currentYear) ||
-      task.status === taskStatus.Ongoing ||
-      task.status === taskStatus.Overdue
-  );
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(date));
-  };
-
-  return (
-    <SafeAreaView style={styles.cardContainer}>
-      <View
-        style={[
-          styles.duplicateCard,
-          {
-            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
-          },
-        ]}
-      />
-      <View style={styles.cardStyle}>
-        {/**Header */}
-        <SafeAreaView style={styles.flex_row}>
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-          >
-            Ongoing Tasks
-          </Text>
-
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 14,
-              fontWeight: 500,
-            }}
-          >
-            {filteredTasks.length > 0 ? "Deadline by" : ""}
-          </Text>
-        </SafeAreaView>
-
-        {/* Table */}
-        <SafeAreaView>
-          {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
-              <SafeAreaView key={task.createdAt} style={styles.flex_row}>
-                <Text
-                  style={{
-                    width: "60%",
-                    color: Colors.black,
-                    overflow: "scroll",
-                  }}
-                >
-                  {task.name}
-                </Text>
-                <Text style={{ color: Colors.black, maxWidth: "30%" }}>
-                  {formatDate(task.createdAt)}
-                </Text>
-              </SafeAreaView>
-            ))
-          ) : (
-            <Text style={{ color: Colors.black }}>No tasks assigned</Text>
-          )}
-        </SafeAreaView>
-
-        <SafeAreaView>
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={() => {
-              navigation.navigate("task");
-            }}
-          >
-            <Text style={styles.viewAllButtonText}>
-              View All <AwesomeIcon name="arrow-right" />
-            </Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
-
-  const filteredHolidays = holidaysList.filter(
-    (holiday) =>
-      (new Date(holiday.date).getMonth() === currentMonth &&
-        new Date(holiday.date).getFullYear() === currentYear) ||
-      (new Date(holiday.date).getMonth() === currentMonth + 1 &&
-        new Date(holiday.date).getFullYear() === currentYear)
-  );
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      // year: "numeric",
-    }).format(new Date(date));
-  };
-
-  return (
-    <SafeAreaView style={styles.cardContainer}>
-      <View
-        style={[
-          styles.duplicateCard,
-          {
-            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
-          },
-        ]}
-      />
-      <View style={styles.cardStyle}>
-        {/**Header */}
-        <SafeAreaView style={styles.flex_row}>
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-          >
-            Upcoming Holidays
-          </Text>
-
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 14,
-              fontWeight: 500,
-            }}
-          >
-            {filteredHolidays.length > 0 ? "Holiday for" : ""}
-          </Text>
-        </SafeAreaView>
-
-        {/* Table */}
-        <SafeAreaView>
-          {filteredHolidays.length > 0 ? (
-            filteredHolidays.map((holiday, index) => (
-              <SafeAreaView style={styles.flex_row} key={holiday.date}>
-                <Text
-                  style={{
-                    width: "60%",
-                    color: Colors.black,
-                    overflow: "scroll",
-                  }}
-                >
-                  {formatDate(holiday.date)}
-                </Text>
-                <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-                  {holiday.name}
-                </Text>
-              </SafeAreaView>
-            ))
-          ) : (
-            <Text style={{ color: Colors.black }}>No holidays in</Text>
-          )}
-        </SafeAreaView>
-
-        <SafeAreaView>
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={() => {
-              navigation.navigate("holidaysList");
-            }}
-          >
-            <Text style={styles.viewAllButtonText}>
-              View All <AwesomeIcon name="arrow-right" />
-            </Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const { leaves } = useLeavesContext();
-
-  const currentMonth = new Date().toLocaleString("default", { month: "long" });
-  const currentYear = new Date().getFullYear();
-
-  const filteredLeaves = leaves.filter(
-    (leave: any) =>
-      (new Date(leave.from.date).toLocaleString("default", {
-        month: "long",
-      }) === currentMonth &&
-        new Date(leave.from.date).getFullYear() === currentYear) ||
-      leave.status === leaveStatus.Pending
-  );
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      // year: "numeric",
-    }).format(new Date(date));
-  };
-
-  return (
-    <SafeAreaView style={styles.cardContainer}>
-      <View
-        style={[
-          styles.duplicateCard,
-          {
-            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
-          },
-        ]}
-      />
-      <View style={styles.cardStyle}>
-        {/**Header */}
-        <SafeAreaView style={styles.flex_row}>
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-          >
-            Leave Requests
-          </Text>
-
-          <Text
-            style={{
-              color: Colors.darkBlue,
-              fontSize: 14,
-              fontWeight: 500,
-            }}
-          >
-            {filteredLeaves.length > 0 ? "Status" : ""}
-          </Text>
-        </SafeAreaView>
-
-        {/* Table */}
-        <SafeAreaView>
-          {filteredLeaves.length > 0 ? (
-            filteredLeaves.map((leave: any, index: number) => (
-              <SafeAreaView key={index} style={styles.flex_row}>
-                <Text
-                  style={{
-                    width: "60%",
-                    color: Colors.black,
-                    overflow: "scroll",
-                  }}
-                >
-                  From {formatDate(leave.from.date)} for {leave.noOfDays}{" "}
-                  {leave.noOfDays > 1 ? "days" : "day"}
-                </Text>
-                <Text style={{ color: Colors.black, maxWidth: "60%" }}>
-                  {leave.status}
-                </Text>
-              </SafeAreaView>
-            ))
-          ) : (
-            <Text style={{ color: Colors.black }}>No leave requests</Text>
-          )}
-        </SafeAreaView>
-
-        <SafeAreaView>
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={() => {
-              navigation.navigate("leaves");
-            }}
-          >
-            <Text style={styles.viewAllButtonText}>
-              View All <AwesomeIcon name="arrow-right" />
-            </Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </View>
-    </SafeAreaView>
-  );
-};
-
 const styles = StyleSheet.create({
   backImage: {
     ...StyleSheet.absoluteFillObject,
     resizeMode: "cover",
-  },
-  punchContainer: {
-    display: "flex",
-    width: "100%",
-    marginTop: 30,
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "transparent",
-  },
-  punch: {
-    borderRadius: 100,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    elevation: 10,
-    shadowRadius: 6,
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
   },
   recordContainer: {
     marginTop: 20,
@@ -945,78 +308,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
     backgroundColor: "transparent",
-  },
-  trackerContainer: {
-    marginTop: 10,
-    paddingHorizontal: 40,
-    backgroundColor: "transparent",
-    display: "flex",
-    flexDirection: "row",
-  },
-  track: {
-    width: "80%",
-    height: 12,
-    borderRadius: 10,
-    overflow: "hidden",
-    marginVertical: 10,
-  },
-  fill: {
-    height: "100%",
-  },
-  percentageText: {
-    fontSize: 18,
-    width: "20%",
-    textAlign: "right",
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-  cardContainer: {
-    position: "relative",
-    // marginHorizontal: 10,
-  },
-  duplicateCard: {
-    position: "absolute",
-    top: -6,
-    left: 0,
-    right: 0,
-    zIndex: -1,
-    height: "100%",
-    borderRadius: 20,
-    elevation: 5,
-    shadowRadius: 15,
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  cardStyle: {
-    display: "flex",
-    gap: 5,
-    padding: 12,
-    borderRadius: 15,
-    borderWidth: 0.5,
-    borderTopWidth: 0,
-    borderColor: "#929394",
-    backgroundColor: Colors.white,
-  },
-  flex_row: {
-    gap: 10,
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  viewAllButton: {
-    marginTop: 5,
-    borderRadius: 20,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    alignSelf: "flex-end",
-    backgroundColor: Colors.lightBlue,
-  },
-  viewAllButtonText: {
-    color: Colors.white,
-    textAlign: "right",
-    fontWeight: 500,
-    fontSize: 10,
   },
 });

@@ -222,10 +222,10 @@ const RegularizationCard = ({ clickedDate }) => {
         `Regularization request already received for ${moment(clickedDate.date).format("MMM D, YYYY")}`,
         [
           {
-            text: "Go to Requests",
+            text: "See Requests",
             onPress: () => navigation.navigate("regularizationsPage"),
           },
-          { text: "Cancel", style: "cancel" },
+          { text: "OK", style: "cancel", },
         ]
       );
     }

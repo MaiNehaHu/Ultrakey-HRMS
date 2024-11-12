@@ -7,6 +7,7 @@ import { useAppTheme } from "@/contexts/AppTheme";
 import { useLeavesContext } from "@/contexts/Leaves";
 import DateDetails from "@/components/myApp/dateDetails";
 
+import attendace from '@/constants/attendace';
 import holidays from "@/constants/holidaysList";
 import calendarColors from "@/constants/calendarColors";
 import { LinearGradient } from "expo-linear-gradient";
@@ -60,86 +61,6 @@ const CalendarScreen = () => {
   const { leaves } = useLeavesContext();
 
   const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
-
-  // Sample attendance data
-  const attendace = [
-    {
-      date: "2024-10-19T00:00:00.857Z",
-      percentage: 100,
-      latePunchIn: 800,
-      punchRecords: [
-        {
-          punchIn: "2024-10-19T09:39:00.857Z",
-          punchOut: "2024-10-19T0018:09:00.857Z",
-        },
-        {
-          punchIn: "2024-10-19T09:39:00.857Z",
-          punchOut: "2024-10-19T0020:09:00.857Z",
-        },
-      ],
-      breakRecords: [
-        {
-          breakStartAt: "2024-10-13T09:39:00.857Z",
-          breakEndAt: "2024-10-13T09:60:00.857Z",
-        },
-        {
-          breakStartAt: "2024-10-13T02:40:00.857Z",
-          breakEndAt: "2024-10-13T02:50:00.857Z",
-        },
-      ],
-    },
-    {
-      date: "2024-10-18T00:00:00.857Z",
-      percentage: 96,
-      latePunchIn: 800,
-      punchRecords: [
-        {
-          punchIn: "2024-10-18T09:39:00.857Z",
-          punchOut: "2024-10-18T0017:09:00.857Z",
-        },
-      ],
-      breakRecords: [
-        {
-          breakStartAt: "2024-10-18T09:39:00.857Z",
-          breakEndAt: "2024-10-18T09:45:00.857Z",
-        },
-      ],
-    },
-    {
-      date: "2024-10-17T00:00:00.857Z",
-      percentage: 80,
-      latePunchIn: 800,
-      punchRecords: [
-        {
-          punchIn: "2024-10-17T09:39:00.857Z",
-          punchOut: "2024-10-17T0016:09:00.857Z",
-        },
-      ],
-      breakRecords: [
-        {
-          breakStartAt: "2024-10-17T09:20:00.857Z",
-          breakEndAt: "2024-10-17T09:39:00.857Z",
-        },
-      ],
-    },
-    {
-      date: "2024-10-16T00:00:00.857Z",
-      percentage: 80,
-      latePunchIn: 800,
-      punchRecords: [
-        {
-          punchIn: "2024-10-16T09:39:00.857Z",
-          punchOut: "2024-10-16T0016:09:00.857Z",
-        },
-      ],
-      breakRecords: [
-        {
-          breakStartAt: "2024-10-16T09:20:00.857Z",
-          breakEndAt: "2024-10-16T09:39:00.857Z",
-        },
-      ],
-    },
-  ];
 
   // Function to get all Sundays in the selected month
   const markSundays = (month: number, year: number) => {
@@ -472,16 +393,6 @@ const CalendarColorsList = () => {
         {calendarData.map((item) => (
           <View key={item.status} style={styles.itemContainer}>
             <View style={[styles.circle, { backgroundColor: item.color }]}>
-              {/* <Text
-                style={{
-                  fontSize: 9,
-                  textAlign: "center",
-                  color: "#fff",
-                  fontWeight: 500,
-                }}
-              >
-                {item.status.slice(0, 1)}
-              </Text> */}
             </View>
             <Text style={{ fontSize: 11, color: textColor }}>
               {item.status}

@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import holidays from '../constants/holidaysList';
 import months from '../constants/months'; // Array of all month names
 import { TouchableOpacity } from "react-native";
+import HolidayCard from "../components/Cards/HolidayCard";
 
 const backgroundImage = require("../assets/images/body_bg.png");
 
@@ -64,7 +65,7 @@ export default function HolidaysList() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={backgroundImage} style={styles.backImage} />
-            
+
             <ScrollView style={{ padding: 15 }}>
                 <View style={{ display: 'flex', flexDirection: 'row', width: '100%', alignItems: 'center' }}>
                     <TouchableOpacity
@@ -100,44 +101,6 @@ export default function HolidaysList() {
     );
 }
 
-const HolidayCard = ({ month, holidays }) => {
-    const { darkTheme } = useAppTheme();
-
-    return (
-        <View style={styles.card}>
-            {
-                !darkTheme ?
-                    <LinearGradient
-                        colors={['#1F366A', '#1A6FA8']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.duplicateTaskCard}
-                    />
-                    :
-                    <View
-                        style={[styles.duplicateTaskCard, { backgroundColor: '#1A6FA8' }]}
-                    />
-            }
-            <SafeAreaView style={styles.taskCard}>
-                <Text style={[styles.monthText, { color: '#000' }]}>{month}</Text>
-
-                {holidays.length > 0 ? (
-                    holidays.map((holiday, index) => {
-                        const date = new Date(holiday.date).getDate().toString().padStart(2, '0');
-                        return (
-                            <Text key={index} style={[styles.holidayText, { color: '#000' }]}>
-                                {`${date} ${holiday.name}`}
-                            </Text>
-                        );
-                    })
-                ) : (
-                    <Text style={{ color: '#000' }}>No Holidays</Text>
-                )}
-            </SafeAreaView>
-        </View>
-    )
-}
-
 const styles = StyleSheet.create({
     backImage: {
         ...StyleSheet.absoluteFillObject,
@@ -149,41 +112,6 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
-    },
-    card: {
-        width: '48%',
-        marginBottom: 16,
-    },
-    taskCard: {
-        flex: 1,
-        borderRadius: 15,
-        padding: 12,
-        borderWidth: 0.5,
-        borderTopWidth: 0,
-        shadowColor: "#000",
-        borderColor: "#929394",
-        backgroundColor: Colors.white,
-    },
-    duplicateTaskCard: {
-        top: -6,
-        left: 0,
-        right: 0,
-        zIndex: -1,
-        position: "absolute",
-        height: "100%",
-        borderRadius: 20,
-        elevation: 5,
-        shadowRadius: 15,
-        shadowOpacity: 0.3,
-        shadowOffset: { width: 0, height: 4 },
-    },
-    monthText: {
-        fontSize: 16,
-        fontWeight: 500,
-        marginBottom: 5,
-    },
-    holidayText: {
-        fontSize: 14,
     },
     backButton: {
         padding: 8, width: '20%', borderWidth: 2, borderTopLeftRadius: 20, borderBottomLeftRadius: 20

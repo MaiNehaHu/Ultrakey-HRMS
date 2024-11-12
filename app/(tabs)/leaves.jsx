@@ -17,12 +17,12 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useLeavesContext } from '../../contexts/Leaves'
 
-import LeaveDetails from '../../components/myApp/leaveDetails'
-import ApplyLeave from '../../components/myApp/applyLeave'
+import LeaveDetails from '../../components/Modals/leaveDetails'
+import ApplyLeave from '../../components/Modals/applyLeave'
 import SelectMonthAndYear from '../../components/myApp/selectMonth&Year';
 import months from "../../constants/months";
 import years from "../../constants/years";
-import leaveStatus from "../../constants/leaveStatus";
+import LeaveCard from '../../components/Cards/LeaveCard'
 import { LinearGradient } from "expo-linear-gradient";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
@@ -138,29 +138,31 @@ export default function Leaves() {
             <View style={{ paddingHorizontal: 15, flex: 1, /** Saves life for scrolling component */ }}>
                 {/* Header */}
                 <View style={styles.display_flex}>
-                    <Text style={{ fontSize: 16, fontWeight: 500, color: textColor }}>Your Leaves for {months[pickerModalState.selectedMonth]} {pickerModalState.selectedYear}</Text>
+                    <Text style={{ fontSize: 16, fontWeight: 500, marginBottom: 0, color: textColor }}>Your Leaves for {months[pickerModalState.selectedMonth]} {pickerModalState.selectedYear}</Text>
 
-                    <TouchableOpacity onPress={() =>
-                        setPickerModalState((prevState) => ({
-                            ...prevState,
-                            showPickerMonthModal: true,
-                        }))
-                    }
-                        style={styles.display_flex}
+                    <TouchableOpacity
+                        onPress={() =>
+                            setPickerModalState((prevState) => ({
+                                ...prevState,
+                                showPickerMonthModal: true,
+                            }))
+                        }
                     >
                         <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
                     </TouchableOpacity>
                 </View>
 
                 {/* filtered Leaves List */}
-                <ScrollView style={{ marginTop: 20 }} showsVerticalScrollIndicator={false}>
-                    {filteredLeavesList.length > 0 ? filteredLeavesList.map((leave) => (
-                        <LeaveCard leave={leave}
-                            key={leave?.id}
-                            setLeaveModalId={setLeaveModalId}
-                            setShowLeaveDetailsModal={setShowLeaveDetailsModal}
-                        />
-                    ))
+                <ScrollView style={{ marginTop: 15 }} showsVerticalScrollIndicator={false}>
+                    {filteredLeavesList.length > 0 ?
+                        filteredLeavesList.map((leave) => (
+                            <LeaveCard
+                                leave={leave}
+                                key={leave?.id}
+                                setLeaveModalId={setLeaveModalId}
+                                setShowLeaveDetailsModal={setShowLeaveDetailsModal}
+                            />
+                        ))
                         :
                         <Text
                             style={{ color: textColor, textAlign: "center", marginTop: 30 }}
@@ -205,74 +207,6 @@ export default function Leaves() {
     );
 }
 
-function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsModal }) {
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
-
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-            // hour: "2-digit",
-            // minute: "2-digit",
-            // hour12: true,
-        }).format(parsedDate);
-    };
-
-    function handleClick(id) {
-        setLeaveModalId(id);
-        setShowLeaveDetailsModal(true)
-    }
-
-    const statusColor =
-        leave.status === leaveStatus.Pending
-            ? "orange"
-            : leave.status === leaveStatus.Approved
-                ? Colors.lightBlue
-                : leave.status === leaveStatus.Rejected
-                    ? "red"
-                    : "gray";
-
-    return (
-        <Pressable style={{ marginVertical: 10 }} onPress={() => handleClick(leave.id)}>
-            <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
-            <View style={styles.cardStyle}>
-                <SafeAreaView style={styles.flex_row_top}>
-                    <Text
-                        style={{
-                            width: "70%",
-                            fontSize: 16,
-                            fontWeight: "500",
-                            color: Colors.darkBlue,
-                        }}
-                    >
-                        {leave.type} for {leave.noOfDays <= 1 ? `${leave.noOfDays} day` : `${leave.noOfDays} days`} {/* Corrected conditional */}
-                    </Text>
-
-                    <Text style={[styles.status, { backgroundColor: statusColor }]} >
-                        {leave.status}
-                    </Text>
-                </SafeAreaView>
-
-                <Text style={{ color: "#000", fontSize: 12 }}>
-                    From: Session {leave.from.session} of {formatDate(leave.from?.date || leave.from)}
-                </Text>
-                <Text style={{ color: "#000", fontSize: 12 }}>
-                    To: Session {leave.to.session} of {formatDate(leave.to?.date || leave.to)}
-                </Text>
-                <Text style={{ color: "#000", fontSize: 12 }}>
-                    Reason: {leave.reason}
-                </Text>
-            </View>
-        </Pressable>
-    );
-}
-
 function CountCards({ name, granted, balance }) {
     const { darkTheme } = useAppTheme();
     const lightText = "#666666";
@@ -300,11 +234,11 @@ function CountCards({ name, granted, balance }) {
             <View style={styles.cardStyle}>
                 <SafeAreaView>
                     <Text style={{ fontWeight: 500, fontSize: 14, color: textColor }}>{name}</Text>
-                    <Text style={{ fontSize: 12, color: lightText }}>Granted: {granted > 0 ? `0${granted}` : granted}</Text>
+                    <Text style={{ fontSize: 12, color: lightText }}>Granted: {granted <= 9 ? `0${granted}` : granted}</Text>
                 </SafeAreaView>
 
                 <SafeAreaView style={{ display: 'flex', alignItems: 'flex-end' }}>
-                    <Text style={{ fontWeight: 500, fontSize: 26, color: textColor, marginRight: 6, }}>{balance > 0 ? `0${balance}` : balance}</Text>
+                    <Text style={{ fontWeight: 500, fontSize: 26, color: textColor, marginRight: 6, }}>{balance <= 9 ? `0${balance}` : balance}</Text>
                     <Text style={{ fontSize: 12, color: lightText }}>Balance</Text>
                 </SafeAreaView>
             </View>

@@ -1,5 +1,5 @@
 import React from "react";
-import { router, Tabs, useNavigation } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { View, TouchableOpacity, Image, Text, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
@@ -9,12 +9,6 @@ import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 
 import { useAppTheme } from "@/contexts/AppTheme";
 import { SafeAreaView } from "react-native";
-
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-
-type RootStackParamList = {
-  morePage: undefined;
-};
 
 function AwesomeIcons(props: {
   name: React.ComponentProps<typeof AwesomeIcon>["name"];

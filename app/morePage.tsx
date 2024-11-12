@@ -314,7 +314,7 @@ export default function MorePage() {
             ]}
           >
             <Text style={{ padding: 25, color: textColor }}>
-              <FontAwesome6 name="mug-hot" size={20} />
+              <FontAwesome6 name="hand-peace" size={20} />
             </Text>
 
             <View>

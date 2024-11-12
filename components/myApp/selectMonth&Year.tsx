@@ -37,7 +37,6 @@ export default function SelectMonthAndYear({
   const { darkTheme } = useAppTheme();
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
-  const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
 
   const handleMonthClick = (month: number) => {
     setClickedMonth(month);
@@ -117,7 +116,7 @@ export default function SelectMonthAndYear({
                     <View
                       style={[
                         styles.flexRowRight,
-                        { borderBottomColor: textColor },
+                        { borderBottomColor: textColor, marginBottom: 10 },
                       ]}
                     >
                       <TouchableOpacity
@@ -130,7 +129,7 @@ export default function SelectMonthAndYear({
                             { color: textColor },
                           ]}
                         >
-                          <FontAwesome6Icon name="circle-xmark" size={18} />
+                          <FontAwesome6Icon name="circle-xmark" size={20} />
                         </Text>
                       </TouchableOpacity>
 
@@ -156,7 +155,7 @@ export default function SelectMonthAndYear({
                             { color: textColor },
                           ]}
                         >
-                          <FontAwesome6Icon name="arrow-right" size={18} />
+                          <FontAwesome6Icon name="arrow-right" size={20} />
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -212,7 +211,7 @@ export default function SelectMonthAndYear({
                       <Text
                         style={[styles.actionButtonText, { color: textColor }]}
                       >
-                        <FontAwesome6Icon name="arrow-left" size={18} />
+                        <FontAwesome6Icon name="arrow-left" size={20} />
                       </Text>
                     </TouchableOpacity>
 
@@ -235,7 +234,7 @@ export default function SelectMonthAndYear({
                       <Text
                         style={[styles.actionButtonText, { color: textColor }]}
                       >
-                        <FontAwesome6Icon name="check-circle" size={18} />
+                        <FontAwesome6Icon name="check-circle" size={20} />
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -304,8 +303,7 @@ const styles = StyleSheet.create({
   },
   flexRowRight: {
     width: "100%",
-    marginBottom: 10,
-    paddingBottom: 5,
+    paddingBottom: 10,
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 1,

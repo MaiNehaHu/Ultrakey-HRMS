@@ -3,9 +3,7 @@ import { createContext, useContext, useState } from "react";
 export const RegularizationContext = createContext();
 
 export const RegularizationProvider = ({ children }) => {
-  const [regularizationRequest, setRegularizationRequest] = useState([]);
-  console.log(regularizationRequest);
-  
+  const [regularizationRequest, setRegularizationRequest] = useState([]);  
 
   return (
     <RegularizationContext.Provider

@@ -1,15 +1,21 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, ImageBackground, View, Pressable } from 'react-native'
+import { SafeAreaView, ScrollView, StyleSheet, Text, ImageBackground, View, Pressable, FlatList, Touchable } from 'react-native'
 import React, { useState } from 'react'
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme'
 import { useRegularization } from '../contexts/RegularizationRequest';
-import SelectMonthAndYear from '../components/myApp/selectMonth&Year'
 import { TouchableOpacity } from 'react-native';
+import { FontAwesome6 } from '@expo/vector-icons';
+
 import years from '../constants/years'
 import months from '../constants/months';
-import { FontAwesome6 } from '@expo/vector-icons';
+import attendace from '../constants/attendace';
+
+import RegDetails from '../components/Modals/RegDetails';
+import SelectMonthAndYear from '../components/myApp/selectMonth&Year'
+import RegularizationsCard from '../components/Cards/RegularizationsCard';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import leaveStatus from '../constants/leaveStatus';
-import RegDetails from '../components/myApp/RegDetails';
 
 const bgImage = require('../assets/images/body_bg.png')
 
@@ -31,40 +37,84 @@ export default function RegularizationsPage() {
         showPickerYearModal: false,
     });
 
+    const filteredRegularization = regularizationRequest.filter((request) => {
+        const date = new Date(request.date);
+
+        return (
+            (date.getFullYear() === pickerModalState.selectedYear &&
+                date.getMonth() === pickerModalState.selectedMonth)
+        );
+    });
+
+    const regularizedDates = regularizationRequest
+        .filter(request => request.status !== leaveStatus.Withdrawn)
+        .map(request => new Date(request.date).toISOString().split('T')[0]);
+
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={bgImage} style={styles.backImage} />
 
-            <ScrollView style={{ padding: 15 }}>
-                <SafeAreaView style={styles.flex_row_top}>
-                    <Text style={{ color: textColor, fontSize: 16, fontWeight: "500" }}>
-                        Applied in {months[pickerModalState.selectedMonth]}{" "}
-                        {pickerModalState.selectedYear}
-                    </Text>
+            <View style={{ padding: 15, paddingBottom: 0, flex: 1, }}>
+                <SafeAreaView>
+                    {/* <Text style={{ color: textColor, fontSize: 16, fontWeight: "500" }}>
+                        You have less attendance on:
+                    </Text> */}
 
-                    <TouchableOpacity
-                        onPress={() =>
-                            setPickerModalState((prevState) => ({
-                                ...prevState,
-                                showPickerMonthModal: true,
-                            }))
-                        }
-                    >
-                        <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
-                    </TouchableOpacity>
-                </SafeAreaView>
-
-                <SafeAreaView style={styles.cardsContainer}>
-                    {regularizationRequest.map((reg, index) => (
-                        <RegularizationsCard
-                            regularize={reg}
-                            key={index}
-                            setShowRegDetailsModal={setShowRegDetailsModal}
-                            setRegularizationModalId={setRegularizationModalId}
+                    <SafeAreaView style={{ marginBottom: 20, }}>
+                        <FlatList
+                            data={attendace.filter(
+                                (item) =>
+                                    item.percentage < 90
+                                    && !regularizedDates.includes(new Date(item?.date).toISOString().split('T')[0]))
+                            }
+                            renderItem={({ item }) => (
+                                <CountCards date={item.date} item={item} percentage={item.percentage} latePunchIn={item.latePunchIn} />
+                            )}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ gap: 15 }}
                         />
-                    ))}
+                    </SafeAreaView>
                 </SafeAreaView>
-            </ScrollView>
+
+                <View style={{ flex: 1, /** Saves life for scrolling component */ }}>
+                    <View style={styles.display_flex}>
+                        {/* Header */}
+                        <Text style={{ color: textColor, fontSize: 16, fontWeight: "500" }}>
+                            Applied for {months[pickerModalState.selectedMonth]}{" "}
+                            {pickerModalState.selectedYear}
+                        </Text>
+
+                        <TouchableOpacity
+                            onPress={() =>
+                                setPickerModalState((prevState) => ({
+                                    ...prevState,
+                                    showPickerMonthModal: true,
+                                }))
+                            }
+                        >
+                            <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* filtered Leaves List */}
+                    <ScrollView style={{ marginTop: 15 }} showsVerticalScrollIndicator={false}>
+                        {filteredRegularization.length > 0 ?
+                            filteredRegularization.map((reg, index) => (
+                                <RegularizationsCard
+                                    key={index}
+                                    regularizeData={reg}
+                                    setShowRegDetailsModal={setShowRegDetailsModal}
+                                    setRegularizationModalId={setRegularizationModalId}
+                                />
+                            )) :
+                            <Text style={{ color: textColor, textAlign: "center", marginTop: 30 }}>
+                                No regularization applied for this month.
+                            </Text>
+                        }
+                    </ScrollView>
+                </View>
+            </View>
 
             {(pickerModalState.showPickerMonthModal ||
                 pickerModalState.showPickerYearModal) && (
@@ -90,85 +140,67 @@ export default function RegularizationsPage() {
     )
 }
 
-function RegularizationsCard({ regularize, setShowRegDetailsModal, setRegularizationModalId }) {
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
+function CountCards({ date, percentage, item }) {
+    const { darkTheme } = useAppTheme();
+    const lightText = "#666666";
+    const textColor = '#000';
 
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
+    function formatDate(date) {
+        const parsedDate = Date.parse(date);
+        if (isNaN(parsedDate)) {
+            console.log(`Invalid date: ${date}`);
+            return "Invalid Date";
         }
-
         return new Intl.DateTimeFormat("en-GB", {
             day: "2-digit",
             month: "short",
-            // year: '2-digit',
-        }).format(parsedDate);
-    };
-
-    const formatTime = (date) => {
-        const parsedDate = new Date(date);
-
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-
-        return new Intl.DateTimeFormat("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-        }).format(parsedDate);
-    };
-
-    function handleClick(id) {
-        setRegularizationModalId(id);
-        setShowRegDetailsModal(true)
+            year: "numeric",
+        }).format(new Date(parsedDate));
     }
 
-    const statusColor =
-        regularize.status === leaveStatus.Pending
-            ? "orange"
-            : regularize.status === leaveStatus.Approved
-                ? Colors.lightBlue
-                : regularize.status === leaveStatus.Rejected
-                    ? "red"
-                    : "gray";
-
     return (
-        <Pressable onPress={() => handleClick(regularize.reg_id)}>
-            <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
-            <View style={styles.cardStyle}>
-                <SafeAreaView style={styles.flex_row_top}>
-                    <Text
-                        style={{
-                            width: "70%",
-                            fontSize: 14,
-                            fontWeight: "500",
-                            color: Colors.darkBlue,
-                        }}
-                    >
-                        Applied for {formatDate(regularize?.date)}
-                    </Text>
+        <SafeAreaView style={styles.cardContainer}>
+            {
+                !darkTheme ?
+                    <LinearGradient
+                        colors={['#1F366A', '#1A6FA8']}
+                        style={styles.duplicateCard}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                    />
+                    :
+                    <View
+                        style={[
+                            styles.duplicateCard,
+                            { backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border },
+                        ]}
+                    />
+            }
 
-                    <Text style={[styles.status, { backgroundColor: statusColor }]} >
-                        {regularize.status}
-                    </Text>
+            <View style={styles.cardStyle}>
+                <SafeAreaView>
+                    <Text style={{ fontWeight: 500, fontSize: 16, color: textColor }}>{formatDate(date)}</Text>
+                    <Text style={{ fontSize: 12, color: lightText }}>Percentage: {percentage <= 9 ? `0${percentage}` : percentage}%</Text>
                 </SafeAreaView>
 
-                <Text style={{ color: "#000", fontSize: 12, }}>
-                    Punch In: {formatTime(regularize?.originalRecords?.punchIn)}
-                </Text>
-                <SafeAreaView style={styles.flex_row_top}>
-                    <Text style={{ color: "#000", fontSize: 12, }}>
-                        Punch Out: {formatTime(regularize?.originalRecords?.punchOut)}
-                    </Text>
-                    <Text style={{ color: "#000", fontSize: 12, }}>
-                        Applied on {formatDate(regularize.appliedOn)}
-                    </Text>
+                <SafeAreaView style={{ display: 'flex', alignItems: 'flex-end', marginTop: 5 }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.push({
+                                pathname: '/applyRegularization',
+                                params: {
+                                    firstPunchIn: new Date(item.punchRecords[0].punchIn).toISOString(),
+                                    lastPunchOut: new Date(item.punchRecords[item.punchRecords?.length - 1].punchOut).toISOString(),
+                                    date: new Date(item.date).toISOString()
+                                }
+                            })
+                        }}
+                        style={{ backgroundColor: Colors.lightBlue, paddingVertical: 5, paddingHorizontal: 15, borderRadius: 30 }}>
+                        <Text style={{ fontSize: 12, color: Colors.white, fontWeight: 500 }}>APPLY</Text>
+                    </TouchableOpacity>
                 </SafeAreaView>
             </View>
-        </Pressable>
+        </SafeAreaView>
     );
 }
 
@@ -185,8 +217,25 @@ const styles = StyleSheet.create({
     },
     cardsContainer: {
         gap: 20,
+        // flex: 1,
         display: "flex",
-        marginVertical: 30,
+        marginVertical: 25,
+    },
+    flex_row_top: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+    },
+    gradient: {
+        borderRadius: 30,
+        paddingHorizontal: 15,
+        paddingVertical: 7,
+    },
+    cardContainer: {
+        position: "relative",
+        marginTop: 10,
+        width: 200,
     },
     duplicateCard: {
         position: "absolute",
@@ -215,26 +264,6 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-around'
+        justifyContent: 'space-between'
     },
-    status: {
-        color: "#fff",
-        paddingVertical: 4,
-        paddingHorizontal: 8,
-        fontSize: 12,
-        borderRadius: 20,
-        textAlign: "center",
-        fontWeight: "500",
-    },
-    flex_row_top: {
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
-    },
-    gradient: {
-        borderRadius: 30,
-        paddingHorizontal: 15,
-        paddingVertical: 7,
-    }
 })
