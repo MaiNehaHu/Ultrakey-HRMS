@@ -19,9 +19,9 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
 
     const statusColor = regData?.status === leaveStatus.Pending
         ? "orange"
-        : regData?.status === leaveStatus.Approved
+        : regData?.status === leaveStatus?.Approved
             ? Colors.lightBlue
-            : regData?.status === leaveStatus.Rejected
+            : regData?.status === leaveStatus?.Rejected
                 ? "red"
                 : "gray";
 
@@ -33,6 +33,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
             updatedRegularizations[regIndex] = { ...updatedRegularizations[regIndex], status: leaveStatus.Withdrawn };
             return updatedRegularizations;
         });
+
         setShowRegDetailsModal(false);
     }
 
@@ -43,7 +44,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
             return "Invalid date";
         }
 
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             day: "2-digit",
             month: "short",
             year: 'numeric',
@@ -58,7 +59,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
             return "Invalid date";
         }
 
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             hour: "2-digit",
             minute: "2-digit",
             hour12: true,
@@ -102,8 +103,8 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                             </SafeAreaView>
 
                             <DataCard header={"Applied for"} data={formatDate(regData?.date) || 'No reason provided'} />
-                            <DataCard header={"Punch In"} data={`${formatTime(regData?.punchIn) || 'N/A'}`} />
-                            <DataCard header={"Punch Out"} data={`${formatTime(regData?.punchOut) || 'N/A'}`} />
+                            <DataCard header={"Original Punches"} data={`${formatTime(regData?.originalRecords?.punchIn)} - ${formatTime(regData?.originalRecords?.punchOut)}` || 'N/A'} />
+                            <DataCard header={"Regularized Punches"} data={`${formatTime(regData?.regularizedRecords?.punchIn)} - ${formatTime(regData?.regularizedRecords?.punchOut)}` || 'N/A'} />
                             <DataCard header={"Applied on"} data={formatDate(regData?.appliedOn) || 'No type specified'} />
                         </View>
 
@@ -134,7 +135,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                                         }
                                     ]}
                                 >
-                                    Withdraw Leave
+                                    Withdraw Regularization
                                 </Text>
                             </Pressable>
                         </Animated.View>

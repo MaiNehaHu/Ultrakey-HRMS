@@ -41,11 +41,11 @@ export default function ApplyRegularization() {
             ...prev,
             {
                 date,
-                reg_id: date,
+                reg_id: Math.random() * 100,
                 status: leaveStatus.Pending,
-                punchIn: punchRecords.firstPunchIn,
-                punchOut: punchRecords.lastPunchOut,
-                appliedOn: new Date().toISOString()
+                appliedOn: new Date().toISOString(),
+                originalRecords: { punchIn: firstPunchIn, punchOut: lastPunchOut },
+                regularizedRecords: { punchIn: punchRecords.firstPunchIn, punchOut: punchRecords.lastPunchOut },
             }
         ]);
 
@@ -79,7 +79,7 @@ export default function ApplyRegularization() {
     }
 
     const formatDate = (date) => {
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             day: "2-digit",
             month: "short",
             year: "numeric",
@@ -87,7 +87,7 @@ export default function ApplyRegularization() {
     };
 
     const formatTime = (date) => {
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             minute: '2-digit',
             hour: '2-digit',
             second: '2-digit',

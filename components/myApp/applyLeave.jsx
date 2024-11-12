@@ -176,7 +176,6 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     return (
         <Modal visible={isVisible} transparent={true} animationType='fade'>
             <Pressable style={styles.modalContainer} onPress={toggleModal}>
-
                 <Pressable onPress={(e) => e.stopPropagation()}>
                     <View style={[styles.modalContent, { backgroundColor: bgColor }]} >
                         <View style={styles.flex_row_top}>

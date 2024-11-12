@@ -4,8 +4,9 @@ import moment from "moment";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useRegularization } from "@/contexts/RegularizationRequest";
+import leaveStatus from "@/constants/leaveStatus";
 
 const formatTime = (date) => moment(date).format("h:mm A");
 
@@ -164,8 +165,8 @@ const DateDetailModal = ({ clickedDate, textColor }) => {
 };
 
 const CardUI = ({ header, data }) => {
-  const { darkTheme } = useAppTheme();
   const textColor = '#000';
+  const { darkTheme } = useAppTheme();
 
   return (
     <SafeAreaView style={styles.cardContainer}>
@@ -195,6 +196,7 @@ const CardUI = ({ header, data }) => {
 }
 
 const RegularizationCard = ({ clickedDate }) => {
+  const navigation = useNavigation();
   const { darkTheme } = useAppTheme();
   const { regularizationRequest } = useRegularization();
 
@@ -202,7 +204,7 @@ const RegularizationCard = ({ clickedDate }) => {
     const alreadyApplied = regularizationRequest.some((req) => {
       const reqDate = new Date(req.date).toISOString().split("T")[0];
       const clickedReqDate = new Date(clickedDate.date).toISOString().split("T")[0];
-      return reqDate === clickedReqDate;
+      return reqDate === clickedReqDate && req.status !== leaveStatus.Withdrawn;
     });
 
     if (!alreadyApplied) {
@@ -215,7 +217,17 @@ const RegularizationCard = ({ clickedDate }) => {
         }
       })
     } else {
-      Alert.alert("Already applied",`Regularization request already received for ${moment(clickedDate.date).format("MMM D, YYYY")}`)
+      Alert.alert(
+        "Already applied",
+        `Regularization request already received for ${moment(clickedDate.date).format("MMM D, YYYY")}`,
+        [
+          {
+            text: "Go to Requests",
+            onPress: () => navigation.navigate("regularizationsPage"),
+          },
+          { text: "Cancel", style: "cancel" },
+        ]
+      );
     }
   }
 

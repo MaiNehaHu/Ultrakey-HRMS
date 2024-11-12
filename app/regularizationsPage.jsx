@@ -38,7 +38,7 @@ export default function RegularizationsPage() {
             <ScrollView style={{ padding: 15 }}>
                 <SafeAreaView style={styles.flex_row_top}>
                     <Text style={{ color: textColor, fontSize: 16, fontWeight: "500" }}>
-                        Applied for {months[pickerModalState.selectedMonth]}{" "}
+                        Applied in {months[pickerModalState.selectedMonth]}{" "}
                         {pickerModalState.selectedYear}
                     </Text>
 
@@ -99,10 +99,10 @@ function RegularizationsCard({ regularize, setShowRegDetailsModal, setRegulariza
             return "Invalid date";
         }
 
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             day: "2-digit",
             month: "short",
-            year: '2-digit',
+            // year: '2-digit',
         }).format(parsedDate);
     };
 
@@ -114,7 +114,7 @@ function RegularizationsCard({ regularize, setShowRegDetailsModal, setRegulariza
             return "Invalid date";
         }
 
-        return new Intl.DateTimeFormat("en-US", {
+        return new Intl.DateTimeFormat("en-GB", {
             hour: "2-digit",
             minute: "2-digit",
             hour12: true,
@@ -157,25 +157,16 @@ function RegularizationsCard({ regularize, setShowRegDetailsModal, setRegulariza
                 </SafeAreaView>
 
                 <Text style={{ color: "#000", fontSize: 12, }}>
-                    Punch In: {formatTime(regularize?.punchIn)}
+                    Punch In: {formatTime(regularize?.originalRecords?.punchIn)}
                 </Text>
-                <Text style={{ color: "#000", fontSize: 12, }}>
-                    Punch Out: {formatTime(regularize?.punchOut)}
-                </Text>
-                <Text style={{ color: "#000", fontSize: 12, textAlign: 'right' }}>
-                    Applied on {formatDate(regularize.appliedOn)}
-                </Text>
-                {/* <Text style={{ color: "#000", fontSize: 14, textAlign: 'center', marginTop: 10, marginBottom: 5 }}>
-                    Regularize to
-                </Text> */}
-                {/* <SafeAreaView style={styles.display_flex}>
-                    <Text style={{ color: "#000", fontSize: 14, textAlign: 'center', }}>
-                        Punch In{'\n'}{formatTime(regularize?.punchIn)}
+                <SafeAreaView style={styles.flex_row_top}>
+                    <Text style={{ color: "#000", fontSize: 12, }}>
+                        Punch Out: {formatTime(regularize?.originalRecords?.punchOut)}
                     </Text>
-                    <Text style={{ color: "#000", fontSize: 14, textAlign: 'center', }}>
-                        Punch Out:{'\n'}{formatTime(regularize?.punchOut)}
+                    <Text style={{ color: "#000", fontSize: 12, }}>
+                        Applied on {formatDate(regularize.appliedOn)}
                     </Text>
-                </SafeAreaView> */}
+                </SafeAreaView>
             </View>
         </Pressable>
     );

@@ -47,7 +47,8 @@ const tasks: Task[] = [
     assignee: "",
     assigner: "",
     name: "Trending News Guru App",
-    description: "Create Trending News Guru App for Ulytrakey IT Solutions.",
+    description:
+      "Create Trending News Guru App for Ulytrakey IT Solutions. Hello, I hope you are doing good. Also, Owrk on Website with Java Backend and JavaScript on Frontend Create Trending News Guru App for Ulytrakey IT Solutions. Frontend Create Trending News Guru App for Ulytrakey IT Solutions. Create Trending News Guru App for Ulytrakey IT Solutions.",
     deadline: "2024-10-15T12:45:00.000Z",
     createdAt: "2024-09-13T09:00:00.000Z",
     status: "Completed",
@@ -91,7 +92,7 @@ const TaskScreen = () => {
   };
 
   const formatDate = (date: string) => {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
       month: "short",
       hour: "2-digit",
@@ -146,6 +147,7 @@ const TaskScreen = () => {
                   : task.status === taskStatus.Overdue
                   ? "red"
                   : "grey";
+
               return (
                 <Pressable
                   key={task.task_id}

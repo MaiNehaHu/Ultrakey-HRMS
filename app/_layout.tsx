@@ -197,6 +197,7 @@ function RootLayoutNav() {
         headerStyle: {
           backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
         },
+        animation: "fade_from_bottom",
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

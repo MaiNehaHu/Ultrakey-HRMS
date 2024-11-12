@@ -21,6 +21,7 @@ import holidaysList from "@/constants/holidaysList";
 import { useLeavesContext } from "@/contexts/Leaves";
 import taskStatus from "@/constants/taskStatus";
 import leaveStatus from "@/constants/leaveStatus";
+import months from "@/constants/months";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -110,7 +111,7 @@ export default function TabOneScreen() {
   const day = currentTime.getDate().toString().padStart(2, "0");
   const month = currentTime.toLocaleString("default", { month: "short" });
   const year = currentTime.getFullYear();
-  const formattedDate = `${day} ${month}, ${year}`;
+  const formattedDate = `${day} ${month} ${year}`;
 
   // Helper function to check if current time is after 6:30 PM
   const isAfterCutoff = (time: Date): boolean => {
@@ -432,7 +433,7 @@ const PunchCircle = ({
                   textAlign: "center",
                 }}
               >
-                {new Date().toLocaleDateString("en-US", {
+                {new Date().toLocaleDateString("en-GB", {
                   weekday: "long",
                 })}
               </Text>
@@ -628,7 +629,7 @@ const OnGoingTasksCard = ({ darkTheme }: { darkTheme: boolean }) => {
   );
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -714,17 +715,19 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const currentMonth = new Date().toLocaleString("default", { month: "long" });
+  const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
   const filteredHolidays = holidaysList.filter(
     (holiday) =>
-      new Date(holiday.date).toLocaleString("default", { month: "long" }) ===
-        currentMonth && new Date(holiday.date).getFullYear() === currentYear
+      (new Date(holiday.date).getMonth() === currentMonth &&
+        new Date(holiday.date).getFullYear() === currentYear) ||
+      (new Date(holiday.date).getMonth() === currentMonth + 1 &&
+        new Date(holiday.date).getFullYear() === currentYear)
   );
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
       month: "short",
       // year: "numeric",
@@ -785,9 +788,7 @@ const UpcomingHolidays = ({ darkTheme }: { darkTheme: boolean }) => {
               </SafeAreaView>
             ))
           ) : (
-            <Text style={{ color: Colors.black }}>
-              No holidays in {currentMonth}
-            </Text>
+            <Text style={{ color: Colors.black }}>No holidays in</Text>
           )}
         </SafeAreaView>
 
@@ -827,7 +828,7 @@ const LeavesRequest = ({ darkTheme }: { darkTheme: boolean }) => {
   );
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
       month: "short",
       // year: "numeric",
@@ -1005,11 +1006,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   viewAllButton: {
-    backgroundColor: Colors.lightBlue,
+    marginTop: 5,
     borderRadius: 20,
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignSelf: "flex-end",
+    backgroundColor: Colors.lightBlue,
   },
   viewAllButtonText: {
     color: Colors.white,
