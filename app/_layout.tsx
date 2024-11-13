@@ -262,6 +262,15 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen
+        name="addTask"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Add New Task"),
+        }}
+      />
+      <Stack.Screen
         name="regularizationsPage"
         options={{
           headerShown: true,

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import taskStatus from '../../constants/taskStatus'
+import { taskStatusColor } from '../../constants/taskStatusColor'
 import Colors from '@/constants/Colors';
 
 export default function TaskCard({ task, handleModalDisplay }) {
@@ -14,15 +14,6 @@ export default function TaskCard({ task, handleModalDisplay }) {
         }).format(new Date(date));
     };
 
-    const statusColor =
-        task?.status === taskStatus.Ongoing
-            ? "orange"
-            : task?.status === taskStatus.Completed
-                ? Colors.lightBlue
-                : task?.status === taskStatus.Overdue
-                    ? "red"
-                    : "grey";
-
     return (
         <Pressable
             key={task?.task_id}
@@ -32,7 +23,7 @@ export default function TaskCard({ task, handleModalDisplay }) {
             <View
                 style={[
                     styles.duplicateTaskCard,
-                    { backgroundColor: statusColor },
+                    { backgroundColor: taskStatusColor(task?.status) },
                 ]}
             />
             <View style={styles.taskCard}>
@@ -50,7 +41,7 @@ export default function TaskCard({ task, handleModalDisplay }) {
                     <Text
                         style={[
                             styles.status,
-                            { backgroundColor: statusColor },
+                            { backgroundColor: taskStatusColor(task?.status) },
                         ]}
                     >
                         {task?.status}

@@ -13,7 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import { TouchableOpacity } from "react-native";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useLeavesContext } from '../../contexts/Leaves'
 
@@ -140,7 +140,7 @@ export default function Leaves() {
                             }))
                         }
                     >
-                        <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
+                        <Ionicons name="calendar" size={22} color={textColor} />
                     </TouchableOpacity>
                 </View>
 

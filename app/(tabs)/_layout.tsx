@@ -143,8 +143,8 @@ export default function TabLayout() {
         options={{
           title: "Calendar",
           tabBarIcon: () => (
-            <AwesomeIcons
-              name="calendar-alt"
+            <Ionicons
+              name="calendar"
               size={20}
               color={Colors[darkTheme ? "dark" : "light"].background}
             /> // Use AwesomeIcon

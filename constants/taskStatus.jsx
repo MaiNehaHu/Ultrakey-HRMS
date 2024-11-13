@@ -1,6 +1,7 @@
 export default {
+    New: "New",
+    Pause: "Pause",
     Ongoing: "Ongoing",
-    Completed: "Completed",
-    Deferred: "Deferred",
     Overdue: "Overdue",
+    Completed: "Completed",
 }

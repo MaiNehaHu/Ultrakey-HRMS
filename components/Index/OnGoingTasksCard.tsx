@@ -8,6 +8,7 @@ import FontAwesome6Icon from "react-native-vector-icons/FontAwesome6";
 import Colors from "@/constants/Colors";
 import { useAppTheme } from "@/contexts/AppTheme";
 import { LinearGradient } from "expo-linear-gradient";
+import { formatDateInGB } from "@/constants/formatDateInGB";
 type RootStackParamList = {
   task: undefined;
   holidaysList: undefined;
@@ -43,14 +44,6 @@ export default function OnGoingTasksCard() {
       task.status === taskStatus.Ongoing ||
       task.status === taskStatus.Overdue
   );
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(date));
-  };
 
   return (
     <SafeAreaView style={styles.cardContainer}>
@@ -106,7 +99,7 @@ export default function OnGoingTasksCard() {
                   {task.name}
                 </Text>
                 <Text style={{ color: Colors.black, maxWidth: "30%" }}>
-                  {formatDate(task.createdAt)}
+                  {formatDateInGB(task.createdAt)}
                 </Text>
               </SafeAreaView>
             ))

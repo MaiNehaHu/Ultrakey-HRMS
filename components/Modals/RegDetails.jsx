@@ -7,6 +7,8 @@ import leaveStatus from '../../constants/leaveStatus';
 import { SafeAreaView } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import { formatDateInGB } from '../../constants/formatDateInGB';
+import { leaveStatusColor } from '../../constants/leaveStatusColor';
 
 export default function RegDetails({ isVisible, regularizationModalId, setShowRegDetailsModal }) {
     const { darkTheme } = useAppTheme();
@@ -16,14 +18,6 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const [regData, setRegData] = useState(null);  // Initialize as null
-
-    const statusColor = regData?.status === leaveStatus.Pending
-        ? "orange"
-        : regData?.status === leaveStatus?.Approved
-            ? Colors.lightBlue
-            : regData?.status === leaveStatus?.Rejected
-                ? "red"
-                : "gray";
 
     function handleWithdraw() {
         setRegularizationRequest((prevReg) => {
@@ -36,20 +30,6 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
 
         setShowRegDetailsModal(false);
     }
-
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: 'numeric',
-        }).format(parsedDate);
-    };
 
     const formatTime = (date) => {
         const parsedDate = new Date(date);
@@ -90,7 +70,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                                 <Text
                                     style={[
                                         styles.status,
-                                        { backgroundColor: statusColor },
+                                        { backgroundColor: leaveStatusColor(regData?.status) },
                                     ]}
                                 >
                                     {regData?.status || 'No Status'}
@@ -102,11 +82,11 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                                 </TouchableOpacity>
                             </SafeAreaView>
 
-                            <DataCard header={"Applied for"} data={formatDate(regData?.date) || 'No reason provided'} />
+                            <DataCard header={"Applied for"} data={formatDateInGB(regData?.date) || 'No reason provided'} />
                             <DataCard header={"Original Punches"} data={`${formatTime(regData?.originalRecords?.punchIn)} - ${formatTime(regData?.originalRecords?.punchOut)}` || 'N/A'} />
                             <DataCard header={"Regularized Punches"} data={`${formatTime(regData?.regularizedRecords?.punchIn)} - ${formatTime(regData?.regularizedRecords?.punchOut)}` || 'N/A'} />
                             <DataCard header={"Reason"} data={regData?.reason || 'No reason specified'} />
-                            <DataCard header={"Applied on"} data={formatDate(regData?.appliedOn) || 'No type specified'} />
+                            <DataCard header={"Applied on"} data={formatDateInGB(regData?.appliedOn) || 'No type specified'} />
                         </View>
 
                         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>

@@ -8,6 +8,7 @@ import { useLeavesContext } from '@/contexts/Leaves';
 import leaveStatus from '@/constants/leaveStatus';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
+import { formatDateInGB } from '../constants/formatDateInGB';
 
 const backgroundImage = require('../assets/images/body_bg.png');
 
@@ -169,14 +170,6 @@ const ApplyLeave = () => {
         }).start();
     };
 
-    const formatDate = (date) => {
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        }).format(new Date(date));
-    };
-
     useEffect(() => {
         setToDate(fromDate)
     }, [fromDate])
@@ -193,7 +186,7 @@ const ApplyLeave = () => {
                         <View style={styles.flex_row_center}>
                             {/* From Date Picker */}
                             <TouchableOpacity onPress={showFromDatePicker} style={styles.dateButton}>
-                                <Text style={styles.dateButtonText}>From: {formatDate(fromDate)}</Text>
+                                <Text style={styles.dateButtonText}>From: {formatDateInGB(fromDate)}</Text>
                             </TouchableOpacity>
                             <DateTimePickerModal
                                 isVisible={isFromPickerVisible}
@@ -252,7 +245,7 @@ const ApplyLeave = () => {
                         <View style={styles.flex_row_center}>
                             {/* To Date Picker */}
                             <Pressable onPress={showToDatePicker} style={styles.dateButton}>
-                                <Text style={styles.dateButtonText}>To: {formatDate(toDate)}</Text>
+                                <Text style={styles.dateButtonText}>To: {formatDateInGB(toDate)}</Text>
                             </Pressable>
                             <DateTimePickerModal
                                 isVisible={isToPickerVisible}

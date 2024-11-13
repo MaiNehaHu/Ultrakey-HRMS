@@ -14,7 +14,7 @@ import Colors from "@/constants/Colors";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AwesomeIcon from "react-native-vector-icons/FontAwesome6";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useLogin } from "@/contexts/Login";
@@ -286,7 +286,7 @@ export default function MorePage() {
             ]}
           >
             <Text style={{ padding: 25, color: textColor }}>
-              <FontAwesome6 name="calendar" size={20} />
+              <Ionicons name="calendar" size={20} />
             </Text>
 
             <View>

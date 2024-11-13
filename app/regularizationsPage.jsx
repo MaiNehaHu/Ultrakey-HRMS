@@ -4,7 +4,7 @@ import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme'
 import { useRegularization } from '../contexts/RegularizationRequest';
 import { TouchableOpacity } from 'react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 import years from '../constants/years'
 import months from '../constants/months';
@@ -16,6 +16,7 @@ import RegularizationsCard from '../components/Cards/RegularizationsCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import leaveStatus from '../constants/leaveStatus';
+import { formatDateInGB } from '../constants/formatDateInGB';
 
 const bgImage = require('../assets/images/body_bg.png')
 
@@ -93,7 +94,7 @@ export default function RegularizationsPage() {
                                 }))
                             }
                         >
-                            <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
+                            <Ionicons name="calendar" size={22} color={textColor} />
                         </TouchableOpacity>
                     </View>
 
@@ -145,19 +146,6 @@ function CountCards({ date, percentage, item }) {
     const lightText = "#666666";
     const textColor = '#000';
 
-    function formatDate(date) {
-        const parsedDate = Date.parse(date);
-        if (isNaN(parsedDate)) {
-            console.log(`Invalid date: ${date}`);
-            return "Invalid Date";
-        }
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        }).format(new Date(parsedDate));
-    }
-
     return (
         <SafeAreaView style={styles.cardContainer}>
             {
@@ -179,7 +167,7 @@ function CountCards({ date, percentage, item }) {
 
             <View style={styles.cardStyle}>
                 <SafeAreaView>
-                    <Text style={{ fontWeight: 500, fontSize: 16, color: textColor }}>{formatDate(date)}</Text>
+                    <Text style={{ fontWeight: 500, fontSize: 16, color: textColor }}>{formatDateInGB(date)}</Text>
                     <Text style={{ fontSize: 12, color: lightText }}>Percentage: {percentage <= 9 ? `0${percentage}` : percentage}%</Text>
                 </SafeAreaView>
 

@@ -5,13 +5,9 @@ import { useAppTheme } from '../../contexts/AppTheme';
 import Colors from '../../constants/Colors';
 import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { TouchableOpacity } from 'react-native';
-
-const taskStatus = {
-    Ongoing: "Ongoing",
-    Completed: "Completed",
-    Deferred: "Deferred",
-    Overdue: "Overdue",
-};
+import { taskStatusColor } from '@/constants/taskStatusColor';
+import { Ionicons } from '@expo/vector-icons';
+import taskStatus from '@/constants/taskStatus';
 
 const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
     const { darkTheme } = useAppTheme();
@@ -28,14 +24,6 @@ const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
         }).format(new Date(date));
     };
 
-    const statusColor = clickedTask.status === taskStatus.Ongoing
-        ? "orange"
-        : clickedTask.status === taskStatus.Completed
-            ? Colors.lightBlue
-            : clickedTask.status === taskStatus.Overdue
-                ? "red"
-                : "grey";
-
     return (
         <Modal transparent={true} visible={isVisible} animationType="fade">
             <Pressable style={styles.modalContainer} onPress={onClose}>
@@ -47,10 +35,18 @@ const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
                                 <Text
                                     style={[
                                         styles.status,
-                                        { backgroundColor: statusColor },
+                                        { backgroundColor: taskStatusColor(clickedTask?.status) },
                                     ]}
                                 >
                                     {clickedTask.status}
+                                    {" "}
+                                    <Ionicons
+                                        name={clickedTask.status == taskStatus.Ongoing
+                                            ? 'play' : clickedTask.status == taskStatus.Completed
+                                                ? "checkmark" : clickedTask.status == taskStatus.Overdue
+                                                    ? "skull" : clickedTask.status == taskStatus.New
+                                                        ? "sparkles" : "pause"}
+                                    />
                                 </Text>
 
                                 <TouchableOpacity onPress={() => onClose(false)}>
@@ -122,8 +118,8 @@ const styles = StyleSheet.create({
     status: {
         color: "#fff",
         paddingVertical: 4,
-        paddingHorizontal: 8,
-        fontSize: 12,
+        paddingHorizontal: 12,
+        fontSize: 14,
         borderRadius: 20,
         textAlign: "center",
         fontWeight: 500,

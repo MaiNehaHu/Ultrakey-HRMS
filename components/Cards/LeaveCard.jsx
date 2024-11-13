@@ -2,43 +2,18 @@ import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Colors from '../../constants/Colors';
 import leaveStatus from '@/constants/leaveStatus';
+import { formatDateInGB } from '@/constants/formatDateInGB'
+import { leaveStatusColor } from '@/constants/leaveStatusColor'
 
 export default function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsModal }) {
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
-
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            // hour: "2-digit",
-            // minute: "2-digit",
-            // hour12: true,
-        }).format(parsedDate);
-    };
-
     function handleClick(id) {
         setLeaveModalId(id);
         setShowLeaveDetailsModal(true)
     }
 
-    const statusColor =
-        leave.status === leaveStatus.Pending
-            ? "orange"
-            : leave.status === leaveStatus.Approved
-                ? Colors.lightBlue
-                : leave.status === leaveStatus.Rejected
-                    ? "red"
-                    : "gray";
-
     return (
         <Pressable style={{ marginVertical: 7 }} onPress={() => handleClick(leave.id)}>
-            <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
+            <View style={[styles.duplicateCard, { backgroundColor: leaveStatusColor(leave.status) }]} />
             <View style={styles.cardStyle}>
                 <SafeAreaView style={styles.flex_row_top}>
                     <Text
@@ -52,16 +27,16 @@ export default function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsM
                         {leave.type} for {leave.noOfDays <= 1 ? `${leave.noOfDays} day` : `${leave.noOfDays} days`} {/* Corrected conditional */}
                     </Text>
 
-                    <Text style={[styles.status, { backgroundColor: statusColor }]} >
+                    <Text style={[styles.status, { backgroundColor: leaveStatusColor(leave.status) }]} >
                         {leave.status}
                     </Text>
                 </SafeAreaView>
 
                 <Text style={{ color: "#000", fontSize: 12 }}>
-                    From: Session {leave.from.session} of {formatDate(leave.from?.date || leave.from)}
+                    From: Session {leave.from.session} of {formatDateInGB(leave.from?.date || leave.from)}
                 </Text>
                 <Text style={{ color: "#000", fontSize: 12 }}>
-                    To: Session {leave.to.session} of {formatDate(leave.to?.date || leave.to)}
+                    To: Session {leave.to.session} of {formatDateInGB(leave.to?.date || leave.to)}
                 </Text>
                 {/* <Text style={{ color: "#000", fontSize: 12 }}>
                     Reason: {leave.reason}

@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react'
 import { useAppTheme } from '../contexts/AppTheme'
 import Colors from '../constants/Colors';
 import { TouchableOpacity } from 'react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import salaryPdfHtml from "@/app/salaryPdfHtml";
 import { shareAsync } from "expo-sharing";
@@ -110,7 +110,7 @@ export default function paySlips() {
                             }))
                         }
                     >
-                        <FontAwesome6 name="calendar-alt" size={22} color={textColor} />
+                        <Ionicons name="calendar" size={22} color={textColor} />
                     </TouchableOpacity>
                 </SafeAreaView>
 

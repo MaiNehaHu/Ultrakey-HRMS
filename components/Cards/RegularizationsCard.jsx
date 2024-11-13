@@ -3,23 +3,10 @@ import React from 'react'
 import { Pressable } from 'react-native';
 import leaveStatus from '../../constants/leaveStatus';
 import Colors from '../../constants/Colors';
+import { formatDateInGB } from '../../constants/formatDateInGB';
+import { leaveStatusColor } from '../../constants/leaveStatusColor';
 
 export default function RegularizationsCard({ regularizeData, setShowRegDetailsModal, setRegularizationModalId }) {
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
-
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            // year: '2-digit',
-        }).format(parsedDate);
-    };
-
     const formatTime = (date) => {
         const parsedDate = new Date(date);
 
@@ -40,18 +27,9 @@ export default function RegularizationsCard({ regularizeData, setShowRegDetailsM
         setShowRegDetailsModal(true)
     }
 
-    const statusColor =
-        regularizeData?.status === leaveStatus.Pending
-            ? "orange"
-            : regularizeData?.status === leaveStatus.Approved
-                ? Colors.lightBlue
-                : regularizeData?.status === leaveStatus.Rejected
-                    ? "red"
-                    : "gray";
-
     return (
         <Pressable style={{ marginVertical: 7 }} onPress={() => handleClick(regularizeData?.reg_id)}>
-            <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
+            <View style={[styles.duplicateCard, { backgroundColor: leaveStatusColor(regularizeData?.status) }]} />
             <View style={styles.cardStyle}>
                 <SafeAreaView style={styles.flex_row_top}>
                     <Text
@@ -62,10 +40,10 @@ export default function RegularizationsCard({ regularizeData, setShowRegDetailsM
                             color: Colors.darkBlue,
                         }}
                     >
-                        Applied for {formatDate(regularizeData?.date)}
+                        Applied for {formatDateInGB(regularizeData?.date)}
                     </Text>
 
-                    <Text style={[styles.status, { backgroundColor: statusColor }]} >
+                    <Text style={[styles.status, { backgroundColor: leaveStatusColor(regularizeData?.status) }]} >
                         {regularizeData?.status}
                     </Text>
                 </SafeAreaView>
@@ -78,7 +56,7 @@ export default function RegularizationsCard({ regularizeData, setShowRegDetailsM
                         Punch Out: {formatTime(regularizeData?.originalRecords?.punchOut)}
                     </Text>
                     <Text style={{ color: "#000", fontSize: 12, }}>
-                        Applied on {formatDate(regularizeData?.appliedOn)}
+                        Applied on {formatDateInGB(regularizeData?.appliedOn)}
                     </Text>
                 </SafeAreaView>
             </View>

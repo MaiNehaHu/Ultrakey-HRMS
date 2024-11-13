@@ -1,4 +1,4 @@
-import { Animated, Modal, Pressable, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Animated, Modal, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
@@ -6,6 +6,8 @@ import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { useLeavesContext } from '@/contexts/Leaves';
 
 import LeaveStatus from '@/constants/leaveStatus'
+import { formatDateInGB } from '@/constants/formatDateInGB';
+import { leaveStatusColor } from '@/constants/leaveStatusColor'
 
 const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => {
     const { darkTheme } = useAppTheme();
@@ -15,15 +17,6 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
-
-    // Conditionally set statusColor based on leaveData's status, with fallback values
-    const statusColor = leaveData?.status === LeaveStatus.Pending
-        ? "orange"
-        : leaveData?.status === LeaveStatus.Approved
-            ? Colors.lightBlue
-            : leaveData?.status === LeaveStatus.Rejected
-                ? "red"
-                : "gray";
 
     function handleWithdraw() {
         setLeaves((prevLeaves) => {
@@ -35,22 +28,6 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
         });
         setShowLeaveDetailsModal(false);
     }
-
-    const formatDate = (date) => {
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
-        }
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-            // hour: "2-digit",
-            // minute: "2-digit",
-            // hour12: true,
-        }).format(parsedDate);
-    };
 
     useEffect(() => {
         const currentLeave = leaves.find((leave) => leave.id === leaveModalId);
@@ -76,7 +53,7 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                                 <Text
                                     style={[
                                         styles.status,
-                                        { backgroundColor: statusColor },
+                                        { backgroundColor: leaveStatusColor(leaveData?.status) },
                                     ]}
                                 >
                                     {leaveData?.status || 'No Status'}
@@ -89,8 +66,8 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                             </SafeAreaView>
 
                             <DataCard header={"Type"} data={leaveData?.type || 'No type specified'} />
-                            <DataCard header={"From"} data={`Session ${leaveData?.from?.session || 'N/A'} of ${formatDate(leaveData?.from?.date)}`} />
-                            <DataCard header={"To"} data={`Session ${leaveData?.to?.session || 'N/A'} of ${formatDate(leaveData?.to?.date)}`} />
+                            <DataCard header={"From"} data={`Session ${leaveData?.from?.session || 'N/A'} of ${formatDateInGB(leaveData?.from?.date)}`} />
+                            <DataCard header={"To"} data={`Session ${leaveData?.to?.session || 'N/A'} of ${formatDateInGB(leaveData?.to?.date)}`} />
                             <DataCard header={"Reason"} data={leaveData?.reason || 'No reason provided'} />
                         </View>
 

@@ -6,6 +6,7 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useRegularization } from '../contexts/RegularizationRequest';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import leaveStatus from '../constants/leaveStatus';
+import { formatDateInGB } from '../constants/formatDateInGB';
 
 const backgroundImage = require('../assets/images/body_bg.png');
 
@@ -77,14 +78,6 @@ export default function ApplyRegularization() {
             reason: text
         }));
     }
-
-    const formatDate = (date) => {
-        return new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        }).format(new Date(date));
-    };
 
     const formatTime = (date) => {
         return new Intl.DateTimeFormat("en-GB", {
@@ -188,7 +181,7 @@ export default function ApplyRegularization() {
                 </SafeAreaView>
 
                 <SafeAreaView>
-                    <Text style={{ color: textColor, marginBottom: 20, textAlign: 'center' }}>Applying regularization for {formatDate(new Date(date))}</Text>
+                    <Text style={{ color: textColor, marginBottom: 20, textAlign: 'center' }}>Applying regularization for {formatDateInGB(new Date(date))}</Text>
                     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
                         <Pressable
                             onPressIn={handlePressIn}
