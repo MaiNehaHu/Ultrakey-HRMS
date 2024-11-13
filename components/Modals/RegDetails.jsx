@@ -105,6 +105,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                             <DataCard header={"Applied for"} data={formatDate(regData?.date) || 'No reason provided'} />
                             <DataCard header={"Original Punches"} data={`${formatTime(regData?.originalRecords?.punchIn)} - ${formatTime(regData?.originalRecords?.punchOut)}` || 'N/A'} />
                             <DataCard header={"Regularized Punches"} data={`${formatTime(regData?.regularizedRecords?.punchIn)} - ${formatTime(regData?.regularizedRecords?.punchOut)}` || 'N/A'} />
+                            <DataCard header={"Reason"} data={regData?.reason || 'No reason specified'} />
                             <DataCard header={"Applied on"} data={formatDate(regData?.appliedOn) || 'No type specified'} />
                         </View>
 

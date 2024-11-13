@@ -26,6 +26,7 @@ export default function TaskCard({ task, handleModalDisplay }) {
     return (
         <Pressable
             key={task?.task_id}
+            style={{ marginVertical: 7 }}
             onPress={() => handleModalDisplay(task?.task_id)}
         >
             <View

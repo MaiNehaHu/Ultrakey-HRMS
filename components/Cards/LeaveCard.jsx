@@ -37,7 +37,7 @@ export default function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsM
                     : "gray";
 
     return (
-        <Pressable style={{ marginVertical: 10 }} onPress={() => handleClick(leave.id)}>
+        <Pressable style={{ marginVertical: 7 }} onPress={() => handleClick(leave.id)}>
             <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
             <View style={styles.cardStyle}>
                 <SafeAreaView style={styles.flex_row_top}>
@@ -63,9 +63,9 @@ export default function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsM
                 <Text style={{ color: "#000", fontSize: 12 }}>
                     To: Session {leave.to.session} of {formatDate(leave.to?.date || leave.to)}
                 </Text>
-                <Text style={{ color: "#000", fontSize: 12 }}>
+                {/* <Text style={{ color: "#000", fontSize: 12 }}>
                     Reason: {leave.reason}
-                </Text>
+                </Text> */}
             </View>
         </Pressable>
     );

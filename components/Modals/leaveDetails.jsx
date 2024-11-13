@@ -88,10 +88,10 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                                 </TouchableOpacity>
                             </SafeAreaView>
 
-                            <DataCard header={"Reason"} data={leaveData?.reason || 'No reason provided'} />
                             <DataCard header={"Type"} data={leaveData?.type || 'No type specified'} />
                             <DataCard header={"From"} data={`Session ${leaveData?.from?.session || 'N/A'} of ${formatDate(leaveData?.from?.date)}`} />
                             <DataCard header={"To"} data={`Session ${leaveData?.to?.session || 'N/A'} of ${formatDate(leaveData?.to?.date)}`} />
+                            <DataCard header={"Reason"} data={leaveData?.reason || 'No reason provided'} />
                         </View>
 
                         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>

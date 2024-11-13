@@ -17,12 +17,12 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { useLeavesContext } from '../../contexts/Leaves'
 
-import LeaveDetails from '../../components/Modals/leaveDetails'
-import ApplyLeave from '../../components/Modals/applyLeave'
-import SelectMonthAndYear from '../../components/myApp/selectMonth&Year';
-import months from "../../constants/months";
-import years from "../../constants/years";
 import LeaveCard from '../../components/Cards/LeaveCard'
+import LeaveDetails from '../../components/Modals/leaveDetails'
+import SelectMonthAndYear from '../../components/myApp/selectMonth&Year';
+
+import years from "../../constants/years";
+import months from "../../constants/months";
 import { LinearGradient } from "expo-linear-gradient";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
@@ -36,13 +36,12 @@ const leavesData = [
 export default function Leaves() {
     const navigation = useNavigation()
     const { darkTheme } = useAppTheme();
-    const { leaves, setLeaves } = useLeavesContext();
+    const { leaves } = useLeavesContext();
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    const [isLeaveModalVisible, setIsLeaveModalVisible] = useState(false);
     const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
     const [leaveModalId, setLeaveModalId] = useState(null);
 
@@ -78,7 +77,7 @@ export default function Leaves() {
                             <Pressable
                                 onPressIn={handlePressIn}
                                 onPressOut={handlePressOut}
-                                onPress={() => setIsLeaveModalVisible(true)}
+                                onPress={() => navigation.navigate('applyLeave')}
                             >
                                 <Text style={{ fontWeight: 500, color: "#fff" }}>Apply Leave</Text>
                             </Pressable>
@@ -87,7 +86,7 @@ export default function Leaves() {
                         <Pressable
                             onPressIn={handlePressIn}
                             onPressOut={handlePressOut}
-                            onPress={() => setIsLeaveModalVisible(true)}
+                            onPress={() => navigation.navigate('applyLeave')}
                             style={[{ backgroundColor: Colors.lightBlue }, styles.gradient]}>
                             <Text style={{ fontWeight: 500, color: "#fff" }}>Apply Leave</Text>
                         </Pressable>
@@ -109,13 +108,6 @@ export default function Leaves() {
             toValue: 1,
             useNativeDriver: true,
         }).start();
-    };
-
-    // Toggle the modal visibility
-    const toggleModal = () => {
-        setTimeout(() => {
-            setIsLeaveModalVisible(!isLeaveModalVisible);
-        }, 100);
     };
 
     return (
@@ -186,15 +178,6 @@ export default function Leaves() {
                     />
                 )
             }
-
-            {/* Add Leave Modal */}
-            {isLeaveModalVisible && (
-                <ApplyLeave
-                    isVisible={isLeaveModalVisible}
-                    toggleModal={toggleModal}
-                    setLeaves={setLeaves}
-                />
-            )}
 
             {showLeaveDetailsModal && (
                 <LeaveDetails

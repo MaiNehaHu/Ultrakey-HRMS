@@ -1,17 +1,20 @@
-import { Modal, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, TextInput, View, Pressable, ActivityIndicator, Alert } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 import { useAppTheme } from '@/contexts/AppTheme';
-import AwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import { Animated } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // Only using DateTimePickerModal
 import { useLeavesContext } from '@/contexts/Leaves';
 import leaveStatus from '@/constants/leaveStatus';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from 'expo-router';
 
-const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
+const backgroundImage = require('../assets/images/body_bg.png');
+
+const ApplyLeave = () => {
+    const navigation = useNavigation()
     const { darkTheme } = useAppTheme();
-    const { leaves } = useLeavesContext()
+    const { leaves, setLeaves } = useLeavesContext();
 
     const bgColor = Colors[darkTheme ? 'dark' : 'light'].background;
     const oppBgColor = Colors[!darkTheme ? 'dark' : 'light'].background;
@@ -88,6 +91,10 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
             Alert.alert("Already applied", "You already have an overlapping leave for these dates and sessions.");
             setLoading(false);
             return;
+        } else if (reason === "") {
+            Alert.alert("Reason", "Please provide reason for your leave application");
+            setLoading(false);
+            return;
         }
 
         const newLeave = {
@@ -104,7 +111,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
         setTimeout(() => {
             setLeaves((prevLeaves) => [newLeave, ...prevLeaves]);
             setLoading(false);
-            toggleModal();
+            navigation.goBack();
         }, 500);
     };
 
@@ -163,10 +170,11 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     };
 
     const formatDate = (date) => {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        return new Intl.DateTimeFormat("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        }).format(new Date(date));
     };
 
     useEffect(() => {
@@ -174,39 +182,18 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
     }, [fromDate])
 
     return (
-        <Modal visible={isVisible} transparent={true} animationType='fade'>
-            <Pressable style={styles.modalContainer} onPress={toggleModal}>
-                <Pressable onPress={(e) => e.stopPropagation()}>
-                    <View style={[styles.modalContent, { backgroundColor: bgColor }]} >
-                        <View style={styles.flex_row_top}>
-                            <Text style={[styles.modalTitle, { color: textColor }]}>Apply for Leave</Text>
+        <View style={{ flex: 1, backgroundColor: bgColor }}>
+            <ImageBackground source={backgroundImage} style={styles.bgImage} />
 
-                            <TouchableOpacity onPress={toggleModal}>
-                                <Text style={{ color: textColor }}>
-                                    <AwesomeIcon name='xmark' size={22} />
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={{ padding: 5, marginBottom: 10 }}>
-                            <View style={[styles.cardContainer, { borderColor: textColor }]}>
-                                <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
-                                <TextInput
-                                    style={{ color: textColor, borderColor: textColor }}
-                                    placeholder="Reason for leave"
-                                    value={reason}
-                                    onChangeText={setReason}
-                                    placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
-                                />
-                            </View>
-                        </View>
-
-                        <Text style={{ color: textColor, marginBottom: 8 }}>Duration:</Text>
+            <View style={{ padding: 15, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <SafeAreaView style={{ display: 'flex', gap: 20 }}>
+                    <View style={{ display: 'flex', gap: 10 }}>
+                        <Text style={{ color: textColor }}>Duration:</Text>
 
                         <View style={styles.flex_row_center}>
                             {/* From Date Picker */}
                             <TouchableOpacity onPress={showFromDatePicker} style={styles.dateButton}>
-                                <Text style={styles.dateButtonText}>From Date: {formatDate(fromDate)}</Text>
+                                <Text style={styles.dateButtonText}>From: {formatDate(fromDate)}</Text>
                             </TouchableOpacity>
                             <DateTimePickerModal
                                 isVisible={isFromPickerVisible}
@@ -265,7 +252,7 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                         <View style={styles.flex_row_center}>
                             {/* To Date Picker */}
                             <Pressable onPress={showToDatePicker} style={styles.dateButton}>
-                                <Text style={styles.dateButtonText}>To Date: {formatDate(toDate)}</Text>
+                                <Text style={styles.dateButtonText}>To: {formatDate(toDate)}</Text>
                             </Pressable>
                             <DateTimePickerModal
                                 isVisible={isToPickerVisible}
@@ -320,8 +307,10 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 </Text>
                             </Pressable>
                         </View>
+                    </View>
 
-                        <Text style={{ color: textColor, marginBottom: 8 }}>Type:</Text>
+                    <View style={{ display: 'flex', gap: 10 }}>
+                        <Text style={{ color: textColor }}>Type:</Text>
 
                         <View style={styles.flex_row_center}>
                             <Pressable
@@ -388,87 +377,80 @@ const ApplyLeave = ({ isVisible, toggleModal, setLeaves }) => {
                                 </Text>
                             </Pressable>
                         </View>
+                    </View>
 
-                        <View style={{ marginVertical: 5, }}>
-                            <Text style={{ color: textColor }}>Remaining Paid Leaves: 2</Text>
-                        </View>
+                    <View style={[styles.cardContainer, { borderColor: textColor, marginTop: 10 }]}>
+                        <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
+                        <TextInput
+                            style={{ color: textColor, borderColor: textColor }}
+                            placeholder="Reason for leave"
+                            value={reason}
+                            onChangeText={setReason}
+                            placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                        />
+                    </View>
+                </SafeAreaView>
 
-                        {/* Apply Button or Loader */}
-                        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                            {!darkTheme ?
-                                <LinearGradient
-                                    colors={['#1F366A', '#1A6FA8']}
-                                    style={styles.applyButton}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                >
-                                    <Pressable
-                                        onPressIn={handlePressIn}
-                                        onPressOut={handlePressOut}
-                                        onPress={handleSaveLeave}
-                                    >
-                                        {loading ? (
-                                            <ActivityIndicator size="small" color={textColor} />
-                                        ) : (
-                                            <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
-                                        )}
-                                    </Pressable>
-                                </LinearGradient>
-                                :
+                <SafeAreaView>
+                    <View style={{ marginVertical: 5, }}>
+                        <Text style={{ color: textColor }}>Remaining Paid Leaves: 2</Text>
+                    </View>
+
+                    {/* Apply Button or Loader */}
+                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                        {!darkTheme ?
+                            <LinearGradient
+                                colors={['#1F366A', '#1A6FA8']}
+                                style={styles.applyButton}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                            >
                                 <Pressable
                                     onPressIn={handlePressIn}
                                     onPressOut={handlePressOut}
                                     onPress={handleSaveLeave}
-                                    style={[styles.applyButton, { backgroundColor: oppBgColor }]}
                                 >
                                     {loading ? (
-                                        <ActivityIndicator size="small" color={oppBgColor} />
+                                        <ActivityIndicator size="small" color={textColor} />
                                     ) : (
                                         <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
                                     )}
                                 </Pressable>
-                            }
-
-                        </Animated.View>
-                    </View>
-                </Pressable>
-            </Pressable>
-        </Modal >
+                            </LinearGradient>
+                            :
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                onPress={handleSaveLeave}
+                                style={[styles.applyButton, { backgroundColor: oppBgColor }]}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator size="small" color={oppBgColor} />
+                                ) : (
+                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                )}
+                            </Pressable>
+                        }
+                    </Animated.View>
+                </SafeAreaView>
+            </View >
+        </View>
     );
 };
 
 export default ApplyLeave;
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0,0,0,0.5)'
-    },
-    modalContent: {
-        width: "100%",
-        padding: 20,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 15,
-    },
-    flex_row_top: {
-        display: "flex",
-        marginBottom: 10,
-        flexDirection: "row",
-        alignItems: "flex-start",
-        justifyContent: "space-between",
+    bgImage: {
+        ...StyleSheet.absoluteFillObject,
+        resizeMode: 'cover'
     },
     flex_row_center: {
         gap: 5,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 10,
+        // marginBottom: 10,
         justifyContent: "space-between",
     },
     buttonContainer: {

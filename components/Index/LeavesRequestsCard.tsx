@@ -8,6 +8,7 @@ import FontAwesome6Icon from "react-native-vector-icons/FontAwesome6";
 import Colors from "@/constants/Colors";
 import { useLeavesContext } from "@/contexts/Leaves";
 import leaveStatus from "@/constants/leaveStatus";
+import { LinearGradient } from "expo-linear-gradient";
 type RootStackParamList = {
   task: undefined;
   holidaysList: undefined;
@@ -43,14 +44,19 @@ export default function LeavesRequestsCard() {
 
   return (
     <SafeAreaView style={styles.cardContainer}>
-      <View
-        style={[
-          styles.duplicateCard,
-          {
-            backgroundColor: darkTheme ? Colors.lightBlue : Colors.light.border,
-          },
-        ]}
-      />
+      {!darkTheme ? (
+        <LinearGradient
+          colors={["#1F366A", "#1A6FA8"]}
+          style={styles.duplicateCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        />
+      ) : (
+        <View
+          style={[styles.duplicateCard, { backgroundColor: Colors.lightBlue }]}
+        />
+      )}
+
       <View style={styles.cardStyle}>
         {/**Header */}
         <SafeAreaView style={styles.flex_row}>

@@ -130,7 +130,7 @@ export default function ApplyRegularization() {
             <View style={{ padding: 15, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <SafeAreaView style={{ display: 'flex', gap: 20 }}>
                     <View>
-                        <Text style={[styles.boldText, { color: textColor }]}>Your Time</Text>
+                        <Text style={[styles.boldText, { color: textColor, marginBottom: 10 }]}>Original Records</Text>
 
                         <View style={styles.flex_row}>
                             <Text style={{ color: textColor }}>Punch In:</Text>
@@ -143,7 +143,7 @@ export default function ApplyRegularization() {
                     </View>
 
                     <View>
-                        <Text style={[styles.boldText, { color: textColor }]}>Regularize To</Text>
+                        <Text style={[styles.boldText, { color: textColor, marginBottom: 10 }]}>Regularize To</Text>
 
                         <View style={styles.flex_row}>
                             <Text style={{ color: textColor }}>Punch In:</Text>
@@ -156,6 +156,11 @@ export default function ApplyRegularization() {
                             <TouchableOpacity onPress={() => showPicker('lastPunchOut')}>
                                 <Text style={{ color: textColor, fontWeight: '500', fontSize: 15 }}>{formatTime(punchRecords.lastPunchOut)}</Text>
                             </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.flex_row}>
+                            <Text style={{ color: textColor, fontSize: 12 }}>(Editable)</Text>
+                            <Text style={{ color: textColor, fontSize: 12 }}>(Editable)</Text>
                         </View>
                     </View>
 

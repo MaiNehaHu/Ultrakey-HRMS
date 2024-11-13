@@ -1,12 +1,13 @@
 import {
   ImageBackground,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
 import TaskDetails from "@/components/Modals/taskDetails";
@@ -15,6 +16,9 @@ import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 import months from "@/constants/months";
 import years from "@/constants/years";
 import TaskCard from "@/components/Cards/TaskCard";
+import { useNavigation } from "expo-router";
+import { Animated } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -65,6 +69,9 @@ const tasks: Task[] = [
 
 const TaskScreen = () => {
   const { darkTheme } = useAppTheme();
+  const navigation = useNavigation();
+
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   const [showModal, setShowModal] = useState(false);
   const [clickedTask, setClickedTask] = useState<Task>();
   const [pickerModalState, setPickerModalState] = useState({
@@ -101,6 +108,56 @@ const TaskScreen = () => {
     );
   });
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Animated.View
+          style={{ transform: [{ scale: scaleAnim }], marginRight: 10 }}
+        >
+          {!darkTheme ? (
+            <LinearGradient
+              colors={["#1F366A", "#1A6FA8"]}
+              style={styles.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Pressable
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                // onPress={() => CreateTaskModalVisible(true)}
+              >
+                <Text style={{ fontWeight: 500, color: "#fff" }}>Add Task</Text>
+              </Pressable>
+            </LinearGradient>
+          ) : (
+            <Pressable
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              // onPress={() => CreateTaskModalVisible(true)}
+              style={[{ backgroundColor: Colors.lightBlue }, styles.gradient]}
+            >
+              <Text style={{ fontWeight: 500, color: "#fff" }}>Add Task</Text>
+            </Pressable>
+          )}
+        </Animated.View>
+      ),
+    });
+  }, [darkTheme]);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
       <ImageBackground source={backgroundImage} style={styles.backImage} />
@@ -127,7 +184,11 @@ const TaskScreen = () => {
         <SafeAreaView style={styles.cardsContainer}>
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
-              <TaskCard key={task.task_id} task={task} handleModalDisplay={handleModalDisplay} />
+              <TaskCard
+                key={task.task_id}
+                task={task}
+                handleModalDisplay={handleModalDisplay}
+              />
             ))
           ) : (
             <Text
@@ -171,9 +232,9 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   cardsContainer: {
-    gap: 20,
+    // gap: 14,
     display: "flex",
-    marginVertical: 25,
+    marginTop: 15,
   },
   modalContainer: {
     flex: 1,
@@ -204,5 +265,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
+  },
+  gradient: {
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    paddingVertical: 7,
   },
 });

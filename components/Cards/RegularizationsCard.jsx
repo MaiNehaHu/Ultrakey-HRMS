@@ -50,7 +50,7 @@ export default function RegularizationsCard({ regularizeData, setShowRegDetailsM
                     : "gray";
 
     return (
-        <Pressable style={{ marginVertical: 10 }} onPress={() => handleClick(regularizeData?.reg_id)}>
+        <Pressable style={{ marginVertical: 7 }} onPress={() => handleClick(regularizeData?.reg_id)}>
             <View style={[styles.duplicateCard, { backgroundColor: statusColor }]} />
             <View style={styles.cardStyle}>
                 <SafeAreaView style={styles.flex_row_top}>

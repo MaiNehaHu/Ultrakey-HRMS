@@ -253,6 +253,15 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen
+        name="applyLeave"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerLeft("Apply Leave"),
+        }}
+      />
+      <Stack.Screen
         name="regularizationsPage"
         options={{
           headerShown: true,
