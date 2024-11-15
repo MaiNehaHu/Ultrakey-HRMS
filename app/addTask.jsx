@@ -1,11 +1,13 @@
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard } from 'react-native';
-import React, { useState } from 'react';
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme';
 import taskStatus from '../constants/taskStatus';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 
+import SelectProject from '../components/AddTask/SelectProject'
+import SelectAssignee from '../components/AddTask/SelectAssignee'
 import { formatDateInGB } from '../constants/formatDateInGB'
 const backgroundImage = require('../assets/images/body_bg.png');
 
@@ -23,16 +25,14 @@ export default function AddTask() {
         status: taskStatus.New,
         task_id: Math.random() * 100,
         createdAt: new Date().toISOString(),
-        subTaskOf: { taskName: "", task_id: 1 },
-        underProject: { projectName: "", project_id: 1 },
+        subTaskOf: { taskName: "", task_id: null },
+        underProject: { projectName: "", project_id: null },
     });
 
-    const assigneeList = [
-        { name: "Neha", id: 1 },
-        { name: "Srivani Kodimyala from Karimnagar", id: 2 },
-        { name: "Arun", id: 3 },
-        { name: "Bheem", id: 4 },
-    ];
+    const projectList = [
+        { projectName: "HRMS", project_id: 1 },
+        { projectName: "Trending News Guru", project_id: 2 },
+    ]
 
     const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -58,24 +58,23 @@ export default function AddTask() {
         }));
     };
 
-    let hideAssigneeListRef;
-
-    const handleHideAssigneeList = (hideFunction) => {
-        hideAssigneeListRef = hideFunction;
+    const handleProjectsUpdate = (selectedProjects) => {
+        setTaskData(prevData => ({
+            ...prevData,
+            underProject: selectedProjects,
+        }));
     };
 
-    const hideAssigneeListFromParent = () => {
-        if (hideAssigneeListRef) {
-            hideAssigneeListRef();
-        }
-    };
+    useEffect(() => {
+        console.log(taskData);
+    }, [taskData])
 
     return (
         <TouchableWithoutFeedback
             onPress={() => {
                 Keyboard.dismiss();
-                hideAssigneeListFromParent();
-            }}>
+            }}
+        >
             <View style={{ flex: 1, backgroundColor: bgColor }}>
                 <ImageBackground source={backgroundImage} style={styles.bgImage} />
 
@@ -83,26 +82,37 @@ export default function AddTask() {
                     <Inputs
                         header="Task Name"
                         value={taskData.taskName}
-                        placeholder="Start Working on ..."
+                        placeholder="Start Working On ..."
                         onChangeText={(value) => handleInputChange("taskName", value)}
                     />
 
                     <Inputs
                         header="Deadline"
                         value={taskData.deadline ? formatDateInGB(taskData.deadline) : ""}
-                        placeholder="Select deadline"
+                        placeholder="Select Deadline"
                         isDatePicker
                         onPressIcon={() => setShowDatePicker(true)}
                     />
 
                     <Inputs
+                        header="Assigner"
+                        value={"Neha Kumari (You)"}
+                        placeholder="Select Assigner"
+                    />
+
+                    <Inputs
                         header="Select Assignee"
-                        value={taskData.assignee}
-                        assigneeList={assigneeList}
-                        placeholder="Select assignees"
+                        placeholder="Select Assignees"
                         isAssigneeInput
                         onAssigneesUpdate={handleAssigneesUpdate}
-                        hideAssigneeList={handleHideAssigneeList}
+                    />
+
+                    <Inputs
+                        header="Task Given Under Project"
+                        projectList={projectList}
+                        placeholder="Select Project"
+                        isProjectInput
+                        onProjectsUpdate={handleProjectsUpdate}
                     />
 
                     {showDatePicker && (
@@ -127,138 +137,45 @@ function Inputs({
     isDatePicker,
     onPressIcon,
     isAssigneeInput,
-    assigneeList,
+    isProjectInput,
     onAssigneesUpdate,
-    hideAssigneeList
+    onProjectsUpdate,
 }) {
     const { darkTheme } = useAppTheme();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
-
-    const [assigneeInput, setAssigneeInput] = useState("");
-    const [showAssigneeList, setShowAssigneeList] = useState(false);
-    const [filteredAssignees, setFilteredAssignees] = useState(assigneeList);
-    const [selectedAssignees, setSelectedAssignees] = useState(value || []);
-    const [assigneeInputHeight, setAssigneeInputHeight] = useState(0);
-
-    const handleAssigneeSearch = (input) => {
-        setAssigneeInput(input);
-        setFilteredAssignees(
-            assigneeList.filter((assignee) =>
-                assignee.name.toLowerCase().includes(input.toLowerCase())
-            )
-        );
-    };
-
-    const handleAddAssignee = (assignee) => {
-        if (!selectedAssignees.some(selected => selected.id === assignee.id)) {
-            const updatedAssignees = [...selectedAssignees, assignee];
-            setSelectedAssignees(updatedAssignees);
-            onAssigneesUpdate(updatedAssignees);
-        }
-        setAssigneeInput("");
-        setShowAssigneeList(false);
-    };
-
-    const handleRemoveAssignee = (assigneeId) => {
-        const updatedAssignees = selectedAssignees.filter(a => a.id !== assigneeId);
-        setSelectedAssignees(updatedAssignees);
-        onAssigneesUpdate(updatedAssignees);
-    };
-
-    // Function to hide assignee list
-    const closeAssigneeList = () => {
-        setShowAssigneeList(false);
-    };
-
-    // Call the hideAssigneeList prop function if provided by the parent
-    React.useEffect(() => {
-        if (hideAssigneeList) {
-            hideAssigneeList(closeAssigneeList);
-        }
-    }, [hideAssigneeList]);
+    const logoColor = darkTheme ? Colors.white : Colors.lightBlue;
 
     return (
-        <TouchableWithoutFeedback onPress={closeAssigneeList}>
+        <TouchableWithoutFeedback>
             <View style={{ padding: 5, marginBottom: 10 }}>
                 <View style={[styles.cardContainer, { borderColor: textColor }]}>
                     <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
-                    <View
-                        style={styles.inputWrapper}
-                        onLayout={(event) => {
-                            const { height } = event.nativeEvent.layout;
-                            setAssigneeInputHeight(height);
-                        }}
-                    >
-                        {isAssigneeInput ? (
-                            <>
-                                <View style={{ display: 'flex', flexDirection: 'row', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-                                    {selectedAssignees.map((assignee) => (
-                                        <View key={assignee.id} style={styles.assigneeTag}>
-                                            <Text style={styles.assigneeText}>{assignee.name}</Text>
-                                            <TouchableOpacity onPress={() => handleRemoveAssignee(assignee.id)}>
-                                                <Ionicons name="close-circle" size={18} color="black" />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-
-                                    <TouchableOpacity onPress={() => setShowAssigneeList(true)}>
-                                        <Text style={{ color: 'gray', padding: 5 }}>{placeholder}</Text>
-                                    </TouchableOpacity>
-                                </View>
-
+                    {isAssigneeInput ? (
+                        <SelectAssignee onAssigneesUpdate={onAssigneesUpdate} />
+                    ) :
+                        isProjectInput ? (
+                            <SelectProject placeholder={placeholder} onProjectsUpdate={onProjectsUpdate} />
+                        ) : (
+                            <View style={styles.inputWrapper}>
                                 <TextInput
-                                    style={[
-                                        styles.inputField,
-                                        {
-                                            color: textColor,
-                                            borderColor: textColor,
-                                            flexGrow: 1,
-                                            minWidth: 100,
-                                            maxWidth: '100%'
-                                        }
-                                    ]}
-                                    value={assigneeInput}
-                                    onFocus={() => setShowAssigneeList(true)}
-                                    onChangeText={(text) => handleAssigneeSearch(text)}
+                                    style={[styles.inputField, { color: textColor, borderColor: textColor }]}
+                                    placeholder={placeholder}
+                                    value={value}
+                                    onChangeText={onChangeText}
                                     placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                                    editable={!isDatePicker}
                                 />
 
-                                {showAssigneeList && (
-                                    <FlatList
-                                        style={[styles.assigneeFlatList, { top: assigneeInputHeight + 15 }]}
-                                        data={filteredAssignees}
-                                        keyExtractor={(item) => item.id.toString()}
-                                        renderItem={({ item }) => (
-                                            <TouchableOpacity
-                                                style={styles.assigneeOption}
-                                                onPress={() => handleAddAssignee(item)}
-                                            >
-                                                <Text numberOfLines={1}>{item.name}</Text>
-                                            </TouchableOpacity>
-                                        )}
-                                    />
+                                {isDatePicker && (
+                                    <TouchableOpacity onPress={onPressIcon}>
+                                        <Ionicons name="calendar" size={24} color={logoColor} style={styles.icon} />
+                                    </TouchableOpacity>
                                 )}
-                            </>
-                        ) : (
-                            <TextInput
-                                style={[styles.inputField, { color: textColor, borderColor: textColor }]}
-                                placeholder={placeholder}
-                                value={value}
-                                onChangeText={onChangeText}
-                                placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
-                                editable={!isDatePicker}
-                            />
+                            </View>
                         )}
-
-                        {isDatePicker && (
-                            <TouchableOpacity onPress={onPressIcon}>
-                                <Ionicons name="calendar" size={24} color={headerText} style={styles.icon} />
-                            </TouchableOpacity>
-                        )}
-                    </View>
                 </View>
             </View>
         </TouchableWithoutFeedback>
