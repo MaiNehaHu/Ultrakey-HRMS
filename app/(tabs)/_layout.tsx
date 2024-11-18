@@ -34,7 +34,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: Colors[!darkTheme ? "dark" : "light"].background,
           paddingBottom: 5,
-          paddingTop: 5,
+          // paddingTop: 5,
         },
         headerShown: useClientOnlyValue(false, true),
         headerTitleStyle: {

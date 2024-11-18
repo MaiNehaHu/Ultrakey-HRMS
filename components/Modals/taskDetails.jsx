@@ -8,8 +8,9 @@ import { TouchableOpacity } from 'react-native';
 import { taskStatusColor } from '@/constants/taskStatusColor';
 import { Ionicons } from '@expo/vector-icons';
 import taskStatus from '@/constants/taskStatus';
+import { Animated } from 'react-native';
 
-const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
+const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim }) => {
     const { darkTheme } = useAppTheme();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
@@ -26,9 +27,17 @@ const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
 
     return (
         <Modal transparent={true} visible={isVisible} animationType="fade">
-            <Pressable style={styles.modalContainer} onPress={onClose}>
+            <Pressable style={styles.modalContainer} onPress={handleCloseModal}>
                 <Pressable onPress={(e) => e.stopPropagation()}>
-                    <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
+                    <Animated.View
+                        style={[
+                            styles.modalContent,
+                            {
+                                backgroundColor: bgColor,
+                                transform: [{ translateY: slideModalAnim }],
+                            },
+                        ]}
+                    >
                         <View>
                             {/* Header */}
                             <SafeAreaView style={[styles.flex_row_top, { paddingBottom: 8, marginBottom: 10 }]}>
@@ -49,7 +58,7 @@ const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
                                     />
                                 </Text>
 
-                                <TouchableOpacity onPress={() => onClose(false)}>
+                                <TouchableOpacity onPress={handleCloseModal}>
                                     <Text style={{ color: textColor }}>
                                         <FontAwesome6Icon name="xmark" size={22} />
                                     </Text>
@@ -62,7 +71,7 @@ const TaskDetails = ({ isVisible, onClose, clickedTask }) => {
                         <DataCard header={"Assignee"} data={clickedTask.assignee || 'No assignee'} />
                         <DataCard header={"Assigner"} data={clickedTask.assigner || 'No assigner'} />
                         <DataCard header={"Description"} data={clickedTask.description || 'No description'} />
-                    </View>
+                    </Animated.View>
                 </Pressable>
             </Pressable>
         </Modal>

@@ -8,6 +8,7 @@ import {
     Pressable,
     ScrollView,
     Animated,
+    Easing,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
@@ -41,6 +42,7 @@ export default function Leaves() {
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const scaleAnim = useRef(new Animated.Value(1)).current;
+    const slideModalAnim = useRef(new Animated.Value(200)).current; // Start position off-screen
 
     const [showLeaveDetailsModal, setShowLeaveDetailsModal] = useState(false);
     const [leaveModalId, setLeaveModalId] = useState(null);
@@ -110,6 +112,27 @@ export default function Leaves() {
         }).start();
     };
 
+    const handleOpenModal = () => {
+        setShowLeaveDetailsModal(true);
+        Animated.timing(slideModalAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handleCloseModal = () => {
+        Animated.timing(slideModalAnim, {
+            toValue: 700, // Slide back down
+            duration: 200,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+        }).start(() => {
+            setShowLeaveDetailsModal(false);
+        });
+    };
+
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={backgroundImage} style={styles.backImage} />
@@ -152,7 +175,7 @@ export default function Leaves() {
                                 leave={leave}
                                 key={leave?.id}
                                 setLeaveModalId={setLeaveModalId}
-                                setShowLeaveDetailsModal={setShowLeaveDetailsModal}
+                                handleOpenModal={handleOpenModal}
                             />
                         ))
                         :
@@ -183,7 +206,8 @@ export default function Leaves() {
                 <LeaveDetails
                     leaveModalId={leaveModalId}
                     isVisible={showLeaveDetailsModal}
-                    setShowLeaveDetailsModal={setShowLeaveDetailsModal}
+                    slideModalAnim={slideModalAnim}
+                    handleCloseModal={handleCloseModal}
                 />
             )}
         </View >

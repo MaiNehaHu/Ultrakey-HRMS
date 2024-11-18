@@ -35,8 +35,8 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
         const parsedDate = new Date(date);
 
         if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date:", date);
-            return "Invalid date";
+            console.error("Invalid date and time:", date);
+            return "Invalid date and time";
         }
 
         return new Intl.DateTimeFormat("en-GB", {

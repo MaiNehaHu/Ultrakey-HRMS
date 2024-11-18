@@ -6,19 +6,26 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Pressable,
+  Animated,
+  Easing,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAppTheme } from "@/contexts/AppTheme";
 import Colors from "@/constants/Colors";
+import { Keyboard } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import FontAwesome6Icon from "react-native-vector-icons/FontAwesome6";
 
 interface Props {
   placeholder: string;
-  onProjectsUpdate: any;
+  onProjectsUpdate: (project: any) => void;
 }
 
 const projectList = [
   { projectName: "HRMS", project_id: 1 },
   { projectName: "Trending News Guru", project_id: 2 },
+  { projectName: "CRMS", project_id: 3 },
 ];
 
 export default function SelectProject({
@@ -28,72 +35,146 @@ export default function SelectProject({
   const { darkTheme } = useAppTheme();
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
-  const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
+  const logoColor = darkTheme ? Colors.white : Colors.lightBlue;
 
-  const [projectInput, setProjectInput] = useState("");
-  const [showProjectList, setShowProjectList] = useState(false);
+  const [projectInput, setProjectInput] = useState<string>("");
+  const [showProjectList, setShowProjectList] = useState<boolean>(false);
   const [filteredProjects, setFilteredProjects] = useState(projectList);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [touchedOption, setTouchedOption] = useState<number | null>(null);
+
+  const slideAnim = useRef(new Animated.Value(200)).current; // Start position off-screen
 
   const handleProjectSearch = (input: string) => {
-    setProjectInput(input);
     setFilteredProjects(
-      projectList.filter((project: any) =>
+      projectList.filter((project) =>
         project.projectName.toLowerCase().includes(input.toLowerCase())
       )
     );
   };
 
   const handleSelectProject = (project: any) => {
-    onProjectsUpdate(project); // Update parent component with the selected project
     setProjectInput(project.projectName);
-    setShowProjectList(false); // Hide the modal after selection
+    handleCloseModal();
+    onProjectsUpdate(project);
   };
 
-  return (
-    <View style={styles.inputWrapper}>
-      {projectInput ? (
-        <TouchableOpacity onFocus={() => setShowProjectList(true)}>
-          <Text style={{ color: textColor }}>{placeholder}</Text>
-        </TouchableOpacity>
-      ) : (
-        <TextInput
-          value={projectInput}
-          placeholder={placeholder}
-          style={{ color: textColor }}
-          onFocus={() => setShowProjectList(true)}
-          onChangeText={(text) => handleProjectSearch(text)}
-          placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
-        />
-      )}
+  const handleOpenModal = () => {
+    setShowProjectList(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
 
-      {/* Modal for displaying the filtered project list */}
+  const handleCloseModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: 700, // Slide back down
+      duration: 200,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      setShowProjectList(false); 
+    });
+  };
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => setIsKeyboardVisible(true)
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => setIsKeyboardVisible(false)
+    );
+
+    // Clean up the listeners on component unmount
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      {/* Placeholder-like Button */}
+      <Text style={{ color: textColor }}>
+        {projectInput ? projectInput : placeholder}
+      </Text>
+
+      <TouchableOpacity onPress={handleOpenModal}>
+        {projectList.length < 0 ? (
+          <Ionicons
+            name="add-circle"
+            size={30}
+            color={logoColor}
+            style={{ paddingRight: 4 }}
+          />
+        ) : (
+          <FontAwesome6Icon
+            name="edit"
+            size={20}
+            color={logoColor}
+            style={{ paddingVertical: 4, paddingRight: 4 }}
+          />
+        )}
+      </TouchableOpacity>
+
+      {/* Modal for project selection */}
       <Modal
         visible={showProjectList}
         transparent={true}
+        onRequestClose={handleCloseModal}
         animationType="fade"
-        onRequestClose={() => setShowProjectList(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
+          <Animated.View
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: bgColor,
+                transform: [{ translateY: slideAnim }],
+                height: isKeyboardVisible ? "90%" : "60%",
+              },
+            ]}
+          >
             <TextInput
-              style={styles.modalSearchInput}
+              style={[
+                styles.modalSearchInput,
+                { color: textColor, borderColor: textColor },
+              ]}
               placeholder="Search projects..."
-              value={projectInput}
               onChangeText={(text) => handleProjectSearch(text)}
+              placeholderTextColor={darkTheme ? "#e0e0e0" : "#666"}
             />
+
             <FlatList
               data={filteredProjects}
               keyExtractor={(item) => item.project_id.toString()}
               renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.assigneeOption}
-                  onPress={() => handleSelectProject(item)}
+                <Pressable
+                  style={[
+                    styles.projectOption,
+                    {
+                      backgroundColor:
+                        touchedOption == item.project_id ? "#e0e0e0" : bgColor,
+                    },
+                  ]}
+                  onPress={() => {
+                    setTimeout(() => {
+                      handleSelectProject(item);
+                    }, 100);
+                  }}
+                  onPressIn={() => setTouchedOption(item.project_id)}
+                  onPressOut={() => setTouchedOption(null)}
                 >
-                  <Text numberOfLines={1}>{item.projectName}</Text>
-                </TouchableOpacity>
+                  <Text style={{ color: textColor }}>{item.projectName}</Text>
+                </Pressable>
               )}
             />
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -101,10 +182,18 @@ export default function SelectProject({
 }
 
 const styles = StyleSheet.create({
-  inputWrapper: {
+  container: {
+    paddingVertical: 5,
     flexDirection: "row",
     alignItems: "center",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  button: {
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
   modalContainer: {
     flex: 1,
@@ -114,25 +203,19 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    padding: 20,
-    display: "flex",
     borderRadius: 10,
-    position: "relative",
-    flexDirection: "column",
-    justifyContent: "space-between",
+    padding: 15,
   },
   modalSearchInput: {
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 15,
   },
-  assigneeOption: {
+  projectOption: {
     padding: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    paddingVertical: 12,
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#ccc",
   },
 });

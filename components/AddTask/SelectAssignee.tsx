@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   Animated,
+  Easing,
   Image,
   Keyboard,
   Modal,
@@ -35,7 +36,7 @@ interface Props {
 
 interface ModalProps {
   isModalVisible: boolean;
-  setIsModalVisible: any;
+  handleCloseModal: any;
   isKeyboardVisible: boolean;
   setAssigneeInput: any;
   setFilteredAssignees: any;
@@ -44,13 +45,13 @@ interface ModalProps {
   handleRemoveAssignee: any;
   filteredAssignees: any[];
   handleAddAssignee: any;
+  slideModalAnim: any;
 }
 
-export default function SelectAssignee({
-  onAssigneesUpdate,
-}: Props) {
+export default function SelectAssignee({ onAssigneesUpdate }: Props) {
   const { darkTheme } = useAppTheme();
   // const textColor = Colors[darkTheme ? "dark" : "light"].text;
+  const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
   const logoColor = darkTheme ? Colors.white : Colors.lightBlue;
 
   const [assigneeInput, setAssigneeInput] = useState("");
@@ -58,6 +59,8 @@ export default function SelectAssignee({
   const [selectedAssignees, setSelectedAssignees] = useState<any[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  const slideModalAnim = useRef(new Animated.Value(200)).current; // Start position off-screen
 
   const handleAddAssignee = (assignee: any) => {
     if (!selectedAssignees.some((selected) => selected.id === assignee.id)) {
@@ -74,6 +77,27 @@ export default function SelectAssignee({
     );
     setSelectedAssignees(updatedAssignees);
     onAssigneesUpdate && onAssigneesUpdate(updatedAssignees);
+  };
+
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+    Animated.timing(slideModalAnim, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleCloseModal = () => {
+    Animated.timing(slideModalAnim, {
+      toValue: 700, // Slide back down
+      duration: 200,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      setIsModalVisible(false);
+    });
   };
 
   useEffect(() => {
@@ -111,21 +135,25 @@ export default function SelectAssignee({
             />
             <Text style={styles.assigneeText}>{assignee.name}</Text>
             <TouchableOpacity onPress={() => handleRemoveAssignee(assignee.id)}>
-              <Ionicons name="close-circle" size={18} color="black" />
+              <Ionicons name="close-circle" size={22} color="black" />
             </TouchableOpacity>
           </View>
         ))}
 
         {/* Button to Open Modal */}
-        <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-          <Ionicons name="add-circle" color={logoColor} size={30} />
+        <TouchableOpacity
+          onPress={handleOpenModal}
+          style={[styles.addButton, { backgroundColor: logoColor }]}
+        >
+          <Text style={{ color: oppTextColor }}>Add</Text>
+          <Ionicons name="add-circle" color={oppTextColor} size={22} />
         </TouchableOpacity>
       </View>
 
       {/* Modal for Selecting Assignees */}
       <SelectAssigneeModal
         isModalVisible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}
+        handleCloseModal={handleCloseModal}
         isKeyboardVisible={isKeyboardVisible}
         setAssigneeInput={setAssigneeInput}
         setFilteredAssignees={setFilteredAssignees}
@@ -134,6 +162,7 @@ export default function SelectAssignee({
         handleRemoveAssignee={handleRemoveAssignee}
         filteredAssignees={filteredAssignees}
         handleAddAssignee={handleAddAssignee}
+        slideModalAnim={slideModalAnim}
       />
     </SafeAreaView>
   );
@@ -141,7 +170,7 @@ export default function SelectAssignee({
 
 function SelectAssigneeModal({
   isModalVisible,
-  setIsModalVisible,
+  handleCloseModal,
   isKeyboardVisible,
   setAssigneeInput,
   setFilteredAssignees,
@@ -150,14 +179,17 @@ function SelectAssigneeModal({
   handleRemoveAssignee,
   filteredAssignees,
   handleAddAssignee,
+  slideModalAnim,
 }: ModalProps) {
   const { darkTheme } = useAppTheme();
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
   const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
   const bgColor = Colors[darkTheme ? "dark" : "light"].background;
-  const opppBgColor = darkTheme ? Colors.white : Colors.darkBlue;
+  const opppBgColor = darkTheme ? Colors.white : Colors.lightBlue;
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const [touchedOption, setTouchedOption] = useState(null);
 
   const handleAssigneeSearch = (input: string) => {
     setAssigneeInput(input);
@@ -184,17 +216,18 @@ function SelectAssigneeModal({
 
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent={true}
       visible={isModalVisible}
-      onRequestClose={() => setIsModalVisible(false)}
+      onRequestClose={handleCloseModal}
     >
       <View style={styles.modalContainer}>
-        <View
+        <Animated.View
           style={[
             styles.modalContent,
             {
               backgroundColor: bgColor,
+              transform: [{ translateY: slideModalAnim }],
               height: isKeyboardVisible ? "90%" : "60%",
             },
           ]}
@@ -226,7 +259,7 @@ function SelectAssigneeModal({
                 <TouchableOpacity
                   onPress={() => handleRemoveAssignee(assignee.id)}
                 >
-                  <Ionicons name="close-circle" size={18} color="black" />
+                  <Ionicons name="close-circle" size={22} color="black" />
                 </TouchableOpacity>
               </View>
             ))}
@@ -241,8 +274,16 @@ function SelectAssigneeModal({
               filteredAssignees.map((item: any) => (
                 <Pressable
                   key={item.id}
-                  style={styles.assigneeOption}
+                  style={[
+                    styles.assigneeOption,
+                    {
+                      backgroundColor:
+                        touchedOption == item.id ? "#e0e0e0" : bgColor,
+                    },
+                  ]}
                   onPress={() => handleAddAssignee(item)}
+                  onPressIn={() => setTouchedOption(item.id)}
+                  onPressOut={() => setTouchedOption(null)}
                 >
                   <Image
                     source={defaultImage}
@@ -268,7 +309,7 @@ function SelectAssigneeModal({
               style={[styles.doneButton, { backgroundColor: opppBgColor }]}
               onPress={() => {
                 setTimeout(() => {
-                  setIsModalVisible(false);
+                  handleCloseModal();
                 }, 200);
               }}
               onPressIn={handlePressIn}
@@ -277,7 +318,7 @@ function SelectAssigneeModal({
               <Text style={{ color: oppTextColor, fontWeight: 500 }}>Done</Text>
             </Pressable>
           </Animated.View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -301,9 +342,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   assigneeContainer: {
-    flexDirection: "row",
+    paddingTop: 3,
     flexWrap: "wrap",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
   },
   inputField: {
     flexGrow: 1,
@@ -313,15 +356,16 @@ const styles = StyleSheet.create({
   },
   assigneeTag: {
     gap: 5,
-    padding: 5,
     marginRight: 5,
     marginBottom: 5,
     borderRadius: 5,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
     flexDirection: "row",
     alignItems: "center",
   },
   assigneeText: {
-    marginRight: 5,
+    // marginRight: 5,
     fontSize: 14,
   },
   modalContainer: {
@@ -357,8 +401,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#ccc",
   },
   doneButton: {
     marginTop: 10,
@@ -368,5 +410,15 @@ const styles = StyleSheet.create({
   },
   assigneeFlatList: {
     width: "100%",
+  },
+  addButton: {
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 5,
+    borderRadius: 5,
+    marginVertical: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
 });

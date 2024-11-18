@@ -9,7 +9,7 @@ import LeaveStatus from '@/constants/leaveStatus'
 import { formatDateInGB } from '@/constants/formatDateInGB';
 import { leaveStatusColor } from '@/constants/leaveStatusColor'
 
-const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => {
+const LeaveDetails = ({ leaveModalId, isVisible, handleCloseModal, slideModalAnim }) => {
     const { darkTheme } = useAppTheme();
     const { leaves, setLeaves } = useLeavesContext();
     const [leaveData, setLeaveData] = useState(null);  // Initialize as null
@@ -26,7 +26,7 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
             updatedLeaves[leaveIndex] = { ...updatedLeaves[leaveIndex], status: "Withdrawn" };
             return updatedLeaves;
         });
-        setShowLeaveDetailsModal(false);
+        handleCloseModal();
     }
 
     useEffect(() => {
@@ -44,9 +44,17 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
 
     return leaveData && (
         <Modal visible={isVisible} transparent={true} animationType="fade">
-            <Pressable style={styles.modalContainer} onPress={() => setShowLeaveDetailsModal(false)}>
+            <Pressable style={styles.modalContainer} onPress={handleCloseModal}>
                 <Pressable onPress={(e) => e.stopPropagation()}>
-                    <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
+                    <Animated.View
+                        style={[
+                            styles.modalContent,
+                            {
+                                backgroundColor: bgColor,
+                                transform: [{ translateY: slideModalAnim }],
+                            },
+                        ]}
+                    >
                         <View>
                             {/* Header */}
                             <SafeAreaView style={[styles.flex_row_top, { paddingBottom: 8, marginBottom: 10 }]}>
@@ -58,7 +66,7 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                                 >
                                     {leaveData?.status || 'No Status'}
                                 </Text>
-                                <TouchableOpacity onPress={() => setShowLeaveDetailsModal(false)}>
+                                <TouchableOpacity onPress={handleCloseModal}>
                                     <Text style={{ color: textColor }}>
                                         <AwesomeIcon name='xmark' size={22} />
                                     </Text>
@@ -102,7 +110,7 @@ const LeaveDetails = ({ leaveModalId, isVisible, setShowLeaveDetailsModal }) => 
                                 </Text>
                             </Pressable>
                         </Animated.View>
-                    </View>
+                    </Animated.View>
                 </Pressable>
             </Pressable>
         </Modal>

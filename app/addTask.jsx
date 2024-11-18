@@ -22,9 +22,9 @@ export default function AddTask() {
         assigner: "Neha",
         assignee: [],
         description: "",
-        status: taskStatus.New,
-        task_id: Math.random() * 100,
-        createdAt: new Date().toISOString(),
+        status: taskStatus.New, // default
+        task_id: Math.random() * 100, // default
+        createdAt: new Date().toISOString(), // default
         subTaskOf: { taskName: "", task_id: null },
         underProject: { projectName: "", project_id: null },
     });
@@ -59,6 +59,13 @@ export default function AddTask() {
     };
 
     const handleProjectsUpdate = (selectedProjects) => {
+        setTaskData(prevData => ({
+            ...prevData,
+            underProject: selectedProjects,
+        }));
+    };
+
+    const handleDescriptionUpdate = (selectedProjects) => {
         setTaskData(prevData => ({
             ...prevData,
             underProject: selectedProjects,
@@ -115,6 +122,13 @@ export default function AddTask() {
                         onProjectsUpdate={handleProjectsUpdate}
                     />
 
+                    <Inputs
+                        header="Description"
+                        placeholder="Description for the task"
+                        isDescription
+                        onDescriptionUpdate={handleDescriptionUpdate}
+                    />
+
                     {showDatePicker && (
                         <DateTimePicker
                             value={taskData.deadline ? new Date(taskData.deadline) : new Date()}
@@ -138,8 +152,10 @@ function Inputs({
     onPressIcon,
     isAssigneeInput,
     isProjectInput,
+    isDescription,
     onAssigneesUpdate,
     onProjectsUpdate,
+    onDescriptionUpdate
 }) {
     const { darkTheme } = useAppTheme();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -159,22 +175,28 @@ function Inputs({
                         isProjectInput ? (
                             <SelectProject placeholder={placeholder} onProjectsUpdate={onProjectsUpdate} />
                         ) : (
-                            <View style={styles.inputWrapper}>
-                                <TextInput
-                                    style={[styles.inputField, { color: textColor, borderColor: textColor }]}
-                                    placeholder={placeholder}
-                                    value={value}
-                                    onChangeText={onChangeText}
-                                    placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
-                                    editable={!isDatePicker}
-                                />
+                            isDescription ? (
+                                <View style={styles.inputWrapper}>
+                                    <Text>Hello</Text>
+                                </View>
+                            ) : (
+                                <View style={styles.inputWrapper}>
+                                    <TextInput
+                                        style={[styles.inputField, { color: textColor, borderColor: textColor }]}
+                                        placeholder={placeholder}
+                                        value={value}
+                                        onChangeText={onChangeText}
+                                        placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                                        editable={!isDatePicker}
+                                    />
 
-                                {isDatePicker && (
-                                    <TouchableOpacity onPress={onPressIcon}>
-                                        <Ionicons name="calendar" size={24} color={logoColor} style={styles.icon} />
-                                    </TouchableOpacity>
-                                )}
-                            </View>
+                                    {isDatePicker && (
+                                        <TouchableOpacity onPress={onPressIcon}>
+                                            <Ionicons name="calendar" size={24} color={logoColor} style={styles.icon} />
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
+                            )
                         )}
                 </View>
             </View>
@@ -188,11 +210,12 @@ const styles = StyleSheet.create({
         resizeMode: 'cover'
     },
     cardContainer: {
-        padding: 12,
         borderWidth: 1,
         borderRadius: 10,
         position: 'relative',
         justifyContent: 'center',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
     },
     headerText: {
         top: -10,
@@ -209,7 +232,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     icon: {
-        marginRight: 8,
+        marginRight: 4,
     },
     inputField: {
         flex: 1,

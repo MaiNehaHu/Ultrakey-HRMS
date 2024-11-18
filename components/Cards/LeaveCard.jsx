@@ -5,10 +5,10 @@ import leaveStatus from '@/constants/leaveStatus';
 import { formatDateInGB } from '@/constants/formatDateInGB'
 import { leaveStatusColor } from '@/constants/leaveStatusColor'
 
-export default function LeaveCard({ leave, setLeaveModalId, setShowLeaveDetailsModal }) {
+export default function LeaveCard({ leave, setLeaveModalId, handleOpenModal }) {
     function handleClick(id) {
         setLeaveModalId(id);
-        setShowLeaveDetailsModal(true)
+        handleOpenModal();
     }
 
     return (

@@ -224,10 +224,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
     cardContainer: {
-        padding: 10,
         borderWidth: 1,
         borderRadius: 10,
         position: 'relative',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
     },
     headerText: {
         top: -10,

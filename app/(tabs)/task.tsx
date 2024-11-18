@@ -1,4 +1,5 @@
 import {
+  Easing,
   ImageBackground,
   Pressable,
   SafeAreaView,
@@ -40,6 +41,8 @@ const TaskScreen = () => {
   const navigation = useNavigation();
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const slideModalAnim = useRef(new Animated.Value(200)).current; // Start position off-screen
+
   const [showModal, setShowModal] = useState(false);
   const [clickedTask, setClickedTask] = useState<Task>();
   const [pickerModalState, setPickerModalState] = useState({
@@ -57,11 +60,7 @@ const TaskScreen = () => {
   const handleModalDisplay = (task_id: number) => {
     const selectedTask = tasks.find((task) => task.task_id === task_id);
     setClickedTask(selectedTask);
-    setShowModal(true);
-  };
-
-  const onClose = () => {
-    setShowModal(false);
+    handleOpenModal();
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -130,6 +129,27 @@ const TaskScreen = () => {
     }).start();
   };
 
+  const handleOpenModal = () => {
+    setShowModal(true);
+    Animated.timing(slideModalAnim, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleCloseModal = () => {
+    Animated.timing(slideModalAnim, {
+      toValue: 700, // Slide back down
+      duration: 200,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      setShowModal(false);
+    });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
       <ImageBackground source={backgroundImage} style={styles.backImage} />
@@ -174,8 +194,9 @@ const TaskScreen = () => {
         {showModal && clickedTask && (
           <TaskDetails
             isVisible={showModal}
-            onClose={onClose}
+            handleCloseModal={handleCloseModal}
             clickedTask={clickedTask}
+            slideModalAnim={slideModalAnim}
           />
         )}
 

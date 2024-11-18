@@ -482,10 +482,11 @@ const styles = StyleSheet.create({
         color: "#000",
     },
     cardContainer: {
-        padding: 10,
         borderWidth: 1,
         borderRadius: 10,
         position: 'relative',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
     },
     headerText: {
         top: -10,
