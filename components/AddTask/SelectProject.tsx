@@ -76,7 +76,7 @@ export default function SelectProject({
       easing: Easing.in(Easing.ease),
       useNativeDriver: true,
     }).start(() => {
-      setShowProjectList(false); 
+      setShowProjectList(false);
     });
   };
 
@@ -159,7 +159,11 @@ export default function SelectProject({
                     styles.projectOption,
                     {
                       backgroundColor:
-                        touchedOption == item.project_id ? "#e0e0e0" : bgColor,
+                        touchedOption == item.project_id
+                          ? !darkTheme
+                            ? "#e0e0e0"
+                            : "#1d2d52"
+                          : bgColor,
                     },
                   ]}
                   onPress={() => {

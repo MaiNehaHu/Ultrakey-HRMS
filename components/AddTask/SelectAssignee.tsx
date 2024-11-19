@@ -278,7 +278,11 @@ function SelectAssigneeModal({
                     styles.assigneeOption,
                     {
                       backgroundColor:
-                        touchedOption == item.id ? "#e0e0e0" : bgColor,
+                        touchedOption == item.id
+                          ? !darkTheme
+                            ? "#e0e0e0"
+                            : "#1d2d52"
+                          : bgColor,
                     },
                   ]}
                   onPress={() => handleAddAssignee(item)}
