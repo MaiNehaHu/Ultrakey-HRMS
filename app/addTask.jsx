@@ -1,5 +1,5 @@
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard, ScrollView, Pressable, Animated, ActivityIndicator } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard, ScrollView, Pressable, Animated, ActivityIndicator, Alert } from 'react-native';
+import React, { useRef, useState } from 'react';
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme';
 import taskStatus from '../constants/taskStatus';
@@ -10,17 +10,22 @@ import SelectProject from '../components/AddTask/SelectProject'
 import SelectAssignee from '../components/AddTask/SelectAssignee'
 import { formatDateInGB } from '../constants/formatDateInGB';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTasksContext } from '../contexts/Tasks';
+import { useNavigation } from 'expo-router';
 
 const backgroundImage = require('../assets/images/body_bg.png');
 
 export default function AddTask() {
     const { darkTheme } = useAppTheme();
+    const navigation = useNavigation();
+    const { setTasksList } = useTasksContext();
+
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
-    const [loading, seLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [taskData, setTaskData] = useState({
         taskName: "",
         deadline: "",
@@ -28,9 +33,6 @@ export default function AddTask() {
         assignee: [],
         description: "",
         // subTasks: [], //default
-        status: taskStatus.New, // default
-        task_id: Math.random() * 100, // default
-        createdAt: new Date().toISOString(), // default
         // subTaskOf: { taskName: "", task_id: null },
         underProject: { projectName: "", project_id: null },
     });
@@ -41,6 +43,51 @@ export default function AddTask() {
     ]
 
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    function handleSaveTasks() {
+        setLoading(true);
+
+        if (taskData.taskName === "") {
+            Alert.alert("No Task Name Provided", "Please provide a name to the task");
+            setLoading(false);
+            return;
+        } else if (taskData.deadline == "") {
+            Alert.alert("No Deadline Provided", "Please provide a deadline date to the task");
+            setLoading(false);
+            return;
+        } else if (taskData.assignee.length <= 0) {
+            Alert.alert("No Assignees Provided", "Please provide list of assignees for the task");
+            setLoading(false);
+            return;
+        } else if (taskData.underProject.projectName == "") {
+            Alert.alert("No Project Provided", "Please provide project for this task");
+            setLoading(false);
+            return;
+        } else if (taskData.description == "") {
+            Alert.alert("No Description Provided", "Please provide a description to the task");
+            setLoading(false);
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(), // Unique ID
+            taskName: taskData.taskName,
+            deadline: taskData.deadline,
+            assigner: taskData.assigner,
+            assignee: taskData.assignee,
+            description: taskData.description,
+            underProject: taskData.underProject,
+            status: taskStatus.New, // default
+            task_id: Math.random() * 100, // default
+            createdAt: new Date().toISOString(), // default
+        };
+
+        setTimeout(() => {
+            setTasksList((prev) => [newTask, ...prev]);
+            setLoading(false);
+            navigation.goBack();
+        }, 500);
+    }
 
     const handleInputChange = (field, value) => {
         setTaskData(prevData => ({
@@ -167,7 +214,7 @@ export default function AddTask() {
                             <Pressable
                                 onPressIn={handlePressIn}
                                 onPressOut={handlePressOut}
-                            // onPress={handleSaveLeave}
+                                onPress={handleSaveTasks}
                             >
                                 {loading ? (
                                     <ActivityIndicator size="small" color={textColor} />
@@ -180,7 +227,7 @@ export default function AddTask() {
                         <Pressable
                             onPressIn={handlePressIn}
                             onPressOut={handlePressOut}
-                            // onPress={handleSaveLeave}
+                            onPress={handleSaveTasks}
                             style={[styles.saveButton, { backgroundColor: oppBgColor }]}
                         >
                             {loading ? (

@@ -16,6 +16,7 @@ import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
 import { LoginProvider, useLogin } from "@/contexts/Login";
 import { RegularizationProvider } from "@/contexts/RegularizationRequest";
+import { TasksProvider } from "@/contexts/Tasks";
 import { Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { Text } from "react-native";
@@ -74,11 +75,15 @@ function Root() {
         <PunchProvider>
           <LeavesProvider>
             <RegularizationProvider>
-              <ThemeProvider
-                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-              >
-                <RootLayoutNav />
-              </ThemeProvider>
+              <TasksProvider>
+
+                <ThemeProvider
+                  value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+                >
+                  <RootLayoutNav />
+                </ThemeProvider>
+
+              </TasksProvider>
             </RegularizationProvider>
           </LeavesProvider>
         </PunchProvider>

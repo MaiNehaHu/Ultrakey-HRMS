@@ -22,6 +22,7 @@ import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 import months from "@/constants/months";
 import years from "@/constants/years";
 import tasks from "@/constants/tasks";
+import { useTasksContext } from "@/contexts/Tasks";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -38,6 +39,8 @@ interface Task {
 
 const TaskScreen = () => {
   const { darkTheme } = useAppTheme();
+  const { tasksList } = useTasksContext();
+
   const navigation = useNavigation();
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
