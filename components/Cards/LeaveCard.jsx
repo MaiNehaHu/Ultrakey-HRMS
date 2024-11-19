@@ -1,7 +1,6 @@
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Colors from '../../constants/Colors';
-import leaveStatus from '@/constants/leaveStatus';
 import { formatDateInGB } from '@/constants/formatDateInGB'
 import { leaveStatusColor } from '@/constants/leaveStatusColor'
 

@@ -1,5 +1,5 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, ImageBackground, View, Pressable, FlatList, Touchable } from 'react-native'
-import React, { useState } from 'react'
+import { SafeAreaView, ScrollView, StyleSheet, Text, ImageBackground, View, Animated, FlatList, Easing } from 'react-native'
+import React, { useRef, useState } from 'react'
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme'
 import { useRegularization } from '../contexts/RegularizationRequest';
@@ -23,6 +23,7 @@ const bgImage = require('../assets/images/body_bg.png')
 export default function RegularizationsPage() {
     const { darkTheme } = useAppTheme();
     const { regularizationRequest } = useRegularization();
+    const slideModalAnim = useRef(new Animated.Value(200)).current; // Start position off-screen
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
@@ -50,6 +51,27 @@ export default function RegularizationsPage() {
     const regularizedDates = regularizationRequest
         .filter(request => request.status !== leaveStatus.Withdrawn)
         .map(request => new Date(request.date).toISOString().split('T')[0]);
+
+    const handleOpenModal = () => {
+        setShowRegDetailsModal(true);
+        Animated.timing(slideModalAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handleCloseModal = () => {
+        Animated.timing(slideModalAnim, {
+            toValue: 700, // Slide back down
+            duration: 200,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+        }).start(() => {
+            setShowRegDetailsModal(false);
+        });
+    };
 
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
@@ -105,7 +127,7 @@ export default function RegularizationsPage() {
                                 <RegularizationsCard
                                     key={index}
                                     regularizeData={reg}
-                                    setShowRegDetailsModal={setShowRegDetailsModal}
+                                    handleOpenModal={handleOpenModal}
                                     setRegularizationModalId={setRegularizationModalId}
                                 />
                             )) :
@@ -134,7 +156,8 @@ export default function RegularizationsPage() {
                 <RegDetails
                     isVisible={showRegDetailsModal}
                     regularizationModalId={regularizationModalId}
-                    setShowRegDetailsModal={setShowRegDetailsModal}
+                    handleCloseModal={handleCloseModal}
+                    slideModalAnim={slideModalAnim}
                 />
             }
         </View>

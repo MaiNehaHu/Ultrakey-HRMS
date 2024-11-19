@@ -1,12 +1,11 @@
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { Pressable } from 'react-native';
-import leaveStatus from '../../constants/leaveStatus';
 import Colors from '../../constants/Colors';
 import { formatDateInGB } from '../../constants/formatDateInGB';
 import { leaveStatusColor } from '../../constants/leaveStatusColor';
 
-export default function RegularizationsCard({ regularizeData, setShowRegDetailsModal, setRegularizationModalId }) {
+export default function RegularizationsCard({ regularizeData, handleOpenModal, setRegularizationModalId }) {
     const formatTime = (date) => {
         const parsedDate = new Date(date);
 
@@ -24,7 +23,7 @@ export default function RegularizationsCard({ regularizeData, setShowRegDetailsM
 
     function handleClick(id) {
         setRegularizationModalId(id);
-        setShowRegDetailsModal(true)
+        handleOpenModal();
     }
 
     return (

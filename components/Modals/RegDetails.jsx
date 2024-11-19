@@ -10,7 +10,7 @@ import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { formatDateInGB } from '../../constants/formatDateInGB';
 import { leaveStatusColor } from '../../constants/leaveStatusColor';
 
-export default function RegDetails({ isVisible, regularizationModalId, setShowRegDetailsModal }) {
+export default function RegDetails({ isVisible, regularizationModalId, handleCloseModal, slideModalAnim }) {
     const { darkTheme } = useAppTheme();
     const { regularizationRequest, setRegularizationRequest } = useRegularization();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -28,15 +28,16 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
             return updatedRegularizations;
         });
 
-        setShowRegDetailsModal(false);
+        handleCloseModal();
     }
 
-    const formatTime = (date) => {
+    function formatTime(date) {
+        if (!date) return "N/A"; // Handle undefined or empty dates
+
         const parsedDate = new Date(date);
 
         if (isNaN(parsedDate.getTime())) {
-            console.error("Invalid date and time:", date);
-            return "Invalid date and time";
+            throw new Error(`Invalid date format: ${date}`);
         }
 
         return new Intl.DateTimeFormat("en-GB", {
@@ -44,7 +45,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
             minute: "2-digit",
             hour12: true,
         }).format(parsedDate);
-    };
+    }
 
     useEffect(() => {
         const currentRegularize = regularizationRequest?.find((regularize) => regularize.reg_id === regularizationModalId);
@@ -59,11 +60,19 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
         Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
     };
 
-    return (
+    return regData && (
         <Modal visible={isVisible} transparent={true} animationType="fade">
-            <Pressable style={styles.modalContainer} onPress={() => setShowRegDetailsModal(false)}>
+            <Pressable style={styles.modalContainer} onPress={() => handleCloseModal()}>
                 <Pressable onPress={(e) => e.stopPropagation()}>
-                    <View style={[styles.modalContent, { backgroundColor: bgColor }]}>
+                    <Animated.View
+                        style={[
+                            styles.modalContent,
+                            {
+                                backgroundColor: bgColor,
+                                transform: [{ translateY: slideModalAnim }],
+                            },
+                        ]}
+                    >
                         <View>
                             {/* Header */}
                             <SafeAreaView style={[styles.flex_row_top, { paddingBottom: 8, marginBottom: 10 }]}>
@@ -75,7 +84,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                                 >
                                     {regData?.status || 'No Status'}
                                 </Text>
-                                <TouchableOpacity onPress={() => setShowRegDetailsModal(false)}>
+                                <TouchableOpacity onPress={() => handleCloseModal()}>
                                     <Text style={{ color: textColor }}>
                                         <FontAwesome6Icon name='xmark' size={22} />
                                     </Text>
@@ -120,7 +129,7 @@ export default function RegDetails({ isVisible, regularizationModalId, setShowRe
                                 </Text>
                             </Pressable>
                         </Animated.View>
-                    </View>
+                    </Animated.View>
                 </Pressable>
             </Pressable>
         </Modal>

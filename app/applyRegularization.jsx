@@ -181,7 +181,7 @@ export default function ApplyRegularization() {
                 </SafeAreaView>
 
                 <SafeAreaView>
-                    <Text style={{ color: textColor, marginBottom: 20, textAlign: 'center' }}>Applying regularization for {formatDateInGB(new Date(date))}</Text>
+                    <Text style={{ color: textColor, marginBottom: 10, textAlign: 'center' }}>Applying regularization for {formatDateInGB(new Date(date))}</Text>
                     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
                         <Pressable
                             onPressIn={handlePressIn}
