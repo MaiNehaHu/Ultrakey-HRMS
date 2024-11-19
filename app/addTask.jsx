@@ -1,5 +1,5 @@
-import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard, ScrollView } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { ImageBackground, StyleSheet, Text, TextInput, View, TouchableOpacity, TouchableWithoutFeedback, FlatList, Keyboard, ScrollView, Pressable, Animated, ActivityIndicator } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme';
 import taskStatus from '../constants/taskStatus';
@@ -8,24 +8,30 @@ import { Ionicons } from '@expo/vector-icons';
 
 import SelectProject from '../components/AddTask/SelectProject'
 import SelectAssignee from '../components/AddTask/SelectAssignee'
-import { formatDateInGB } from '../constants/formatDateInGB'
+import { formatDateInGB } from '../constants/formatDateInGB';
+import { LinearGradient } from 'expo-linear-gradient';
+
 const backgroundImage = require('../assets/images/body_bg.png');
 
 export default function AddTask() {
     const { darkTheme } = useAppTheme();
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
+    const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
 
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const [loading, seLoading] = useState(false)
     const [taskData, setTaskData] = useState({
         taskName: "",
         deadline: "",
-        subTasks: [],
         assigner: "Neha",
         assignee: [],
         description: "",
+        // subTasks: [], //default
         status: taskStatus.New, // default
         task_id: Math.random() * 100, // default
         createdAt: new Date().toISOString(), // default
-        subTaskOf: { taskName: "", task_id: null },
+        // subTaskOf: { taskName: "", task_id: null },
         underProject: { projectName: "", project_id: null },
     });
 
@@ -72,9 +78,19 @@ export default function AddTask() {
         }));
     };
 
-    useEffect(() => {
-        console.log(taskData);
-    }, [taskData])
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.97,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+        }).start();
+    };
 
     return (
         <TouchableWithoutFeedback
@@ -82,10 +98,10 @@ export default function AddTask() {
                 Keyboard.dismiss();
             }}
         >
-            <View style={{ flex: 1, backgroundColor: bgColor }}>
+            <View style={{ flex: 1, backgroundColor: bgColor, display: 'flex', justifyContent: 'space-between' }}>
                 <ImageBackground source={backgroundImage} style={styles.bgImage} />
 
-                <View style={{ padding: 15, flex: 1, paddingBottom: 0 }}>
+                <ScrollView style={{ padding: 15, flex: 1, paddingBottom: 0 }}>
                     <Inputs
                         header="Task Name"
                         value={taskData.taskName}
@@ -137,7 +153,44 @@ export default function AddTask() {
                             onChange={handleDateChange}
                         />
                     )}
-                </View>
+                </ScrollView>
+
+                {/* Apply Button or Loader */}
+                <Animated.View style={{ padding: 15, paddingTop: 5, transform: [{ scale: scaleAnim }] }}>
+                    {!darkTheme ?
+                        <LinearGradient
+                            colors={['#1F366A', '#1A6FA8']}
+                            style={styles.saveButton}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        >
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                            // onPress={handleSaveLeave}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator size="small" color={textColor} />
+                                ) : (
+                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                )}
+                            </Pressable>
+                        </LinearGradient>
+                        :
+                        <Pressable
+                            onPressIn={handlePressIn}
+                            onPressOut={handlePressOut}
+                            // onPress={handleSaveLeave}
+                            style={[styles.saveButton, { backgroundColor: oppBgColor }]}
+                        >
+                            {loading ? (
+                                <ActivityIndicator size="small" color={oppBgColor} />
+                            ) : (
+                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                            )}
+                        </Pressable>
+                    }
+                </Animated.View>
             </View>
         </TouchableWithoutFeedback>
     );
@@ -158,6 +211,8 @@ function Inputs({
     onDescriptionUpdate
 }) {
     const { darkTheme } = useAppTheme();
+    const richText = useRef(null);
+
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
@@ -176,8 +231,16 @@ function Inputs({
                             <SelectProject placeholder={placeholder} onProjectsUpdate={onProjectsUpdate} />
                         ) : (
                             isDescription ? (
-                                <View style={styles.inputWrapper}>
-                                    <Text>Hello</Text>
+                                <View style={{ minHeight: 100 }}>
+                                    <TextInput
+                                        value={value}
+                                        multiline
+                                        numberOfLines={10}
+                                        placeholder="Post Description"
+                                        placeholderTextColor={textColor}
+                                        onChangeText={(value) => onDescriptionUpdate(value)}
+                                        style={[styles.textArea, { backgroundColor: bgColor, color: textColor }]}
+                                    />
                                 </View>
                             ) : (
                                 <View style={styles.inputWrapper}>
@@ -237,26 +300,19 @@ const styles = StyleSheet.create({
     inputField: {
         flex: 1,
     },
-    assigneeTag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#d1dfeb',
-        padding: 5,
-        marginRight: 5,
-        borderRadius: 5,
-    },
-    assigneeText: {
-        marginRight: 5,
+    textArea: {
+        width: '100%',
         fontSize: 14,
+        textAlignVertical: 'top',
     },
-    assigneeOption: {
+    saveButton: {
         padding: 10,
+        borderRadius: 30,
+        marginTop: 10,
     },
-    assigneeFlatList: {
-        position: 'absolute',
-        width: '70%',
-        backgroundColor: '#d1dfeb',
-        borderBottomLeftRadius: 10,
-        borderBottomRightRadius: 10,
-    }
+    saveButtonText: {
+        textAlign: "center",
+        fontWeight: 600,
+        fontSize: 14
+    },
 });

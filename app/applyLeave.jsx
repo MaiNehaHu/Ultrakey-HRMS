@@ -170,10 +170,6 @@ const ApplyLeave = () => {
         }).start();
     };
 
-    useEffect(() => {
-        setToDate(fromDate)
-    }, [fromDate])
-
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
             <ImageBackground source={backgroundImage} style={styles.bgImage} />

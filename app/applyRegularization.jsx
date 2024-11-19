@@ -7,6 +7,7 @@ import { useRegularization } from '../contexts/RegularizationRequest';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import leaveStatus from '../constants/leaveStatus';
 import { formatDateInGB } from '../constants/formatDateInGB';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const backgroundImage = require('../assets/images/body_bg.png');
 
@@ -180,23 +181,42 @@ export default function ApplyRegularization() {
 
                 </SafeAreaView>
 
-                <SafeAreaView>
-                    <Text style={{ color: textColor, marginBottom: 10, textAlign: 'center' }}>Applying regularization for {formatDateInGB(new Date(date))}</Text>
-                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                {/* Apply Button or Loader */}
+                <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                    {!darkTheme ?
+                        <LinearGradient
+                            colors={['#1F366A', '#1A6FA8']}
+                            style={styles.saveButton}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        >
+                            <Pressable
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                onPress={handleRegularizationSubmit}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator size="small" color={textColor} />
+                                ) : (
+                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
+                                )}
+                            </Pressable>
+                        </LinearGradient>
+                        :
                         <Pressable
                             onPressIn={handlePressIn}
                             onPressOut={handlePressOut}
                             onPress={handleRegularizationSubmit}
-                            style={[styles.submitButton, { backgroundColor: oppBgColor }]}
+                            style={[styles.saveButton, { backgroundColor: oppBgColor }]}
                         >
                             {loading ? (
-                                <ActivityIndicator size="small" color={oppTextColor} />
+                                <ActivityIndicator size="small" color={oppBgColor} />
                             ) : (
-                                <Text style={[styles.boldText, { color: oppTextColor }]}>Apply</Text>
+                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
                             )}
                         </Pressable>
-                    </Animated.View>
-                </SafeAreaView>
+                    }
+                </Animated.View>
             </View>
         </View>
     );
@@ -237,5 +257,15 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         position: 'absolute',
         paddingHorizontal: 5,
+    },
+    saveButton: {
+        padding: 10,
+        borderRadius: 30,
+        marginTop: 10,
+    },
+    saveButtonText: {
+        textAlign: "center",
+        fontWeight: 600,
+        fontSize: 14
     },
 })
