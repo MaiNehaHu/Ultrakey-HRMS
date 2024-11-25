@@ -68,7 +68,8 @@ const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim 
 
                         <DataCard header={"Task Name"} data={clickedTask.name || 'No name provided'} />
                         <DataCard header={"Deadline"} data={formatDate(clickedTask.deadline) || 'No deadline provided'} />
-                        <DataCard header={"Assignee"} data={clickedTask.assignee || 'No assignee'} />
+                        <DataCard header={"Project"} data={clickedTask.underProject.projectName || 'No project provided'} />
+                        <DataCard header={"Assignee"} data={clickedTask.assignee.map((one) => `${one.name}${clickedTask.assignee.length > 1 ? ", " : ""}`) || 'No assignee'} />
                         <DataCard header={"Assigner"} data={clickedTask.assigner || 'No assigner'} />
                         <DataCard header={"Description"} data={clickedTask.description || 'No description'} />
                     </Animated.View>

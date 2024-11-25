@@ -22,6 +22,7 @@ export default function AddTask() {
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const oppBgColor = Colors[!darkTheme ? "dark" : "light"].background;
+    const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -70,8 +71,8 @@ export default function AddTask() {
         }
 
         const newTask = {
-            id: Date.now(), // Unique ID
-            taskName: taskData.taskName,
+            task_id: Date.now(), // Unique ID
+            name: taskData.taskName,
             deadline: taskData.deadline,
             assigner: taskData.assigner,
             assignee: taskData.assignee,
@@ -79,7 +80,7 @@ export default function AddTask() {
             underProject: taskData.underProject,
             status: taskStatus.New, // default
             task_id: Math.random() * 100, // default
-            createdAt: new Date().toISOString(), // default
+            createdAt: new Date().toISOString(), // default,,
         };
 
         setTimeout(() => {
@@ -121,7 +122,7 @@ export default function AddTask() {
     const handleDescriptionUpdate = (selectedProjects) => {
         setTaskData(prevData => ({
             ...prevData,
-            underProject: selectedProjects,
+            description: selectedProjects,
         }));
     };
 
@@ -217,9 +218,9 @@ export default function AddTask() {
                                 onPress={handleSaveTasks}
                             >
                                 {loading ? (
-                                    <ActivityIndicator size="small" color={textColor} />
+                                    <ActivityIndicator size="small" color={bgColor} />
                                 ) : (
-                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                    <Text style={[styles.saveButtonText, { color: bgColor }]}>Add Task</Text>
                                 )}
                             </Pressable>
                         </LinearGradient>
@@ -231,9 +232,9 @@ export default function AddTask() {
                             style={[styles.saveButton, { backgroundColor: oppBgColor }]}
                         >
                             {loading ? (
-                                <ActivityIndicator size="small" color={oppBgColor} />
+                                <ActivityIndicator size="small" color={bgColor} />
                             ) : (
-                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
+                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Add Task</Text>
                             )}
                         </Pressable>
                     }
@@ -258,7 +259,6 @@ function Inputs({
     onDescriptionUpdate
 }) {
     const { darkTheme } = useAppTheme();
-    const richText = useRef(null);
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;

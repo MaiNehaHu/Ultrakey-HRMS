@@ -123,6 +123,8 @@ export default function ApplyRegularization() {
 
             <View style={{ padding: 15, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <SafeAreaView style={{ display: 'flex', gap: 20 }}>
+                    <Text style={{ textAlign: "center", fontSize: 14 }}>Applying for {formatDateInGB(date)}</Text>
+                    
                     <View>
                         <Text style={[styles.boldText, { color: textColor, marginBottom: 10 }]}>Original Records</Text>
 
@@ -178,22 +180,36 @@ export default function ApplyRegularization() {
                         onConfirm={handleConfirm}
                         onCancel={() => setPickerVisible(false)}
                     />
-
                 </SafeAreaView>
 
-                {/* Apply Button or Loader */}
-                <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-                    {!darkTheme ?
-                        <LinearGradient
-                            colors={['#1F366A', '#1A6FA8']}
-                            style={styles.saveButton}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                        >
+                <SafeAreaView>
+                    {/* Apply Button or Loader */}
+                    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                        {!darkTheme ?
+                            <LinearGradient
+                                colors={['#1F366A', '#1A6FA8']}
+                                style={styles.saveButton}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                            >
+                                <Pressable
+                                    onPressIn={handlePressIn}
+                                    onPressOut={handlePressOut}
+                                    onPress={handleRegularizationSubmit}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator size="small" color={textColor} />
+                                    ) : (
+                                        <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
+                                    )}
+                                </Pressable>
+                            </LinearGradient>
+                            :
                             <Pressable
                                 onPressIn={handlePressIn}
                                 onPressOut={handlePressOut}
                                 onPress={handleRegularizationSubmit}
+                                style={[styles.saveButton, { backgroundColor: oppBgColor }]}
                             >
                                 {loading ? (
                                     <ActivityIndicator size="small" color={textColor} />
@@ -201,22 +217,9 @@ export default function ApplyRegularization() {
                                     <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
                                 )}
                             </Pressable>
-                        </LinearGradient>
-                        :
-                        <Pressable
-                            onPressIn={handlePressIn}
-                            onPressOut={handlePressOut}
-                            onPress={handleRegularizationSubmit}
-                            style={[styles.saveButton, { backgroundColor: oppBgColor }]}
-                        >
-                            {loading ? (
-                                <ActivityIndicator size="small" color={oppBgColor} />
-                            ) : (
-                                <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply</Text>
-                            )}
-                        </Pressable>
-                    }
-                </Animated.View>
+                        }
+                    </Animated.View>
+                </SafeAreaView>
             </View>
         </View>
     );

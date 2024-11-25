@@ -400,7 +400,7 @@ const ApplyLeave = () => {
                                     onPress={handleSaveLeave}
                                 >
                                     {loading ? (
-                                        <ActivityIndicator size="small" color={textColor} />
+                                        <ActivityIndicator size="small" color={bgColor} />
                                     ) : (
                                         <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
                                     )}
@@ -414,7 +414,7 @@ const ApplyLeave = () => {
                                 style={[styles.applyButton, { backgroundColor: oppBgColor }]}
                             >
                                 {loading ? (
-                                    <ActivityIndicator size="small" color={oppBgColor} />
+                                    <ActivityIndicator size="small" color={bgColor} />
                                 ) : (
                                     <Text style={[styles.saveButtonText, { color: bgColor }]}>Apply Leave</Text>
                                 )}

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Ultrakey HRMS",
-    "slug": "Ultrakey HRMS",
+    "slug": "Ultrakey-HRMS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -20,7 +20,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ultrakey.hrms"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +33,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "914f3afc-9966-40f9-99c3-4279817f1d4e"
+      }
     }
   }
 }

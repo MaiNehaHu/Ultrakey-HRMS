@@ -21,7 +21,7 @@ import SelectMonthAndYear from "@/components/myApp/selectMonth&Year";
 
 import months from "@/constants/months";
 import years from "@/constants/years";
-import tasks from "@/constants/tasks";
+// import tasks from "@/constants/tasks";
 import { useTasksContext } from "@/contexts/Tasks";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
@@ -61,12 +61,14 @@ const TaskScreen = () => {
   const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
   const handleModalDisplay = (task_id: number) => {
-    const selectedTask = tasks.find((task) => task.task_id === task_id);
+    const selectedTask = tasksList.find(
+      (task: any) => task.task_id === task_id
+    );
     setClickedTask(selectedTask);
     handleOpenModal();
   };
 
-  const filteredTasks = tasks.filter((task) => {
+  const filteredTasks = tasksList.filter((task: any) => {
     const createdAtDate = new Date(task.createdAt);
     const deadlineDate = new Date(task.deadline);
 
@@ -178,7 +180,7 @@ const TaskScreen = () => {
 
         <SafeAreaView style={styles.cardsContainer}>
           {filteredTasks.length > 0 ? (
-            filteredTasks.map((task) => (
+            filteredTasks.map((task: any) => (
               <TaskCard
                 key={task.task_id}
                 task={task}

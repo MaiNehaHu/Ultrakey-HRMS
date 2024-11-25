@@ -7,7 +7,7 @@ import { useAppTheme } from "@/contexts/AppTheme";
 import { useLeavesContext } from "@/contexts/Leaves";
 import DateDetails from "@/components/myApp/dateDetails";
 
-import attendace from '@/constants/attendace';
+import attendace from "@/constants/attendace";
 import holidays from "@/constants/holidaysList";
 import calendarColors from "@/constants/calendarColors";
 import { LinearGradient } from "expo-linear-gradient";
@@ -94,6 +94,8 @@ const CalendarScreen = () => {
       attendanceMarked[date] = {
         selected: true,
         selectedColor: color,
+        marked: entry.isRegularized,
+        dotColor: "#e68f73",
       };
     });
     return attendanceMarked;
@@ -392,8 +394,9 @@ const CalendarColorsList = () => {
       <SafeAreaView style={styles.display_flex}>
         {calendarData.map((item) => (
           <View key={item.status} style={styles.itemContainer}>
-            <View style={[styles.circle, { backgroundColor: item.color }]}>
-            </View>
+            <View
+              style={[styles.circle, { backgroundColor: item.color }]}
+            ></View>
             <Text style={{ fontSize: 11, color: textColor }}>
               {item.status}
             </Text>

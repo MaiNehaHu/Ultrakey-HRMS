@@ -3,6 +3,7 @@ export default [
         date: "2024-11-09T00:00:00.857Z",
         percentage: 100,
         latePunchIn: 800,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-09T09:39:00.857Z",
@@ -28,6 +29,7 @@ export default [
         date: "2024-11-08T00:00:00.857Z",
         percentage: 96,
         latePunchIn: 800,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-08T09:39:00.857Z",
@@ -45,6 +47,7 @@ export default [
         date: "2024-11-07T00:00:00.857Z",
         percentage: 60,
         latePunchIn: 800000,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-07T09:39:00.857Z",
@@ -62,6 +65,7 @@ export default [
         date: "2024-11-06T00:00:00.857Z",
         percentage: 85,
         latePunchIn: 640000,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-06T09:39:00.857Z",
@@ -79,6 +83,7 @@ export default [
         date: "2024-11-05T00:00:00.857Z",
         percentage: 85,
         latePunchIn: 640000,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-05T09:39:00.857Z",
@@ -96,6 +101,7 @@ export default [
         date: "2024-11-04T00:00:00.857Z",
         percentage: 85,
         latePunchIn: 640000,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-04T09:39:00.857Z",
@@ -113,6 +119,7 @@ export default [
         date: "2024-11-06T00:00:00.857Z",
         percentage: 85,
         latePunchIn: 640000,
+        isRegularized: false,
         punchRecords: [
             {
                 punchIn: "2024-11-06T09:39:00.857Z",
