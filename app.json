@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ultrakey.hrms"
+      "package": "com.ultrakey.hrms",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
