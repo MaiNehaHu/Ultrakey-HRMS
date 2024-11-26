@@ -9,11 +9,16 @@ import { taskStatusColor } from '@/constants/taskStatusColor';
 import { Ionicons } from '@expo/vector-icons';
 import taskStatus from '@/constants/taskStatus';
 import { Animated } from 'react-native';
+import { router, useNavigation } from 'expo-router';
 
 const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim }) => {
     const { darkTheme } = useAppTheme();
+    // const navigation = useNavigation();
+
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
+    const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
+    const buttonColor = darkTheme ? Colors.white : Colors.lightBlue;
 
     const formatDate = (date) => {
         return new Intl.DateTimeFormat("en-GB", {
@@ -41,22 +46,44 @@ const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim 
                         <View>
                             {/* Header */}
                             <SafeAreaView style={[styles.flex_row_top, { paddingBottom: 8, marginBottom: 10 }]}>
-                                <Text
-                                    style={[
-                                        styles.status,
-                                        { backgroundColor: taskStatusColor(clickedTask?.status) },
-                                    ]}
-                                >
-                                    {clickedTask.status}
-                                    {" "}
-                                    <Ionicons
-                                        name={clickedTask.status == taskStatus.Ongoing
-                                            ? 'play' : clickedTask.status == taskStatus.Completed
-                                                ? "checkmark" : clickedTask.status == taskStatus.Overdue
-                                                    ? "skull" : clickedTask.status == taskStatus.New
-                                                        ? "sparkles" : "pause"}
-                                    />
-                                </Text>
+                                <View style={styles.flex_row}>
+                                    <Text
+                                        style={[
+                                            styles.status,
+                                            { backgroundColor: taskStatusColor(clickedTask?.status) },
+                                        ]}
+                                    >
+                                        {clickedTask.status}
+                                        {" "}
+                                        <Ionicons
+                                            name={clickedTask.status == taskStatus.Ongoing
+                                                ? 'play' : clickedTask.status == taskStatus.Completed
+                                                    ? "checkmark" : clickedTask.status == taskStatus.Overdue
+                                                        ? "skull" : clickedTask.status == taskStatus.New
+                                                            ? "sparkles" : "pause"}
+                                        />
+                                    </Text>
+
+                                    <Pressable
+                                        onPress={() => {
+                                            router.push({
+                                                params: { task_id: clickedTask.task_id },
+                                                pathname: "/editTask"
+                                            })
+                                            // navigation.navigate("editTask")
+                                        }}
+                                        style={{
+                                            backgroundColor: buttonColor, borderRadius: 30,
+                                            paddingVertical: 4,
+                                            paddingHorizontal: 12,
+                                        }}
+                                    >
+                                        <Text style={{ color: oppTextColor }}>
+                                            Edit {" "}
+                                            <FontAwesome6Icon name='pen' />
+                                        </Text>
+                                    </Pressable>
+                                </View>
 
                                 <TouchableOpacity onPress={handleCloseModal}>
                                     <Text style={{ color: textColor }}>
@@ -66,7 +93,7 @@ const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim 
                             </SafeAreaView>
                         </View>
 
-                        <DataCard header={"Task Name"} data={clickedTask.name || 'No name provided'} />
+                        <DataCard header={"Task Name"} data={clickedTask.taskName || 'No name provided'} />
                         <DataCard header={"Deadline"} data={formatDate(clickedTask.deadline) || 'No deadline provided'} />
                         <DataCard header={"Project"} data={clickedTask.underProject?.projectName || 'No project provided'} />
                         <DataCard header={"Assignee"} data={clickedTask.assignee.length > 0 && clickedTask.assignee?.map((one) => `${one.name}${clickedTask.assignee.length > 1 ? ", " : ""}`) || 'No assignee'} />
@@ -119,6 +146,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 15,
+    },
+    flex_row: {
+        gap: 5,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     flex_row_top: {
         flexDirection: "row",

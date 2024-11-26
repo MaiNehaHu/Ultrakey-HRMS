@@ -23,6 +23,7 @@ import months from "@/constants/months";
 import years from "@/constants/years";
 // import tasks from "@/constants/tasks";
 import { useTasksContext } from "@/contexts/Tasks";
+import taskStatus from "@/constants/taskStatus";
 
 const backgroundImage = require("../../assets/images/body_bg.png");
 
@@ -71,12 +72,15 @@ const TaskScreen = () => {
   const filteredTasks = tasksList.filter((task: any) => {
     const createdAtDate = new Date(task.createdAt);
     const deadlineDate = new Date(task.deadline);
+    const status = task.status;
 
     return (
       (createdAtDate.getFullYear() === pickerModalState.selectedYear &&
         createdAtDate.getMonth() === pickerModalState.selectedMonth) ||
       (deadlineDate.getFullYear() === pickerModalState.selectedYear &&
-        deadlineDate.getMonth() === pickerModalState.selectedMonth)
+        deadlineDate.getMonth() === pickerModalState.selectedMonth) ||
+      status === taskStatus.Overdue ||
+      status === taskStatus.Ongoing
     );
   });
 

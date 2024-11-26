@@ -31,6 +31,7 @@ const assigneeList = [
 ];
 
 interface Props {
+  value: any[];
   onAssigneesUpdate: (updatedAssignees: any[]) => void;
 }
 
@@ -48,7 +49,7 @@ interface ModalProps {
   slideModalAnim: any;
 }
 
-export default function SelectAssignee({ onAssigneesUpdate }: Props) {
+export default function SelectAssignee({ value, onAssigneesUpdate }: Props) {
   const { darkTheme } = useAppTheme();
   // const textColor = Colors[darkTheme ? "dark" : "light"].text;
   const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
@@ -56,7 +57,9 @@ export default function SelectAssignee({ onAssigneesUpdate }: Props) {
 
   const [assigneeInput, setAssigneeInput] = useState("");
   const [filteredAssignees, setFilteredAssignees] = useState(assigneeList);
-  const [selectedAssignees, setSelectedAssignees] = useState<any[]>([]);
+  const [selectedAssignees, setSelectedAssignees] = useState<any[]>(
+    value ? value : []
+  );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
@@ -121,24 +124,27 @@ export default function SelectAssignee({ onAssigneesUpdate }: Props) {
     <SafeAreaView style={styles.inputWrapper}>
       {/* Selected Assignees Display */}
       <View style={styles.assigneeContainer}>
-        {selectedAssignees.map((assignee: any) => (
-          <View
-            key={assignee.id}
-            style={[
-              styles.assigneeTag,
-              { backgroundColor: darkTheme ? Colors.white : "#e0e0e0" },
-            ]}
-          >
-            <Image
-              source={defaultImage}
-              style={{ width: 25, height: 25, borderRadius: 20 }}
-            />
-            <Text style={styles.assigneeText}>{assignee.name}</Text>
-            <TouchableOpacity onPress={() => handleRemoveAssignee(assignee.id)}>
-              <Ionicons name="close-circle" size={22} color="black" />
-            </TouchableOpacity>
-          </View>
-        ))}
+        {selectedAssignees?.length > 0 &&
+          selectedAssignees?.map((assignee: any) => (
+            <View
+              key={assignee.id}
+              style={[
+                styles.assigneeTag,
+                { backgroundColor: darkTheme ? Colors.white : "#e0e0e0" },
+              ]}
+            >
+              <Image
+                source={defaultImage}
+                style={{ width: 25, height: 25, borderRadius: 20 }}
+              />
+              <Text style={styles.assigneeText}>{assignee.name}</Text>
+              <TouchableOpacity
+                onPress={() => handleRemoveAssignee(assignee.id)}
+              >
+                <Ionicons name="close-circle" size={22} color="black" />
+              </TouchableOpacity>
+            </View>
+          ))}
 
         {/* Button to Open Modal */}
         <TouchableOpacity
@@ -243,26 +249,27 @@ function SelectAssigneeModal({
 
           {/* Selected Assignees */}
           <View style={styles.modalSelectedContainer}>
-            {selectedAssignees.map((assignee: any) => (
-              <View
-                key={assignee.id}
-                style={[
-                  styles.assigneeTag,
-                  { backgroundColor: darkTheme ? Colors.white : "#e0e0e0" },
-                ]}
-              >
-                <Image
-                  source={defaultImage}
-                  style={{ width: 25, height: 25, borderRadius: 20 }}
-                />
-                <Text style={styles.assigneeText}>{assignee.name}</Text>
-                <TouchableOpacity
-                  onPress={() => handleRemoveAssignee(assignee.id)}
+            {selectedAssignees?.length > 0 &&
+              selectedAssignees?.map((assignee: any) => (
+                <View
+                  key={assignee.id}
+                  style={[
+                    styles.assigneeTag,
+                    { backgroundColor: darkTheme ? Colors.white : "#e0e0e0" },
+                  ]}
                 >
-                  <Ionicons name="close-circle" size={22} color="black" />
-                </TouchableOpacity>
-              </View>
-            ))}
+                  <Image
+                    source={defaultImage}
+                    style={{ width: 25, height: 25, borderRadius: 20 }}
+                  />
+                  <Text style={styles.assigneeText}>{assignee.name}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleRemoveAssignee(assignee.id)}
+                  >
+                    <Ionicons name="close-circle" size={22} color="black" />
+                  </TouchableOpacity>
+                </View>
+              ))}
           </View>
 
           {/* Assignee List */}

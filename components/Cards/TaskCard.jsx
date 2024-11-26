@@ -36,7 +36,7 @@ export default function TaskCard({ task, handleModalDisplay }) {
                             color: Colors.darkBlue,
                         }}
                     >
-                        {task?.name}
+                        {task?.taskName}
                     </Text>
                     <Text
                         style={[

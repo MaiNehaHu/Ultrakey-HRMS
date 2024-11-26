@@ -1,16 +1,10 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { router, Stack, useNavigation } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/components/useColorScheme";
 import { AppThemeProvider, useAppTheme } from "@/contexts/AppTheme";
 import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
@@ -21,7 +15,6 @@ import { Image, Pressable } from "react-native";
 import { SafeAreaView } from "react-native";
 import { Text } from "react-native";
 import Colors from "@/constants/Colors";
-import { FontAwesome6 } from "@expo/vector-icons";
 
 const darkLogo = require("@/assets/images/logo_dark.jpg");
 const lightLogo = require("@/assets/images/logo_light.png");
@@ -67,8 +60,6 @@ export default function RootLayout() {
 }
 
 function Root() {
-  const colorScheme = useColorScheme();
-
   return (
     <AppThemeProvider>
       <LoginProvider>
@@ -76,13 +67,7 @@ function Root() {
           <LeavesProvider>
             <RegularizationProvider>
               <TasksProvider>
-
-                <ThemeProvider
-                  value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-                >
-                  <RootLayoutNav />
-                </ThemeProvider>
-
+                <RootLayoutNav />
               </TasksProvider>
             </RegularizationProvider>
           </LeavesProvider>
@@ -95,8 +80,10 @@ function Root() {
 function RootLayoutNav() {
   const { isLogged } = useLogin();
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(true);
   const { darkTheme } = useAppTheme();
+
+  const [loading, setLoading] = useState(true);
+  const textColor = Colors[darkTheme ? "dark" : "light"].text;
 
   useEffect(() => {
     if (isLogged !== null) {
@@ -127,34 +114,20 @@ function RootLayoutNav() {
     </SafeAreaView>
   );
 
-  // Left header
-  const headerLeft = (name: string) => (
-    <Pressable
-      style={{
-        gap: 10,
-        display: "flex",
-        alignItems: "center",
-        flexDirection: "row",
-      }}
-      onPress={() => {
-        navigation.goBack();
-      }}
-    >
-      <FontAwesome6
-        size={20}
-        name="arrow-left"
-        style={{ color: Colors[darkTheme ? "dark" : "light"].text }}
-      />
+  const headerRightTitle = (name: string) => (
+    <SafeAreaView style={{ width: "70%" }}>
       <Text
         style={{
+          color: textColor,
           fontSize: 18,
           fontWeight: 500,
-          color: Colors[darkTheme ? "dark" : "light"].text,
         }}
+        numberOfLines={1}
+        ellipsizeMode="tail"
       >
         {name}
       </Text>
-    </Pressable>
+    </SafeAreaView>
   );
 
   // Custom headerLeft with image function
@@ -170,15 +143,6 @@ function RootLayoutNav() {
         navigation.goBack();
       }}
     >
-      <Text>
-        <FontAwesome6
-          name="arrow-left"
-          size={20}
-          style={{
-            color: Colors[!darkTheme ? "dark" : "light"].background,
-          }}
-        />
-      </Text>
       <Image
         source={{
           uri: "https://i.pinimg.com/736x/e7/1e/ed/e71eed228bdb81e9b08fdf6b55c81191.jpg",
@@ -198,10 +162,13 @@ function RootLayoutNav() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
         headerStyle: {
           backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
         },
+        headerShown: true,
+        headerTitleStyle: {},
+        headerBackVisible: true,
+        headerTintColor: textColor,
         animation: "ios_from_right",
       }}
     >
@@ -210,7 +177,11 @@ function RootLayoutNav() {
       <Stack.Screen name="forgotPassword" options={{ headerShown: false }} />
       <Stack.Screen
         name="morePage"
-        options={{ headerLeft: imageHeaderLeft, headerRight, headerTitle: "" }}
+        options={{
+          headerLeft: imageHeaderLeft,
+          headerRight,
+          headerTitle: "",
+        }}
       />
       <Stack.Screen
         name="profileDetails"
@@ -218,7 +189,7 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("Profile Details"),
+          headerLeft: () => headerRightTitle("Profile Details"),
         }}
       />
       <Stack.Screen
@@ -227,7 +198,7 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("Bank Details"),
+          headerLeft: () => headerRightTitle("Bank Details"),
         }}
       />
       <Stack.Screen
@@ -236,7 +207,7 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("Pay Slips"),
+          headerLeft: () => headerRightTitle("Pay Slips"),
         }}
       />
       <Stack.Screen
@@ -245,7 +216,7 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("All Holidays"),
+          headerLeft: () => headerRightTitle("All Holidays"),
         }}
       />
       <Stack.Screen
@@ -254,25 +225,7 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("Apply Regularization"),
-        }}
-      />
-      <Stack.Screen
-        name="applyLeave"
-        options={{
-          headerShown: true,
-          headerTitle: "",
-          headerRight,
-          headerLeft: () => headerLeft("Apply Leave"),
-        }}
-      />
-      <Stack.Screen
-        name="addTask"
-        options={{
-          headerShown: true,
-          headerTitle: "",
-          headerRight,
-          headerLeft: () => headerLeft("Add New Task"),
+          headerLeft: () => headerRightTitle("Apply Regularizationnnnnn"),
         }}
       />
       <Stack.Screen
@@ -281,7 +234,34 @@ function RootLayoutNav() {
           headerShown: true,
           headerTitle: "",
           headerRight,
-          headerLeft: () => headerLeft("Regularizations"),
+          headerLeft: () => headerRightTitle("Regularizations"),
+        }}
+      />
+      <Stack.Screen
+        name="applyLeave"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerRightTitle("Apply Leave"),
+        }}
+      />
+      <Stack.Screen
+        name="addTask"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerRightTitle("Add New Task"),
+        }}
+      />
+      <Stack.Screen
+        name="editTask"
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerRight,
+          headerLeft: () => headerRightTitle("Edit Task"),
         }}
       />
     </Stack>
