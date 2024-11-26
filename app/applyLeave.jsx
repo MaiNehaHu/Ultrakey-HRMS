@@ -371,7 +371,7 @@ const ApplyLeave = () => {
                     <View style={[styles.cardContainer, { borderColor: textColor, marginTop: 10 }]}>
                         <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
                         <TextInput
-                            style={{ color: textColor, borderColor: textColor }}
+                            style={{ color: textColor, borderColor: textColor, paddingVertical: 10, }}
                             placeholder="Reason for leave"
                             value={reason}
                             onChangeText={setReason}

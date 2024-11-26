@@ -286,7 +286,7 @@ function Inputs({
                                         placeholder="Post Description"
                                         placeholderTextColor={textColor}
                                         onChangeText={(value) => onDescriptionUpdate(value)}
-                                        style={[styles.textArea, { backgroundColor: bgColor, color: textColor }]}
+                                        style={[styles.textArea, { backgroundColor: bgColor, color: textColor, paddingVertical: 10 }]}
                                     />
                                 </View>
                             ) : (

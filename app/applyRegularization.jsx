@@ -123,7 +123,7 @@ export default function ApplyRegularization() {
 
             <View style={{ padding: 15, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <SafeAreaView style={{ display: 'flex', gap: 20 }}>
-                    <Text style={{ textAlign: "center", fontSize: 14 }}>Applying for {formatDateInGB(date)}</Text>
+                    <Text style={{ textAlign: "center", fontSize: 14, color: textColor }}>Applying for {formatDateInGB(date)}</Text>
                     
                     <View>
                         <Text style={[styles.boldText, { color: textColor, marginBottom: 10 }]}>Original Records</Text>
@@ -164,7 +164,7 @@ export default function ApplyRegularization() {
                         <View style={[styles.cardContainer, { borderColor: textColor }]}>
                             <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
                             <TextInput
-                                style={{ color: textColor, borderColor: textColor }}
+                                style={{ color: textColor, borderColor: textColor, paddingVertical: 10 }}
                                 placeholder="Reason for regularization"
                                 value={punchRecords.reason}
                                 onChangeText={handleReasonEnter}
