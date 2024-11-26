@@ -25,4 +25,5 @@ export default {
   lightBlue: "#1A6FA8",
   darkBlue: "#1F366A",
   tintColorLight: "#2f95dc",
+  grey: "#757575",
 };
