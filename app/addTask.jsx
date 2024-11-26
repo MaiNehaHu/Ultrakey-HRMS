@@ -292,7 +292,7 @@ function Inputs({
                             ) : (
                                 <View style={styles.inputWrapper}>
                                     <TextInput
-                                        style={[styles.inputField, { color: textColor, borderColor: textColor }]}
+                                        style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 10 }]}
                                         placeholder={placeholder}
                                         value={value}
                                         onChangeText={onChangeText}
