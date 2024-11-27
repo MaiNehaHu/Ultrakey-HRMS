@@ -328,7 +328,7 @@ function Inputs({
 
                     <View style={styles.inputWrapper}>
                         <TextInput
-                            style={[styles.inputField, { color: textColor, borderColor: textColor }]}
+                            style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 10, }]}
                             placeholder={placeholder}
                             value={value}
                             onChangeText={onChangeText}
@@ -427,7 +427,6 @@ const styles = StyleSheet.create({
         paddingVertical: 7,
     },
     inputWrapper: {
-        padding: 5,
         paddingHorizontal: 10,
         position: 'relative',
         flexDirection: 'row',
