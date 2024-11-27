@@ -20,6 +20,7 @@ import Colors from '../constants/Colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
+import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 
 const backgroundImage = require("../assets/images/body_bg.png");
 
@@ -142,7 +143,7 @@ export default function BankDetails() {
 
             {/* Top section */}
             <ScrollView style={{ padding: 15, paddingTop: 25, gap: 10, display: 'flex' }}>
-                <SafeAreaView style={{ gap: 15, paddingBottom: 50, }}>
+                <SafeAreaView style={{ gap: 30, paddingBottom: 50, }}>
                     {bankDetails.accounts.map((account, index) => (
                         <InfoCard
                             key={index}
@@ -180,6 +181,15 @@ function InfoCard({ header, bankName, IFSC, branchName, accountNumber }) {
             <View style={[styles.cardContainer, { borderColor: textColor, padding: 15 }]}>
                 <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
+                <View style={[{ display: 'flex', flexDirection: 'row', gap: 10 }, styles.actionButtons,]}>
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 5, }}>
+                        <FontAwesome6 name='edit' size={18} />
+                    </Pressable>
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 5, }}>
+                        <FontAwesome6 name='trash' size={18} color="red" />
+                    </Pressable>
+                </View>
+
                 <Text style={[{ color: textColor }, styles.bodyText]}>
                     Name: {bankName}
                 </Text>
@@ -191,7 +201,7 @@ function InfoCard({ header, bankName, IFSC, branchName, accountNumber }) {
                 </Text>
                 <View style={styles.flex_row}>
                     <Text style={[{ color: textColor }, styles.bodyText]}>
-                        Acc Number: {!showSensitiveData ? `XXXX XXXX ${accountNumber.slice(-5, accountNumber.length - 1)}` : accountNumber}
+                        Account No.: {!showSensitiveData ? `XXXX XXXX ${accountNumber.slice(-5, accountNumber.length - 1)}` : accountNumber}
                     </Text>
 
                     {
@@ -366,6 +376,12 @@ const styles = StyleSheet.create({
         position: "absolute",
         paddingHorizontal: 5,
     },
+    actionButtons: {
+        top: -10,
+        right: 10,
+        position: "absolute",
+        paddingHorizontal: 5,
+    },
     bodyText: {
         fontSize: 14,
         fontWeight: "400",
@@ -409,14 +425,6 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         paddingHorizontal: 15,
         paddingVertical: 7,
-    },
-    headerText: {
-        top: -10,
-        left: 10,
-        fontSize: 12,
-        fontWeight: '500',
-        position: 'absolute',
-        paddingHorizontal: 5,
     },
     inputWrapper: {
         padding: 5,
