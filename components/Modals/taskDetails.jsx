@@ -66,11 +66,12 @@ const TaskDetails = ({ isVisible, handleCloseModal, clickedTask, slideModalAnim 
 
                                     <Pressable
                                         onPress={() => {
+                                            handleCloseModal();
+                                            // navigation.navigate("editTask")
                                             router.push({
                                                 params: { task_id: clickedTask.task_id },
                                                 pathname: "/editTask"
                                             })
-                                            // navigation.navigate("editTask")
                                         }}
                                         style={{
                                             backgroundColor: buttonColor, borderRadius: 30,
