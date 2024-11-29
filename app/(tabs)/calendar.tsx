@@ -254,7 +254,7 @@ const CalendarScreen = () => {
         : isFourthSaturday
         ? { date, name: "4th Saturday" }
         : isSunday
-        ? { date, name: "Sunday" }
+        ? { date, name: "Week Off" }
         : null,
       selectedLeave: leave
         ? {
