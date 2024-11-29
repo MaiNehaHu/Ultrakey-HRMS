@@ -281,7 +281,7 @@ export default function TabOneScreen() {
         {/* Display break records */}
         <BreakRecords breakRecords={breakRecords} />
 
-        <SafeAreaView style={{ marginTop: 30, gap: 20, display: "flex" }}>
+        <SafeAreaView style={{ marginTop: 30, gap: 15, display: "flex" }}>
           <OnGoingTasksCard />
 
           <UpcomingHolidaysCard />

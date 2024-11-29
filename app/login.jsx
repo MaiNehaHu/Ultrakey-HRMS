@@ -29,15 +29,13 @@ const Login = () => {
         setIsLogged(true);
 
         setTimeout(() => {
-            router.push({
-                pathname: '(tabs)',
-            });
+            navigation.navigate('(tabs)')
         }, 100);
     }
 
     const onPressIn = () => {
         Animated.spring(scaleValue, {
-            toValue: 0.96,
+            toValue: 0.97,
             useNativeDriver: true,
         }).start();
     };
@@ -154,7 +152,7 @@ const Login = () => {
                             </View>
                         </SafeAreaView>
 
-                        <Pressable>
+                        <Pressable onPress={() => navigation.navigate('forgotPassword')}>
                             <Text style={{ color: textColor, textAlign: 'right', textDecorationLine: 'underline', fontWeight: 500 }}>
                                 Forgot Password?
                             </Text>

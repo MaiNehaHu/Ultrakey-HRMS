@@ -148,7 +148,7 @@ export default function AddTask() {
             <View style={{ flex: 1, backgroundColor: bgColor, display: 'flex', justifyContent: 'space-between' }}>
                 <ImageBackground source={backgroundImage} style={styles.bgImage} />
 
-                <ScrollView style={{ padding: 15, flex: 1, paddingBottom: 0 }}>
+                <ScrollView keyboardShouldPersistTaps="handled" style={{ padding: 15, flex: 1, paddingBottom: 0 }}>
                     <Inputs
                         header="Task Name"
                         value={taskData.taskName}
