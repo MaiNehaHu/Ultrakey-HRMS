@@ -13,6 +13,7 @@ import {
     ScrollView,
     Pressable,
     TouchableWithoutFeedback,
+    Alert,
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import { useAppTheme } from '../contexts/AppTheme';
@@ -20,29 +21,20 @@ import Colors from '../constants/Colors';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
-import { FontAwesome6, Ionicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { useProfileContext } from '../contexts/ProfileDetails';
 
 const backgroundImage = require("../assets/images/body_bg.png");
 
 export default function BankDetails() {
     const navigation = useNavigation();
     const { darkTheme } = useAppTheme();
+    const { profileDetails, setProfileDetails } = useProfileContext();
+
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
-    const [bankDetails, setBankDetails] = useState({
-        accounts: [
-            {
-                bankName: "UNION BANK OF INDIA",
-                branchName: "Kukatpally Hyderabad",
-                IFSC: "AKEY24015",
-                accountNumber: "1122222234567",
-            }
-        ],
-    });
-
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const slideModalAnim = useRef(new Animated.Value(200)).current;
@@ -81,10 +73,36 @@ export default function BankDetails() {
     };
 
     const handleAddBankDetails = (newAccount) => {
-        setBankDetails((prevDetails) => ({
+        setProfileDetails((prevDetails) => ({
             ...prevDetails,
-            accounts: [...prevDetails.accounts, newAccount], // Add the new account to the array
+            bankDetails: [...prevDetails.bankDetails, newAccount],
         }));
+    };
+
+    const handleDeleteBankDetails = (IFSC) => {
+        Alert.alert(
+            "Are you sure?",
+            `You are deleting the bank details with IFSC: ${IFSC}?`,
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        setProfileDetails((prevDetails) => ({
+                            ...prevDetails,
+                            bankDetails: prevDetails.bankDetails.filter(
+                                (bank) => bank.IFSC !== IFSC // Exclude the matching bank detail
+                            ),
+                        }));
+                    },
+                },
+            ],
+            { cancelable: true } // Allow dismissal by tapping outside
+        );
     };
 
     useEffect(() => {
@@ -141,17 +159,18 @@ export default function BankDetails() {
         <View style={{ backgroundColor: bgColor, flex: 1, }}>
             <ImageBackground source={backgroundImage} style={styles.backImage} />
 
-            {/* Top section */}
-            <ScrollView style={{ padding: 15, paddingTop: 25, gap: 10, display: 'flex' }}>
-                <SafeAreaView style={{ gap: 30, paddingBottom: 50, }}>
-                    {bankDetails.accounts.map((account, index) => (
+            <ScrollView style={{ flex: 1, padding: 10 }}>
+                <SafeAreaView style={{ gap: 10, display: 'flex', paddingBottom: 20, paddingTop: 10 }}>
+                    {profileDetails.bankDetails.map((account, index) => (
                         <InfoCard
                             key={index}
+                            index={index}
                             bankName={account.bankName}
                             branchName={account.branchName}
                             IFSC={account.IFSC}
                             accountNumber={account.accountNumber}
                             header={index < 1 ? "Primary Bank" : "Other Account"}
+                            handleDeleteBankDetails={handleDeleteBankDetails}
                         />
                     ))}
                 </SafeAreaView>
@@ -168,7 +187,7 @@ export default function BankDetails() {
     );
 }
 
-function InfoCard({ header, bankName, IFSC, branchName, accountNumber }) {
+function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, handleDeleteBankDetails }) {
     const { darkTheme } = useAppTheme();
     const [showSensitiveData, setShowSensitiveData] = useState(true);
 
@@ -178,16 +197,24 @@ function InfoCard({ header, bankName, IFSC, branchName, accountNumber }) {
 
     return (
         <View>
-            <View style={[styles.cardContainer, { borderColor: textColor, padding: 15 }]}>
+            <View style={[styles.cardContainer, { borderColor: textColor, padding: 15, margin: 5 }]}>
                 <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
-                <View style={[{ display: 'flex', flexDirection: 'row', gap: 10 }, styles.actionButtons,]}>
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 5, }}>
-                        <FontAwesome6 name='edit' size={18} />
+                <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <FontAwesome6 name='edit' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
                     </Pressable>
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 5, }}>
-                        <FontAwesome6 name='trash' size={18} color="red" />
-                    </Pressable>
+
+                    {index !== 0 &&
+                        <Pressable onPress={() => handleDeleteBankDetails(IFSC)} style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                        </Pressable>
+                    }
+                    {index === 0 &&
+                        <View style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                        </View>
+                    }
                 </View>
 
                 <Text style={[{ color: textColor }, styles.bodyText]}>
@@ -250,7 +277,7 @@ function AddModal({ isVisible, handleCloseModal, isKeyboardVisible, onAddBankDet
             });
             handleCloseModal();
         } else {
-            console.warn("All fields are required");
+            Alert.alert("All fields are required");
         }
     };
 
@@ -385,7 +412,7 @@ const styles = StyleSheet.create({
     bodyText: {
         fontSize: 14,
         fontWeight: "400",
-        marginVertical: 5,
+        marginVertical: 2,
     },
     eyeIcon: {
         right: 10,

@@ -5,10 +5,11 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
 
-import { AppThemeProvider, useAppTheme } from "@/contexts/AppTheme";
 import { PunchProvider } from "@/contexts/Punch";
 import { LeavesProvider } from "@/contexts/Leaves";
+import { ProfileDetailsProvider } from "@/contexts/ProfileDetails";
 import { LoginProvider, useLogin } from "@/contexts/Login";
+import { AppThemeProvider, useAppTheme } from "@/contexts/AppTheme";
 import { RegularizationProvider } from "@/contexts/RegularizationRequest";
 import { TasksProvider } from "@/contexts/Tasks";
 import { Image, Pressable } from "react-native";
@@ -67,7 +68,9 @@ function Root() {
           <LeavesProvider>
             <RegularizationProvider>
               <TasksProvider>
-                <RootLayoutNav />
+                    <ProfileDetailsProvider>
+                      <RootLayoutNav />
+                    </ProfileDetailsProvider>
               </TasksProvider>
             </RegularizationProvider>
           </LeavesProvider>

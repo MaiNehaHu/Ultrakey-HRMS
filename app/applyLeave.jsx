@@ -307,20 +307,20 @@ const ApplyLeave = () => {
                                     styles.buttonContainer,
                                     {
                                         borderWidth: 1,
-                                        backgroundColor: leaveType === "Paid Leave" ? Colors.lightBlue : "transparent",
-                                        borderColor: leaveType === "Paid Leave" ? Colors.lightBlue : textColor,
+                                        backgroundColor: leaveType === "Work From Home" ? Colors.lightBlue : "transparent",
+                                        borderColor: leaveType === "Work From Home" ? Colors.lightBlue : textColor,
                                     },
                                 ]}
-                                onPress={() => setLeaveType("Paid Leave")}
+                                onPress={() => setLeaveType("Work From Home")}
                             >
                                 <Text style={[
                                     styles.buttonText,
                                     {
-                                        fontWeight: leaveType === "Paid Leave" ? "600" : "400",
-                                        color: leaveType === "Paid Leave" ? '#fff' : textColor,
+                                        fontWeight: leaveType === "Work From Home" ? "600" : "400",
+                                        color: leaveType === "Work From Home" ? '#fff' : textColor,
                                     }
                                 ]}>
-                                    Paid Leave
+                                    WFH
                                 </Text>
                             </Pressable>
                             <Pressable
@@ -341,7 +341,7 @@ const ApplyLeave = () => {
                                         color: leaveType === "Unpaid Leave" ? '#fff' : textColor,
                                     }
                                 ]}>
-                                    Unpaid Leave
+                                    Casual Leave
                                 </Text>
                             </Pressable>
                             <Pressable

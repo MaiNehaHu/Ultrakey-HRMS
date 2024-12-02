@@ -87,7 +87,7 @@ export default function TabLayout() {
               <Text
                 style={{
                   fontWeight: 500,
-                  fontSize: 17,
+                  fontSize: 16,
                   color: darkTheme ? Colors.white : Colors.darkBlue,
                 }}
               >
