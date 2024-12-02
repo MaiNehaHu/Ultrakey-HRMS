@@ -33,7 +33,10 @@ export default function BankDetails() {
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [selectedBankDetails, setSelectedBankDetails] = useState(null);
+
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
     const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -49,9 +52,8 @@ export default function BankDetails() {
         };
     }, []);
 
-    const handleOpenModal = () => {
-        setIsModalVisible(true);
-        console.log(isModalVisible);
+    const handleOpenAddModal = () => {
+        setIsAddModalVisible(true);
 
         Animated.timing(slideModalAnim, {
             toValue: 0,
@@ -61,14 +63,38 @@ export default function BankDetails() {
         }).start();
     };
 
-    const handleCloseModal = () => {
+    const handleCloseAddModal = () => {
         Animated.timing(slideModalAnim, {
             toValue: 700, // Slide back down
             duration: 200,
             easing: Easing.in(Easing.ease),
             useNativeDriver: true,
         }).start(() => {
-            setIsModalVisible(false);
+            setIsAddModalVisible(false);
+        });
+    };
+
+    const handleOpenEditModal = (bankDetails) => {
+        setSelectedBankDetails(bankDetails); // Set the selected bank details
+        setIsEditModalVisible(true);
+
+        Animated.timing(slideModalAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+        }).start();
+    };
+
+
+    const handleCloseEditModal = () => {
+        Animated.timing(slideModalAnim, {
+            toValue: 700, // Slide back down
+            duration: 200,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+        }).start(() => {
+            setIsEditModalVisible(false);
         });
     };
 
@@ -76,6 +102,15 @@ export default function BankDetails() {
         setProfileDetails((prevDetails) => ({
             ...prevDetails,
             bankDetails: [...prevDetails.bankDetails, newAccount],
+        }));
+    };
+
+    const handleEditBankDetails = (updatedAccount) => {
+        setProfileDetails((prevDetails) => ({
+            ...prevDetails,
+            bankDetails: prevDetails.bankDetails.map((account) =>
+                account.IFSC === updatedAccount.IFSC ? updatedAccount : account
+            ),
         }));
     };
 
@@ -147,7 +182,7 @@ export default function BankDetails() {
     };
 
     const handlePressOut = () => {
-        handleOpenModal();
+        handleOpenAddModal();
 
         Animated.spring(scaleAnim, {
             toValue: 1,
@@ -170,6 +205,7 @@ export default function BankDetails() {
                             IFSC={account.IFSC}
                             accountNumber={account.accountNumber}
                             header={index < 1 ? "Primary Bank" : "Other Account"}
+                            handleOpenEditModal={() => handleOpenEditModal(account)}
                             handleDeleteBankDetails={handleDeleteBankDetails}
                         />
                     ))}
@@ -177,17 +213,26 @@ export default function BankDetails() {
             </ScrollView>
 
             <AddModal
-                isVisible={isModalVisible}
-                handleCloseModal={handleCloseModal}
+                isVisible={isAddModalVisible}
+                handleCloseAddModal={handleCloseAddModal}
                 isKeyboardVisible={isKeyboardVisible}
                 onAddBankDetails={handleAddBankDetails}
                 slideModalAnim={slideModalAnim}
+            />
+
+            <EditModal
+                isVisible={isEditModalVisible}
+                handleCloseEditModal={handleCloseEditModal}
+                isKeyboardVisible={isKeyboardVisible}
+                onEditBankDetails={handleEditBankDetails}
+                slideModalAnim={slideModalAnim}
+                selectedBankDetails={selectedBankDetails} // Pass selected details
             />
         </View>
     );
 }
 
-function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, handleDeleteBankDetails }) {
+function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, handleDeleteBankDetails, handleOpenEditModal }) {
     const { darkTheme } = useAppTheme();
     const [showSensitiveData, setShowSensitiveData] = useState(true);
 
@@ -201,7 +246,7 @@ function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, ha
                 <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
                 <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                    <Pressable onPress={() => handleOpenEditModal(IFSC)} style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
                         <FontAwesome6 name='edit' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
                     </Pressable>
 
@@ -249,7 +294,7 @@ function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, ha
     );
 }
 
-function AddModal({ isVisible, handleCloseModal, isKeyboardVisible, onAddBankDetails, slideModalAnim }) {
+function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBankDetails, slideModalAnim }) {
     const { darkTheme } = useAppTheme();
 
     const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
@@ -275,10 +320,123 @@ function AddModal({ isVisible, handleCloseModal, isKeyboardVisible, onAddBankDet
                 IFSC: "",
                 accountNumber: "",
             });
-            handleCloseModal();
+            handleCloseAddModal();
         } else {
             Alert.alert("All fields are required");
         }
+    };
+
+    function handleCancel() {
+        handleCloseAddModal()
+        setFormData({
+            bankName: "",
+            branchName: "",
+            IFSC: "",
+            accountNumber: "",
+        });
+    }
+
+    return (
+        <Modal animationType="fade" transparent visible={isVisible}>
+            <View style={styles.modalContainer}>
+                <Animated.View
+                    style={[
+                        styles.modalContent,
+                        {
+                            transform: [{ translateY: slideModalAnim }],
+                            backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
+                            height: isKeyboardVisible ? "85%" : "auto",
+                        },
+                    ]}
+                >
+                    <SafeAreaView>
+                        <Inputs
+                            header="Bank Name"
+                            placeholder="Bank Name"
+                            value={formData.bankName}
+                            onChangeText={(value) => handleInputChange("bankName", value)}
+                        />
+                        <Inputs
+                            header="Branch Name"
+                            placeholder="Branch Name"
+                            value={formData.branchName}
+                            onChangeText={(value) => handleInputChange("branchName", value)}
+                        />
+                        <Inputs
+                            header="IFSC Code"
+                            placeholder="IFSC Code"
+                            value={formData.IFSC}
+                            onChangeText={(value) => handleInputChange("IFSC", value)}
+                        />
+                        <Inputs
+                            header="Account Number"
+                            placeholder="Account Number"
+                            value={formData.accountNumber}
+                            onChangeText={(value) => handleInputChange("accountNumber", value)}
+                        />
+                    </SafeAreaView>
+
+                    <View style={styles.flex_row}>
+                        <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCancel}>
+                            <Text style={{ color: darkTheme ? Colors.black : Colors.white }}>CANCEL</Text>
+                        </Pressable>
+                        <Pressable style={[styles.addButton, { backgroundColor: btnColor }]} onPress={handleAdd}>
+                            <Text style={{ color: oppTextColor, fontWeight: 500 }}>ADD</Text>
+                        </Pressable>
+                    </View>
+                </Animated.View>
+            </View>
+        </Modal >
+    );
+}
+
+function EditModal({ selectedBankDetails, isVisible, handleCloseEditModal, isKeyboardVisible, onEditBankDetails, slideModalAnim }) {
+    const { darkTheme } = useAppTheme();
+
+    const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
+    const btnColor = darkTheme ? Colors.white : Colors.darkBlue;
+
+    const [formData, setFormData] = useState({
+        bankName: "",
+        branchName: "",
+        IFSC: "",
+        accountNumber: "",
+    });
+
+    useEffect(() => {
+        if (selectedBankDetails) {
+            setFormData(selectedBankDetails);
+        }
+    }, [selectedBankDetails]);
+
+    const handleInputChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleEdit = () => {
+        if (formData.bankName && formData.branchName && formData.IFSC && formData.accountNumber) {
+            handleCloseEditModal();
+            onEditBankDetails(formData);
+
+            setFormData({
+                bankName: "",
+                branchName: "",
+                IFSC: "",
+                accountNumber: "",
+            });
+        } else {
+            Alert.alert("All fields are required");
+        }
+    };
+
+    const handleCancel = () => {
+        handleCloseEditModal();
+        setFormData({
+            bankName: "",
+            branchName: "",
+            IFSC: "",
+            accountNumber: "",
+        });
     };
 
     return (
@@ -322,16 +480,16 @@ function AddModal({ isVisible, handleCloseModal, isKeyboardVisible, onAddBankDet
                     </SafeAreaView>
 
                     <View style={styles.flex_row}>
-                        <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCloseModal}>
+                        <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCancel}>
                             <Text style={{ color: darkTheme ? Colors.black : Colors.white }}>CANCEL</Text>
                         </Pressable>
-                        <Pressable style={[styles.addButton, { backgroundColor: btnColor }]} onPress={handleAdd}>
-                            <Text style={{ color: oppTextColor, fontWeight: 500 }}>ADD</Text>
+                        <Pressable style={[styles.addButton, { backgroundColor: btnColor }]} onPress={handleEdit}>
+                            <Text style={{ color: oppTextColor, fontWeight: "500" }}>SAVE</Text>
                         </Pressable>
                     </View>
                 </Animated.View>
             </View>
-        </Modal >
+        </Modal>
     );
 }
 
