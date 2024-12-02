@@ -235,7 +235,7 @@ export default function BankDetails() {
 
 function InfoCard({ index, header, bankName, IFSC, bank_details_id, branchName, accountNumber, handleDeleteBankDetails, handleOpenEditModal }) {
     const { darkTheme } = useAppTheme();
-    const [showSensitiveData, setShowSensitiveData] = useState(true);
+    const [showSensitiveData, setShowSensitiveData] = useState(false);
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
