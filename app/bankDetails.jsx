@@ -109,15 +109,15 @@ export default function BankDetails() {
         setProfileDetails((prevDetails) => ({
             ...prevDetails,
             bankDetails: prevDetails.bankDetails.map((account) =>
-                account.IFSC === updatedAccount.IFSC ? updatedAccount : account
+                account.bank_details_id === updatedAccount.bank_details_id ? updatedAccount : account
             ),
         }));
     };
 
-    const handleDeleteBankDetails = (IFSC) => {
+    const handleDeleteBankDetails = (bank_details_id) => {
         Alert.alert(
             "Are you sure?",
-            `You are deleting the bank details with IFSC: ${IFSC}?`,
+            `You are deleting the bank details?`,
             [
                 {
                     text: "Cancel",
@@ -130,7 +130,7 @@ export default function BankDetails() {
                         setProfileDetails((prevDetails) => ({
                             ...prevDetails,
                             bankDetails: prevDetails.bankDetails.filter(
-                                (bank) => bank.IFSC !== IFSC // Exclude the matching bank detail
+                                (bank) => bank.bank_details_id !== bank_details_id // Exclude the matching bank detail
                             ),
                         }));
                     },
@@ -203,6 +203,7 @@ export default function BankDetails() {
                             bankName={account.bankName}
                             branchName={account.branchName}
                             IFSC={account.IFSC}
+                            bank_details_id={account.bank_details_id}
                             accountNumber={account.accountNumber}
                             header={index < 1 ? "Primary Bank" : "Other Account"}
                             handleOpenEditModal={() => handleOpenEditModal(account)}
@@ -232,7 +233,7 @@ export default function BankDetails() {
     );
 }
 
-function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, handleDeleteBankDetails, handleOpenEditModal }) {
+function InfoCard({ index, header, bankName, IFSC, bank_details_id, branchName, accountNumber, handleDeleteBankDetails, handleOpenEditModal }) {
     const { darkTheme } = useAppTheme();
     const [showSensitiveData, setShowSensitiveData] = useState(true);
 
@@ -246,12 +247,18 @@ function InfoCard({ index, header, bankName, IFSC, branchName, accountNumber, ha
                 <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
                 <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                    <Pressable onPress={() => handleOpenEditModal(IFSC)} style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                    <Pressable
+                        onPress={() => handleOpenEditModal(bank_details_id)}
+                        style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                    >
                         <FontAwesome6 name='edit' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
                     </Pressable>
 
                     {index !== 0 &&
-                        <Pressable onPress={() => handleDeleteBankDetails(IFSC)} style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <Pressable
+                            onPress={() => handleDeleteBankDetails(bank_details_id)}
+                            style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                        >
                             <FontAwesome6 name='trash' size={16} color={Colors.red} />
                         </Pressable>
                     }
@@ -319,6 +326,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
                 branchName: "",
                 IFSC: "",
                 accountNumber: "",
+                bank_details_id: Math.round(Math.random() * 100)
             });
             handleCloseAddModal();
         } else {
@@ -371,6 +379,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
                         <Inputs
                             header="Account Number"
                             placeholder="Account Number"
+                            accountNumberKey
                             value={formData.accountNumber}
                             onChangeText={(value) => handleInputChange("accountNumber", value)}
                         />
@@ -474,6 +483,7 @@ function EditModal({ selectedBankDetails, isVisible, handleCloseEditModal, isKey
                         <Inputs
                             header="Account Number"
                             placeholder="Account Number"
+                            accountNumberKey
                             value={formData.accountNumber}
                             onChangeText={(value) => handleInputChange("accountNumber", value)}
                         />
@@ -498,6 +508,7 @@ function Inputs({
     value,
     onChangeText,
     placeholder,
+    accountNumberKey
 }) {
     const { darkTheme } = useAppTheme();
 
@@ -516,6 +527,7 @@ function Inputs({
                             style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 10, }]}
                             placeholder={placeholder}
                             value={value}
+                            keyboardType={accountNumberKey ? 'number-pad' : 'default'}
                             onChangeText={onChangeText}
                             placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
                         />

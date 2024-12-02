@@ -60,6 +60,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         name: "Rajeev Kumar",
         relation: "Father",
         contact: "+91 96969 69696",
+        bank_details_id: 0,
       },
     ],
   });
