@@ -312,6 +312,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
         branchName: "",
         IFSC: "",
         accountNumber: "",
+        bank_details_id: Math.round(Math.random() * 100)
     });
 
     const handleInputChange = (field, value) => {
@@ -320,13 +321,12 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
 
     const handleAdd = () => {
         if (formData.bankName && formData.branchName && formData.IFSC && formData.accountNumber) {
-            onAddBankDetails(formData);
+            onAddBankDetails(formData);            
             setFormData({
                 bankName: "",
                 branchName: "",
                 IFSC: "",
                 accountNumber: "",
-                bank_details_id: Math.round(Math.random() * 100)
             });
             handleCloseAddModal();
         } else {
