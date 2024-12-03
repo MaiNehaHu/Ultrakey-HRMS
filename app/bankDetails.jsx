@@ -357,7 +357,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
                         },
                     ]}
                 >
-                    <SafeAreaView>
+                    <ScrollView>
                         <Inputs
                             header="Bank Name"
                             placeholder="Bank Name"
@@ -383,7 +383,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
                             value={formData.accountNumber}
                             onChangeText={(value) => handleInputChange("accountNumber", value)}
                         />
-                    </SafeAreaView>
+                    </ScrollView>
 
                     <View style={styles.flex_row}>
                         <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCancel}>
@@ -461,7 +461,7 @@ function EditModal({ selectedBankDetails, isVisible, handleCloseEditModal, isKey
                         },
                     ]}
                 >
-                    <SafeAreaView>
+                    <ScrollView>
                         <Inputs
                             header="Bank Name"
                             placeholder="Bank Name"
@@ -487,7 +487,7 @@ function EditModal({ selectedBankDetails, isVisible, handleCloseEditModal, isKey
                             value={formData.accountNumber}
                             onChangeText={(value) => handleInputChange("accountNumber", value)}
                         />
-                    </SafeAreaView>
+                    </ScrollView>
 
                     <View style={styles.flex_row}>
                         <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCancel}>
@@ -524,7 +524,7 @@ function Inputs({
 
                     <View style={styles.inputWrapper}>
                         <TextInput
-                            style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 10, }]}
+                            style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 15, flex: 1, }]}
                             placeholder={placeholder}
                             value={value}
                             keyboardType={accountNumberKey ? 'number-pad' : 'default'}

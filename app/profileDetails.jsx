@@ -1,5 +1,5 @@
-import { Alert, Animated, ImageBackground, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useRef, useState } from 'react';
+import { Alert, Animated, Easing, ImageBackground, Keyboard, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -12,19 +12,19 @@ export default function ProfileDetails() {
     const { profileDetails, setProfileDetails } = useProfileContext();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [visibleModal, setVisibleModal] = useState(null);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-    const scaleAnim = useRef(new Animated.Value(1)).current;
     const slideModalAnim = useRef(new Animated.Value(200)).current;
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
-    const buttonColor = darkTheme ? Colors.white : Colors.darkBlue
+    const buttonColor = darkTheme ? Colors.white : Colors.darkBlue;
 
-    const handleOpenExpModal = () => {
+    const handleOpenAddingModal = (modalName) => {
+        setVisibleModal(modalName);
         setIsModalVisible(true);
-        console.log(isModalVisible);
 
         Animated.timing(slideModalAnim, {
             toValue: 0,
@@ -34,23 +34,48 @@ export default function ProfileDetails() {
         }).start();
     };
 
-    const handleCloseExpModal = () => {
+    const handleCloseAddingModal = () => {
         Animated.timing(slideModalAnim, {
-            toValue: 700, // Slide back down
+            toValue: 700,
             duration: 200,
             easing: Easing.in(Easing.ease),
             useNativeDriver: true,
         }).start(() => {
             setIsModalVisible(false);
+            setVisibleModal(null);
         });
     };
 
     const handleAddExperienceDetails = (newAccount) => {
         setProfileDetails((prevDetails) => ({
             ...prevDetails,
-            experienceList: [...prevDetails.experienceList, newAccount], // Add the new account to the array
+            experienceList: [...prevDetails.experienceList, newAccount],
         }));
     };
+
+    const handleAddEducationDetails = (newAccount) => {
+        setProfileDetails((prevDetails) => ({
+            ...prevDetails,
+            educationList: [...prevDetails.educationList, newAccount],
+        }));
+    };
+
+    const handleAddFamilyDetails = (newAccount) => {
+        setProfileDetails((prevDetails) => ({
+            ...prevDetails,
+            familyInformation: [...prevDetails.familyInformation, newAccount],
+        }));
+    };
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", () => setIsKeyboardVisible(true));
+        const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => setIsKeyboardVisible(false));
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
 
     return (
         <View style={{ flex: 1, backgroundColor: bgColor }}>
@@ -58,37 +83,49 @@ export default function ProfileDetails() {
 
             <ScrollView style={{ paddingHorizontal: 10 }}>
                 <SafeAreaView style={{ gap: 10, marginVertical: 5, marginTop: 15 }}>
-                    <Text style={[styles.header, { color: textColor, marginBottom: 5 }]}>Basic Information</Text>
+                    <Text style={[styles.header, { color: textColor, marginBottom: 5 }]}>
+                        Basic Information
+                    </Text>
 
-                    <InfoCard text={profileDetails.name} header={"Name"} />
-                    <InfoCard text={profileDetails.employeeID} header={"Employee ID"} />
-                    <InfoCard text={profileDetails.designation} header={"Designation"} />
-                    <InfoCard text={profileDetails.bloodGroup} header={"Blood Group"} />
-                    <InfoCard text={profileDetails.dob} header={"Date of Birth"} />
-                    <InfoCard text={profileDetails.PANCard} header={"PAN Card"} />
+                    <OneLineCard text={profileDetails.name} header="Name" />
+                    <OneLineCard text={profileDetails.employeeID} header="Employee ID" />
+                    <OneLineCard text={profileDetails.designation} header="Designation" />
+                    <OneLineCard text={profileDetails.bloodGroup} header="Blood Group" />
+                    <OneLineCard text={profileDetails.dob} header="Date of Birth" />
+                    <OneLineCard text={profileDetails.PANCard} header="PAN Card" />
                 </SafeAreaView>
 
-                {/* Contact information */}
+                {/* Contact Information */}
                 <SafeAreaView style={[styles.sectionContainer, { marginVertical: 5 }]}>
-                    <Text style={[styles.header, { color: textColor, marginBottom: 5 }]}>Contact Info.</Text>
-
-                    <InfoCard text={profileDetails.phoneNumber} header={"Primary"} />
-                    <InfoCard text={profileDetails.emergencyPhoneNumber1} header={"Emergency"} />
-                    <InfoCard text={profileDetails.email} header={"Email ID"} />
+                    <Text style={[styles.header, { color: textColor, marginBottom: 5 }]}>
+                        Contact Info.
+                    </Text>
+                    <OneLineCard text={profileDetails.phoneNumber} header="Primary" />
+                    <OneLineCard text={profileDetails.emergencyPhoneNumber1} header="Emergency" />
+                    <OneLineCard text={profileDetails.email} header="Email ID" />
                 </SafeAreaView>
 
                 {/* Experience Info */}
                 <SafeAreaView style={[styles.sectionContainer, { marginVertical: 5 }]}>
                     <View style={[styles.flex_row_btw, { marginBottom: 10 }]}>
                         <Text style={[styles.header, { color: textColor }]}>Experience</Text>
-
-                        <TouchableOpacity style={[styles.addButton, { backgroundColor: buttonColor }]}>
-                            <Text style={{ color: oppTextColor, fontWeight: 500, fontSize: 13 }}>ADD</Text>
+                        <TouchableOpacity
+                            style={[styles.addButton, { backgroundColor: buttonColor }]}
+                            onPress={() => handleOpenAddingModal("Experience")}
+                        >
+                            <Text style={{ color: oppTextColor, fontWeight: "500", fontSize: 13 }}>
+                                ADD
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
                     {profileDetails.experienceList.map((exp, index) => (
-                        <ExperienceCard exp={exp} key={index} index={index} />
+                        <MultiLineCard
+                            key={`experience-${index}`}
+                            index={index}
+                            exp={exp}
+                            experienceCard
+                        />
                     ))}
                 </SafeAreaView>
 
@@ -96,14 +133,23 @@ export default function ProfileDetails() {
                 <SafeAreaView style={[styles.sectionContainer, { marginVertical: 5 }]}>
                     <View style={[styles.flex_row_btw, { marginBottom: 10 }]}>
                         <Text style={[styles.header, { color: textColor }]}>Education</Text>
-
-                        <TouchableOpacity style={[styles.addButton, { backgroundColor: buttonColor }]}>
-                            <Text style={{ color: oppTextColor, fontWeight: 500, fontSize: 13 }}>ADD</Text>
+                        <TouchableOpacity
+                            style={[styles.addButton, { backgroundColor: buttonColor }]}
+                            onPress={() => handleOpenAddingModal("Education")}
+                        >
+                            <Text style={{ color: oppTextColor, fontWeight: "500", fontSize: 13 }}>
+                                ADD
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
                     {profileDetails.educationList.map((edu, index) => (
-                        <EducationCard edu={edu} key={index} index={index} />
+                        <MultiLineCard
+                            key={`education-${index}`}
+                            index={index}
+                            edu={edu}
+                            educationCard
+                        />
                     ))}
                 </SafeAreaView>
 
@@ -111,22 +157,73 @@ export default function ProfileDetails() {
                 <SafeAreaView style={[styles.sectionContainer, { marginVertical: 5 }]}>
                     <View style={[styles.flex_row_btw, { marginBottom: 10 }]}>
                         <Text style={[styles.header, { color: textColor }]}>Family</Text>
-
-                        <TouchableOpacity style={[styles.addButton, { backgroundColor: buttonColor }]}>
-                            <Text style={{ color: oppTextColor, fontWeight: 500, fontSize: 13 }}>ADD</Text>
+                        <TouchableOpacity
+                            style={[styles.addButton, { backgroundColor: buttonColor }]}
+                            onPress={() => handleOpenAddingModal("Family")}
+                        >
+                            <Text style={{ color: oppTextColor, fontWeight: "500", fontSize: 13 }}>
+                                ADD
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
-                    {profileDetails.educationList.map((edu, index) => (
-                        <EducationCard edu={edu} key={index} index={index} />
+                    {profileDetails.familyInformation.map((fam, index) => (
+                        <MultiLineCard
+                            key={`family-${index}`}
+                            index={index}
+                            fam={fam}
+                            familyCard
+                        />
                     ))}
                 </SafeAreaView>
+
+                <AddingModal
+                    isVisible={visibleModal === "Experience" ? isModalVisible : false}
+                    handleCloseAddingModal={handleCloseAddingModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onAddDetails={handleAddExperienceDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "company", label: "Company Name", placeholder: "Enter company name" },
+                        { name: "designation", label: "Designation", placeholder: "Enter designation" },
+                        { name: "workFrom", label: "Start Date", placeholder: "Enter start date" },
+                        { name: "workTo", label: "End Date", placeholder: "Enter end date" },
+                    ]}
+                />
+
+                <AddingModal
+                    isVisible={visibleModal === "Education" ? isModalVisible : false}
+                    handleCloseAddingModal={handleCloseAddingModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onAddDetails={handleAddEducationDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "institute", label: "Institute Name", placeholder: "Enter institute name" },
+                        { name: "degree", label: "Degree", placeholder: "Enter degree" },
+                        { name: "grade", label: "Grades", placeholder: "Enter your grades" },
+                        { name: "batchFrom", label: "Start Year", placeholder: "Graduation start year" },
+                        { name: "batchTo", label: "End Year", placeholder: "Graduation end year" },
+                    ]}
+                />
+
+                <AddingModal
+                    isVisible={visibleModal === "Family" ? isModalVisible : false}
+                    handleCloseAddingModal={handleCloseAddingModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onAddDetails={handleAddFamilyDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "name", label: "Person Name", placeholder: "Enter name" },
+                        { name: "relation", label: "Relation", placeholder: "Enter Relation" },
+                        { name: "contact", label: "Contact", placeholder: "Enter contact" },
+                    ]}
+                />
             </ScrollView>
         </View>
     );
 }
 
-function InfoCard({ header, text }) {
+function OneLineCard({ header, text }) {
     const { darkTheme } = useAppTheme();
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -134,16 +231,18 @@ function InfoCard({ header, text }) {
     const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
 
     return (
-        <View style={{ padding: 5, }}>
+        <View style={{ padding: 5 }}>
             <View style={[styles.cardContainer, { borderColor: textColor }]}>
-                <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
+                <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                    {header}
+                </Text>
                 <Text style={[styles.bodyText, { color: textColor, marginVertical: 0 }]}>{text}</Text>
             </View>
         </View>
-    )
+    );
 }
 
-const EducationCard = ({ edu, index }) => {
+function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, familyCard }) {
     const { darkTheme } = useAppTheme();
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -152,115 +251,88 @@ const EducationCard = ({ edu, index }) => {
 
     return (
         <View
-            style={[styles.cardContainer,
-            { borderColor: textColor, paddingHorizontal: 15, margin: 5 }]}
+            style={[
+                styles.cardContainer,
+                { borderColor: textColor, paddingHorizontal: 15, margin: 5 },
+            ]}
         >
-            <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{edu.title}</Text>
+            {educationCard && (
+                <>
+                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                        {edu.title}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>Degree: {edu.degree}</Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>College: {edu.institute}</Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>
+                        Batch: {edu.batchFrom} - {edu.batchTo}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>
+                        Grade: {edu.grade} CGPA
+                    </Text>
+                </>
+            )}
 
-            <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                    <FontAwesome6 name='edit' size={16} color={textColor} />
-                </Pressable>
+            {experienceCard && (
+                <>
+                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                        {exp.type}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>
+                        Organization: {exp.company}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>
+                        Designation: {exp.designation}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>
+                        Batch: {exp.workFrom} - {exp.workTo}
+                    </Text>
+                </>
+            )}
 
-                {index !== 0 &&
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                        <FontAwesome6 name='trash' size={16} color={Colors.red} />
-                    </Pressable>
-                }
-                {index == 0 &&
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                        <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
-                    </Pressable>
-                }
-            </View>
-
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Degree: {edu.degree}
-            </Text>
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                College: {edu.college}
-            </Text>
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Batch: {edu.batchFrom} - {edu.batchTo}
-            </Text>
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Grade: {edu.grade} CGPA
-            </Text>
+            {familyCard && (
+                <>
+                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                        {fam.relation}
+                    </Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>Relation: {fam.relation}</Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>Name: {fam.name}</Text>
+                    <Text style={[{ color: textColor }, styles.bodyText]}>Contact: {fam.contact}</Text>
+                </>
+            )}
         </View>
-    )
+    );
 }
 
-const ExperienceCard = ({ exp, index }) => {
-    const { darkTheme } = useAppTheme();
-
-    const bgColor = Colors[darkTheme ? "dark" : "light"].background;
-    const textColor = Colors[darkTheme ? "dark" : "light"].text;
-    const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
-
-    return (
-        <View
-            style={[styles.cardContainer,
-            { borderColor: textColor, paddingHorizontal: 15, margin: 5 }]}
-        >
-            <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{exp.type}</Text>
-
-            <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                    <FontAwesome6 name='edit' size={16} color={textColor} />
-                </Pressable>
-
-                {index !== 0 &&
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                        <FontAwesome6 name='trash' size={16} color={Colors.red} />
-                    </Pressable>
-                }
-                {index == 0 &&
-                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                        <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
-                    </Pressable>
-                }
-            </View>
-
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Organization: {exp.company}
-            </Text>
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Designation: {exp.designation}
-            </Text>
-            <Text style={[{ color: textColor }, styles.bodyText]}>
-                Batch: {exp.workFrom} - {exp.workTo}
-            </Text>
-        </View >
-    )
-}
-
-function AddExperienceModal({ isVisible, handleCloseModal, isKeyboardVisible, onAddExperienceDetails, slideModalAnim }) {
+function AddingModal({
+    isVisible,
+    handleCloseAddingModal,
+    isKeyboardVisible,
+    onAddDetails,
+    slideModalAnim,
+    fields,
+}) {
     const { darkTheme } = useAppTheme();
 
     const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
-    const btnColor = darkTheme ? Colors.white : Colors.darkBlue
+    const btnColor = darkTheme ? Colors.white : Colors.darkBlue;
 
-    const [formData, setFormData] = useState({
-        bankName: "",
-        branchName: "",
-        IFSC: "",
-        accountNumber: "",
-    });
+    const initialFormData = fields.reduce((acc, field) => {
+        acc[field.name] = "";
+        return acc;
+    }, {});
+
+    const [formData, setFormData] = useState(initialFormData);
 
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleAdd = () => {
-        if (formData.bankName && formData.branchName && formData.IFSC && formData.accountNumber) {
-            onAddExperienceDetails(formData);
-            setFormData({
-                bankName: "",
-                branchName: "",
-                IFSC: "",
-                accountNumber: "",
-            });
-            handleCloseModal();
+        const isValid = fields.every((field) => formData[field.name].trim() !== "");
+        if (isValid) {
+            onAddDetails(formData);
+            setFormData(initialFormData);
+            handleCloseAddingModal();
         } else {
             Alert.alert("All fields are required");
         }
@@ -279,44 +351,66 @@ function AddExperienceModal({ isVisible, handleCloseModal, isKeyboardVisible, on
                         },
                     ]}
                 >
-                    <SafeAreaView>
-                        <Inputs
-                            header="Bank Name"
-                            placeholder="Bank Name"
-                            value={formData.bankName}
-                            onChangeText={(value) => handleInputChange("bankName", value)}
-                        />
-                        <Inputs
-                            header="Branch Name"
-                            placeholder="Branch Name"
-                            value={formData.branchName}
-                            onChangeText={(value) => handleInputChange("branchName", value)}
-                        />
-                        <Inputs
-                            header="IFSC Code"
-                            placeholder="IFSC Code"
-                            value={formData.IFSC}
-                            onChangeText={(value) => handleInputChange("IFSC", value)}
-                        />
-                        <Inputs
-                            header="Account Number"
-                            placeholder="Account Number"
-                            value={formData.accountNumber}
-                            onChangeText={(value) => handleInputChange("accountNumber", value)}
-                        />
-                    </SafeAreaView>
+                    <ScrollView>
+                        {fields.map((field) => (
+                            <Inputs
+                                key={field.name}
+                                header={field.label}
+                                placeholder={field.placeholder}
+                                value={formData[field.name]}
+                                onChangeText={(value) => handleInputChange(field.name, value)}
+                            />
+                        ))}
+                    </ScrollView>
 
                     <View style={styles.flex_row}>
-                        <Pressable style={[styles.addButton, { backgroundColor: Colors.grey }]} onPress={handleCloseModal}>
+                        <Pressable
+                            style={[styles.doneButton, { backgroundColor: Colors.grey }]}
+                            onPress={handleCloseAddingModal}
+                        >
                             <Text style={{ color: darkTheme ? Colors.black : Colors.white }}>CANCEL</Text>
                         </Pressable>
-                        <Pressable style={[styles.addButton, { backgroundColor: btnColor }]} onPress={handleAdd}>
-                            <Text style={{ color: oppTextColor, fontWeight: 500 }}>ADD</Text>
+                        <Pressable
+                            style={[styles.doneButton, { backgroundColor: btnColor }]}
+                            onPress={handleAdd}
+                        >
+                            <Text style={{ color: oppTextColor, fontWeight: "500" }}>ADD</Text>
                         </Pressable>
                     </View>
                 </Animated.View>
             </View>
-        </Modal >
+        </Modal>
+    );
+}
+
+function Inputs({
+    header,
+    value,
+    onChangeText,
+    placeholder,
+}) {
+    const { darkTheme } = useAppTheme();
+
+    const bgColor = Colors[darkTheme ? "dark" : "light"].background;
+    const textColor = Colors[darkTheme ? "dark" : "light"].text;
+    const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
+
+    return (
+        <View style={{ marginBottom: 10, paddingVertical: 5 }}>
+            <View style={[styles.multiLineCardContainer, { borderColor: textColor }]}>
+                <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
+
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                        style={{ color: textColor, borderColor: textColor, paddingVertical: 15, flex: 1 }}
+                        placeholder={placeholder}
+                        value={value}
+                        onChangeText={onChangeText}
+                        placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                    />
+                </View>
+            </View>
+        </View>
     );
 }
 
@@ -326,10 +420,14 @@ const styles = StyleSheet.create({
         resizeMode: "cover",
     },
     cardContainer: {
-        padding: 12,
+        padding: 15,
         borderWidth: 1,
         borderRadius: 10,
         position: 'relative',
+    },
+    multiLineCardContainer: {
+        borderWidth: 1,
+        borderRadius: 10,
     },
     headerText: {
         top: -10,
@@ -352,7 +450,7 @@ const styles = StyleSheet.create({
     },
     header: {
         width: "60%",
-        fontSize: 17,
+        fontSize: 18,
         fontWeight: 500,
         paddingLeft: 5,
     },
@@ -370,10 +468,54 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'space-between'
     },
+    flex_row: {
+        gap: 10,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     addButton: {
         borderRadius: 30,
         paddingVertical: 4,
         paddingHorizontal: 15,
-    }
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        width: "90%",
+        padding: 20,
+        borderRadius: 10,
+        display: "flex",
+        position: "relative",
+        flexDirection: "column",
+        justifyContent: "space-between",
+    },
+    input: {
+        width: "100%",
+        borderBottomWidth: 1,
+        marginBottom: 15,
+        fontSize: 16,
+    },
+    doneButton: {
+        width: "48%",
+        marginTop: 20,
+        borderRadius: 5,
+        paddingVertical: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    inputWrapper: {
+        paddingHorizontal: 10,
+        position: 'relative',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
 });
 

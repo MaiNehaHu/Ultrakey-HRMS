@@ -16,7 +16,7 @@ export const ProfileDetailsProvider = ({ children }) => {
     educationList: [
       {
         title: "Graduation",
-        college: "MLRITM",
+        institute: "MLRITM",
         batchFrom: "2020",
         batchTo: "2024",
         grade: "8.21",
@@ -24,7 +24,7 @@ export const ProfileDetailsProvider = ({ children }) => {
       },
       {
         title: "High School",
-        college: "Sri Chaitanya Junior Kalashala",
+        institute: "Sri Chaitanya Junior Kalashala",
         batchFrom: "2018",
         batchTo: "2020",
         grade: "9.00",

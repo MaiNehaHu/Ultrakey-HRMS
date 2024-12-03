@@ -254,13 +254,13 @@ function Inputs({
                                         placeholder="Post Description"
                                         placeholderTextColor={textColor}
                                         onChangeText={(value) => onDescriptionUpdate(value)}
-                                        style={[styles.textArea, { backgroundColor: bgColor, color: textColor, paddingVertical: 10 }]}
+                                        style={[styles.textArea, { backgroundColor: bgColor, color: textColor, paddingVertical: 15 }]}
                                     />
                                 </View>
                             ) : (
                                 <View style={styles.inputWrapper}>
                                     <TextInput
-                                        style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 10 }]}
+                                        style={[styles.inputField, { color: textColor, borderColor: textColor, paddingVertical: 15 }]}
                                         placeholder={placeholder}
                                         value={value}
                                         onChangeText={onChangeText}

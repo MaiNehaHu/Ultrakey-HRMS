@@ -164,7 +164,7 @@ export default function ApplyRegularization() {
                         <View style={[styles.cardContainer, { borderColor: textColor }]}>
                             <Text style={[{ color: textColor, backgroundColor: bgColor }, styles.headerText]}>Reason</Text>
                             <TextInput
-                                style={{ color: textColor, borderColor: textColor, paddingVertical: 10 }}
+                                style={{ color: textColor, borderColor: textColor, paddingVertical: 15 }}
                                 placeholder="Reason for regularization"
                                 value={punchRecords.reason}
                                 onChangeText={handleReasonEnter}
