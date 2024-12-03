@@ -100,6 +100,7 @@ export default function ProfileDetails() {
                     <Text style={[styles.header, { color: textColor, marginBottom: 5 }]}>
                         Contact Info.
                     </Text>
+
                     <OneLineCard text={profileDetails.phoneNumber} header="Primary" />
                     <OneLineCard text={profileDetails.emergencyPhoneNumber1} header="Emergency" />
                     <OneLineCard text={profileDetails.email} header="Email ID" />
@@ -236,6 +237,21 @@ function OneLineCard({ header, text }) {
                 <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
                     {header}
                 </Text>
+
+                <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <FontAwesome6 name='edit' size={16} color={textColor} />
+                    </Pressable>
+
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                    </Pressable>
+
+                    <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                    </Pressable>
+                </View>
+
                 <Text style={[styles.bodyText, { color: textColor, marginVertical: 0 }]}>{text}</Text>
             </View>
         </View>
@@ -261,6 +277,24 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                     <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
                         {edu.title}
                     </Text>
+
+                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
+                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <FontAwesome6 name='edit' size={16} color={textColor} />
+                        </Pressable>
+
+                        {index !== 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                            </Pressable>
+                        }
+                        {index == 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                            </Pressable>
+                        }
+                    </View>
+
                     <Text style={[{ color: textColor }, styles.bodyText]}>Degree: {edu.degree}</Text>
                     <Text style={[{ color: textColor }, styles.bodyText]}>College: {edu.institute}</Text>
                     <Text style={[{ color: textColor }, styles.bodyText]}>
@@ -277,6 +311,24 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                     <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
                         {exp.type}
                     </Text>
+
+                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
+                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <FontAwesome6 name='edit' size={16} color={textColor} />
+                        </Pressable>
+
+                        {index !== 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                            </Pressable>
+                        }
+                        {index == 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                            </Pressable>
+                        }
+                    </View>
+
                     <Text style={[{ color: textColor }, styles.bodyText]}>
                         Organization: {exp.company}
                     </Text>
@@ -294,6 +346,24 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                     <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
                         {fam.relation}
                     </Text>
+
+                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
+                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <FontAwesome6 name='edit' size={16} color={textColor} />
+                        </Pressable>
+
+                        {index !== 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                            </Pressable>
+                        }
+                        {index == 0 &&
+                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                            </Pressable>
+                        }
+                    </View>
+
                     <Text style={[{ color: textColor }, styles.bodyText]}>Relation: {fam.relation}</Text>
                     <Text style={[{ color: textColor }, styles.bodyText]}>Name: {fam.name}</Text>
                     <Text style={[{ color: textColor }, styles.bodyText]}>Contact: {fam.contact}</Text>
