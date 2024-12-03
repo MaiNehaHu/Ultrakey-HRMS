@@ -131,32 +131,12 @@ const salaryPdfHtml = () => {
             padding:20px;
           }
         }
-
-         @media (max-width: 320px) {
-          body{
-            padding: 100px;  
-          }
-
-          .payslip-details {
-            flex-direction: column;
-            padding: 10px;
-          }
-          
-          .vertical-line {
-            display: none;
-          }
-          
-          .employee-details,
-          .other-details {
-            width: 100%;
-            padding: 10px 0;
-          }
-        }
           
         .employee-details,
         .other-details {
           width: 48%;
           padding: 10px;
+          border-right: 1px solid ${textColor}
         }
         .employee-details p {
           margin-bottom: 0.3rem;
@@ -244,11 +224,7 @@ const salaryPdfHtml = () => {
             <p><strong>LOP:</strong><span>0</span></p>
           </div>
 
-          <div class="col d-flex align-items-center">
-            <!-- Vertical Line -->
-            <div class="vertical-line"></div>
-          </div>
-          <div class="other-details">
+          <div class="other-details" style="margin-right:65px; border-right: 0px">
             <p><strong>Employee No:</strong> <span>AKEY24015</span></p>
             <p><strong>Bank Name:</strong></p>
             <p><strong>Bank Account No:</strong></p>
