@@ -21,6 +21,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         batchTo: "2024",
         grade: "8.21",
         degree: "B.Tech",
+        edu_details_id: 1,
       },
       {
         title: "High School",
@@ -29,6 +30,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         batchTo: "2020",
         grade: "9.00",
         degree: "12th (Intermediate)",
+        edu_details_id: 2,
       },
     ],
     experienceList: [
@@ -38,6 +40,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         workFrom: "Oct, 2023",
         workTo: "Jan, 2024",
         designation: "UI/UX Intern",
+        exp_details_id: 1,
       },
       {
         type: "Internship",
@@ -45,6 +48,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         workFrom: "June, 2023",
         workTo: "Feb, 2024",
         designation: "React JS Developer",
+        exp_details_id: 2,
       },
     ],
     bankDetails: [
@@ -53,6 +57,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         branchName: "Kukatpally Hyderabad",
         IFSC: "AKEY24015",
         accountNumber: "1122222234567",
+        bank_details_id: 0,
       },
     ],
     familyInformation: [
@@ -60,7 +65,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         name: "Rajeev Kumar",
         relation: "Father",
         contact: "+91 96969 69696",
-        bank_details_id: 0,
+        family_details_id: 0,
       },
     ],
   });

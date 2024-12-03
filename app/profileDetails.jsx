@@ -46,25 +46,35 @@ export default function ProfileDetails() {
         });
     };
 
-    const handleAddExperienceDetails = (newAccount) => {
+
+    const handleAddDetails = (section, newEntry) => {
         setProfileDetails((prevDetails) => ({
             ...prevDetails,
-            experienceList: [...prevDetails.experienceList, newAccount],
+            [section]: [...prevDetails[section], newEntry],
         }));
     };
 
-    const handleAddEducationDetails = (newAccount) => {
-        setProfileDetails((prevDetails) => ({
-            ...prevDetails,
-            educationList: [...prevDetails.educationList, newAccount],
-        }));
-    };
-
-    const handleAddFamilyDetails = (newAccount) => {
-        setProfileDetails((prevDetails) => ({
-            ...prevDetails,
-            familyInformation: [...prevDetails.familyInformation, newAccount],
-        }));
+    const handleDeleteDetails = (section, idKey, idToDelete) => {
+        Alert.alert(
+            "Are you sure?",
+            "You want to delete the details?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        setProfileDetails((prevDetails) => ({
+                            ...prevDetails,
+                            [section]: prevDetails[section].filter(
+                                (item) => item[idKey] !== idToDelete
+                            ),
+                        }));
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     useEffect(() => {
@@ -126,6 +136,7 @@ export default function ProfileDetails() {
                             index={index}
                             exp={exp}
                             experienceCard
+                            handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
                 </SafeAreaView>
@@ -182,7 +193,7 @@ export default function ProfileDetails() {
                     isVisible={visibleModal === "Experience" ? isModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
-                    onAddDetails={handleAddExperienceDetails}
+                    onAddDetails={handleAddDetails}
                     slideModalAnim={slideModalAnim}
                     fields={[
                         { name: "company", label: "Company Name", placeholder: "Enter company name" },
@@ -190,13 +201,14 @@ export default function ProfileDetails() {
                         { name: "workFrom", label: "Start Date", placeholder: "Enter start date" },
                         { name: "workTo", label: "End Date", placeholder: "Enter end date" },
                     ]}
+                    detailsFor="experienceList"
                 />
 
                 <AddingModal
                     isVisible={visibleModal === "Education" ? isModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
-                    onAddDetails={handleAddEducationDetails}
+                    onAddDetails={handleAddDetails}
                     slideModalAnim={slideModalAnim}
                     fields={[
                         { name: "institute", label: "Institute Name", placeholder: "Enter institute name" },
@@ -205,19 +217,21 @@ export default function ProfileDetails() {
                         { name: "batchFrom", label: "Start Year", placeholder: "Graduation start year" },
                         { name: "batchTo", label: "End Year", placeholder: "Graduation end year" },
                     ]}
+                    detailsFor="educationList"
                 />
 
                 <AddingModal
                     isVisible={visibleModal === "Family" ? isModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
-                    onAddDetails={handleAddFamilyDetails}
+                    onAddDetails={handleAddDetails}
                     slideModalAnim={slideModalAnim}
                     fields={[
                         { name: "name", label: "Person Name", placeholder: "Enter name" },
                         { name: "relation", label: "Relation", placeholder: "Enter Relation" },
                         { name: "contact", label: "Contact", placeholder: "Enter contact" },
                     ]}
+                    detailsFor="familyInformation"
                 />
             </ScrollView>
         </View>
@@ -253,7 +267,16 @@ function OneLineCard({ header, text }) {
     );
 }
 
-function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, familyCard }) {
+function MultiLineCard({
+    index,
+    edu,
+    exp,
+    fam,
+    educationCard,
+    experienceCard,
+    familyCard,
+    handleDeleteDetails
+}) {
     const { darkTheme } = useAppTheme();
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
@@ -279,7 +302,10 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                         </Pressable>
 
                         {index !== 0 &&
-                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <Pressable
+                                onPress={() => handleDeleteDetails("educationList", "edu_details_id", edu.edu_details_id)}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                            >
                                 <FontAwesome6 name='trash' size={16} color={Colors.red} />
                             </Pressable>
                         }
@@ -313,7 +339,10 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                         </Pressable>
 
                         {index !== 0 &&
-                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <Pressable
+                                onPress={() => handleDeleteDetails("experienceList", "exp_details_id", exp.exp_details_id)}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                            >
                                 <FontAwesome6 name='trash' size={16} color={Colors.red} />
                             </Pressable>
                         }
@@ -348,7 +377,10 @@ function MultiLineCard({ index, edu, exp, fam, educationCard, experienceCard, fa
                         </Pressable>
 
                         {index !== 0 &&
-                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                            <Pressable
+                                onPress={() => handleDeleteDetails("familyInformation", "family_details_id", fam.family_details_id)}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                            >
                                 <FontAwesome6 name='trash' size={16} color={Colors.red} />
                             </Pressable>
                         }
@@ -372,9 +404,10 @@ function AddingModal({
     isVisible,
     handleCloseAddingModal,
     isKeyboardVisible,
-    onAddDetails,
     slideModalAnim,
     fields,
+    handleAddDetails,
+    detailsFor
 }) {
     const { darkTheme } = useAppTheme();
 
@@ -392,10 +425,10 @@ function AddingModal({
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleAdd = () => {
+    const handleAdd = (name) => {
         const isValid = fields.every((field) => formData[field.name].trim() !== "");
         if (isValid) {
-            onAddDetails(formData);
+            handleAddDetails(name, formData);
             setFormData(initialFormData);
             handleCloseAddingModal();
         } else {
@@ -437,7 +470,7 @@ function AddingModal({
                         </Pressable>
                         <Pressable
                             style={[styles.doneButton, { backgroundColor: btnColor }]}
-                            onPress={handleAdd}
+                            onPress={() => handleAdd(detailsFor)}
                         >
                             <Text style={{ color: oppTextColor, fontWeight: "500" }}>ADD</Text>
                         </Pressable>
