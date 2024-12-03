@@ -161,6 +161,7 @@ export default function ProfileDetails() {
                             index={index}
                             edu={edu}
                             educationCard
+                            handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
                 </SafeAreaView>
@@ -185,6 +186,7 @@ export default function ProfileDetails() {
                             index={index}
                             fam={fam}
                             familyCard
+                            handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
                 </SafeAreaView>
@@ -293,7 +295,7 @@ function MultiLineCard({
             {educationCard && (
                 <>
                     <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
-                        {edu.title}
+                        {edu.degree}
                     </Text>
 
                     <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
@@ -406,7 +408,7 @@ function AddingModal({
     isKeyboardVisible,
     slideModalAnim,
     fields,
-    handleAddDetails,
+    onAddDetails,
     detailsFor
 }) {
     const { darkTheme } = useAppTheme();
@@ -428,7 +430,7 @@ function AddingModal({
     const handleAdd = (name) => {
         const isValid = fields.every((field) => formData[field.name].trim() !== "");
         if (isValid) {
-            handleAddDetails(name, formData);
+            onAddDetails(name, formData);
             setFormData(initialFormData);
             handleCloseAddingModal();
         } else {

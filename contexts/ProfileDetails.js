@@ -29,7 +29,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         batchFrom: "2018",
         batchTo: "2020",
         grade: "9.00",
-        degree: "12th (Intermediate)",
+        degree: "High School",
         edu_details_id: 2,
       },
     ],
