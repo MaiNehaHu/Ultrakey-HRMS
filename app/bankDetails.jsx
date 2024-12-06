@@ -321,7 +321,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
 
     const handleAdd = () => {
         if (formData.bankName && formData.branchName && formData.IFSC && formData.accountNumber) {
-            onAddBankDetails(formData);
+            onAddBankDetails(formData);            
             setFormData({
                 bankName: "",
                 branchName: "",
@@ -395,7 +395,7 @@ function AddModal({ isVisible, handleCloseAddModal, isKeyboardVisible, onAddBank
                     </View>
                 </Animated.View>
             </View>
-        </Modal>
+        </Modal >
     );
 }
 
@@ -413,11 +413,10 @@ function EditModal({ selectedBankDetails, isVisible, handleCloseEditModal, isKey
     });
 
     useEffect(() => {
-        setFormData(selectedBankDetails)
-    }, [selectedBankDetails])
-
-    console.log("selectedBankDetails: ", { ...selectedBankDetails });
-    console.log("formData: ", { ...formData });
+        if (selectedBankDetails) {
+            setFormData(selectedBankDetails);
+        }
+    }, [selectedBankDetails]);
 
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
