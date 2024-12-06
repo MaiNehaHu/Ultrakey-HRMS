@@ -57,7 +57,7 @@ export const ProfileDetailsProvider = ({ children }) => {
         branchName: "Kukatpally Hyderabad",
         IFSC: "AKEY24015",
         accountNumber: "1122222234567",
-        bank_details_id: 0,
+        bank_details_id: 1,
       },
     ],
     familyInformation: [
