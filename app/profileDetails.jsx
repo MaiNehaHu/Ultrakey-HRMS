@@ -1,9 +1,10 @@
 import { Alert, Animated, Easing, ImageBackground, Keyboard, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Colors from '../constants/Colors';
 import { useAppTheme } from '../contexts/AppTheme';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { useProfileContext } from '../contexts/ProfileDetails';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 const backgroundImage = require("../assets/images/body_bg.png");
 
@@ -11,9 +12,11 @@ export default function ProfileDetails() {
     const { darkTheme } = useAppTheme();
     const { profileDetails, setProfileDetails } = useProfileContext();
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [visibleModal, setVisibleModal] = useState(null);
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+    const [selectedEditData, setSelectedEditData] = useState({});
 
     const slideModalAnim = useRef(new Animated.Value(200)).current;
 
@@ -22,9 +25,10 @@ export default function ProfileDetails() {
     const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
     const buttonColor = darkTheme ? Colors.white : Colors.darkBlue;
 
+    // Open Modal
     const handleOpenAddingModal = (modalName) => {
         setVisibleModal(modalName);
-        setIsModalVisible(true);
+        setIsAddModalVisible(true);
 
         Animated.timing(slideModalAnim, {
             toValue: 0,
@@ -34,6 +38,7 @@ export default function ProfileDetails() {
         }).start();
     };
 
+    // Close Modal
     const handleCloseAddingModal = () => {
         Animated.timing(slideModalAnim, {
             toValue: 700,
@@ -41,12 +46,58 @@ export default function ProfileDetails() {
             easing: Easing.in(Easing.ease),
             useNativeDriver: true,
         }).start(() => {
-            setIsModalVisible(false);
+            setIsAddModalVisible(false);
             setVisibleModal(null);
         });
     };
 
+    // Open Edit Modal
+    const handleOpenEditModal = (modalName, dataId) => {
+        setVisibleModal(modalName);
 
+        let selectedEditData = null;
+
+        // Filter data based on modalName and dataId
+        switch (modalName) {
+            case "Education":
+                selectedEditData = profileDetails.educationList.find(item => item.id === dataId);
+                break;
+            case "Experience":
+                selectedEditData = profileDetails.experienceList.find(item => item.id === dataId);
+                break;
+            case "Family":
+                selectedEditData = profileDetails.familyInformation.find(item => item.id === dataId);
+                break;
+            default:
+                break;
+        }
+
+        setSelectedEditData(selectedEditData);
+        setIsEditModalVisible(true);
+
+        Animated.timing(slideModalAnim, {
+            toValue: 0,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+        }).start();
+    };
+
+
+    // Close Edit Modal
+    const handleCloseEditModal = () => {
+        Animated.timing(slideModalAnim, {
+            toValue: 700,
+            duration: 200,
+            easing: Easing.in(Easing.ease),
+            useNativeDriver: true,
+        }).start(() => {
+            setIsEditModalVisible(false);
+            setVisibleModal(null);
+        });
+    };
+
+    // Handle Add Details
     const handleAddDetails = (section, newEntry) => {
         setProfileDetails((prevDetails) => ({
             ...prevDetails,
@@ -54,6 +105,22 @@ export default function ProfileDetails() {
         }));
     };
 
+    // Handle Edit Details (update existing data)
+    const handleEditProfileDetails = (section, updatedData) => {
+        // Check if the section exists in profileDetails
+        if (profileDetails[section]) {
+            setProfileDetails((prevDetails) => ({
+                ...prevDetails,
+                [section]: prevDetails[section].map((item) =>
+                    item.id === updatedData.id ? updatedData : item
+                ),
+            }));
+        } else {
+            console.error("Invalid section name:", section);
+        }
+    };
+
+    // Handle Delete Details
     const handleDeleteDetails = (section, idKey, idToDelete) => {
         Alert.alert(
             "Are you sure?",
@@ -97,12 +164,12 @@ export default function ProfileDetails() {
                         Basic Information
                     </Text>
 
-                    <OneLineCard text={profileDetails.name} header="Name" />
-                    <OneLineCard text={profileDetails.employeeID} header="Employee ID" />
-                    <OneLineCard text={profileDetails.designation} header="Designation" />
-                    <OneLineCard text={profileDetails.bloodGroup} header="Blood Group" />
-                    <OneLineCard text={profileDetails.dob} header="Date of Birth" />
-                    <OneLineCard text={profileDetails.PANCard} header="PAN Card" />
+                    <OneLineCard fieldName={"name"} setProfileDetails={setProfileDetails} text={profileDetails.name} header="Name" />
+                    <OneLineCard fieldName={"employeeID"} setProfileDetails={setProfileDetails} text={profileDetails.employeeID} header="Employee ID" />
+                    <OneLineCard fieldName={"designation"} setProfileDetails={setProfileDetails} text={profileDetails.designation} header="Designation" />
+                    <OneLineCard fieldName={"bloodGroup"} setProfileDetails={setProfileDetails} text={profileDetails.bloodGroup} header="Blood Group" />
+                    <OneLineCard fieldName={"dob"} setProfileDetails={setProfileDetails} text={profileDetails.dob} header="Date of Birth" />
+                    <OneLineCard fieldName={"PANCard"} setProfileDetails={setProfileDetails} text={profileDetails.PANCard} header="PAN Card" />
                 </SafeAreaView>
 
                 {/* Contact Information */}
@@ -111,9 +178,9 @@ export default function ProfileDetails() {
                         Contact Info.
                     </Text>
 
-                    <OneLineCard text={profileDetails.phoneNumber} header="Primary" />
-                    <OneLineCard text={profileDetails.emergencyPhoneNumber1} header="Emergency" />
-                    <OneLineCard text={profileDetails.email} header="Email ID" />
+                    <OneLineCard fieldName={"phoneNumber"} setProfileDetails={setProfileDetails} text={profileDetails.phoneNumber} header="Primary" />
+                    <OneLineCard fieldName={"emergencyPhoneNumber1"} setProfileDetails={setProfileDetails} text={profileDetails.emergencyPhoneNumber1} header="Emergency" />
+                    <OneLineCard fieldName={"email"} setProfileDetails={setProfileDetails} text={profileDetails.email} header="Email ID" />
                 </SafeAreaView>
 
                 {/* Experience Info */}
@@ -136,6 +203,7 @@ export default function ProfileDetails() {
                             index={index}
                             exp={exp}
                             experienceCard
+                            handleOpenEditModal={handleOpenEditModal}
                             handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
@@ -161,6 +229,7 @@ export default function ProfileDetails() {
                             index={index}
                             edu={edu}
                             educationCard
+                            handleOpenEditModal={handleOpenEditModal}
                             handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
@@ -186,13 +255,14 @@ export default function ProfileDetails() {
                             index={index}
                             fam={fam}
                             familyCard
+                            handleOpenEditModal={handleOpenEditModal}
                             handleDeleteDetails={handleDeleteDetails}
                         />
                     ))}
                 </SafeAreaView>
 
                 <AddingModal
-                    isVisible={visibleModal === "Experience" ? isModalVisible : false}
+                    isVisible={visibleModal === "Experience" ? isAddModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
                     onAddDetails={handleAddDetails}
@@ -207,7 +277,7 @@ export default function ProfileDetails() {
                 />
 
                 <AddingModal
-                    isVisible={visibleModal === "Education" ? isModalVisible : false}
+                    isVisible={visibleModal === "Education" ? isAddModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
                     onAddDetails={handleAddDetails}
@@ -223,15 +293,63 @@ export default function ProfileDetails() {
                 />
 
                 <AddingModal
-                    isVisible={visibleModal === "Family" ? isModalVisible : false}
+                    isVisible={visibleModal === "Family" ? isAddModalVisible : false}
                     handleCloseAddingModal={handleCloseAddingModal}
                     isKeyboardVisible={isKeyboardVisible}
                     onAddDetails={handleAddDetails}
                     slideModalAnim={slideModalAnim}
                     fields={[
-                        { name: "name", label: "Person Name", placeholder: "Enter name" },
+                        { name: "name", label: "Person Name", placeholder: "Enter Name" },
                         { name: "relation", label: "Relation", placeholder: "Enter Relation" },
-                        { name: "contact", label: "Contact", placeholder: "Enter contact" },
+                        { name: "contact", label: "Contact", placeholder: "Enter Contact" },
+                    ]}
+                    detailsFor="familyInformation"
+                />
+
+                <EditModal
+                    selectedDetails={selectedEditData}
+                    isVisible={visibleModal === "Experience" ? isEditModalVisible : false}
+                    handleCloseEditModal={handleCloseEditModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onEditDetails={handleEditProfileDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "company", label: "Company Name", placeholder: "Enter company name" },
+                        { name: "designation", label: "Designation", placeholder: "Enter designation" },
+                        { name: "workFrom", label: "Start Date", placeholder: "Enter start date" },
+                        { name: "workTo", label: "End Date", placeholder: "Enter end date" },
+                    ]}
+                    detailsFor="experienceList"
+                />
+
+                <EditModal
+                    selectedDetails={selectedEditData}
+                    isVisible={visibleModal === "Education" ? isEditModalVisible : false}
+                    handleCloseEditModal={handleCloseEditModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onEditDetails={handleEditProfileDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "institute", label: "Institute Name", placeholder: "Enter institute name" },
+                        { name: "degree", label: "Degree", placeholder: "Enter degree" },
+                        { name: "grade", label: "Grades", placeholder: "Enter your grades" },
+                        { name: "batchFrom", label: "Start Year", placeholder: "Graduation start year" },
+                        { name: "batchTo", label: "End Year", placeholder: "Graduation end year" },
+                    ]}
+                    detailsFor="educationList"
+                />
+
+                <EditModal
+                    selectedDetails={selectedEditData}
+                    isVisible={visibleModal === "Family" ? isEditModalVisible : false}
+                    handleCloseEditModal={handleCloseEditModal}
+                    isKeyboardVisible={isKeyboardVisible}
+                    onEditDetails={handleEditProfileDetails}
+                    slideModalAnim={slideModalAnim}
+                    fields={[
+                        { name: "name", label: "Name", placeholder: "Enter Name" },
+                        { name: "relation", label: "Relation", placeholder: "Enter Relation" },
+                        { name: "contact", label: "Contact", placeholder: "Enter Contact" },
                     ]}
                     detailsFor="familyInformation"
                 />
@@ -240,32 +358,81 @@ export default function ProfileDetails() {
     );
 }
 
-function OneLineCard({ header, text }) {
+function OneLineCard({ header, text, fieldName, setProfileDetails }) {
     const { darkTheme } = useAppTheme();
+    const [edit, setEdit] = useState({ name: "", bool: false });
+    const [textInput, setTextInput] = useState(text);
 
     const bgColor = Colors[darkTheme ? "dark" : "light"].background;
     const textColor = Colors[darkTheme ? "dark" : "light"].text;
     const headerText = darkTheme ? "#e3e3e3" : Colors.lightBlue;
 
+    const handleInputChange = (value) => {
+        setTextInput(value);
+    };
+
+    function handleSave(field) {
+        setProfileDetails((prev) => ({
+            ...prev,
+            [field]: textInput,
+        }));
+        setEdit({ name: fieldName, bool: false });
+    }
+
     return (
-        <View style={{ padding: 5 }}>
-            <View style={[styles.cardContainer, { borderColor: textColor }]}>
-                <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
-                    {header}
-                </Text>
+        edit.bool && edit.name === fieldName ? (
+            <View style={{ position: 'relative', paddingHorizontal: 5 }}>
+                <View style={{ paddingVertical: 5 }}>
+                    <View style={[styles.multiLineCardContainer, { borderColor: textColor }]}>
+                        <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>{header}</Text>
 
-                {
-                    header !== "Name" && header !== "Employee ID" && header !== "Designation" && header !== "Email ID" &&
-                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                            <FontAwesome6 name='edit' size={16} color={textColor} />
-                        </Pressable>
+                        <View style={styles.inputWrapper}>
+                            <TextInput
+                                style={{
+                                    color: textColor,
+                                    borderColor: textColor,
+                                    paddingVertical: 15,
+                                    flex: 1
+                                }}
+                                placeholder={fieldName}
+                                value={textInput}
+                                onChangeText={handleInputChange}
+                                placeholderTextColor={darkTheme ? "#e3e3e3" : "#666666"}
+                            />
+                        </View>
                     </View>
-                }
+                </View>
 
-                <Text style={[styles.bodyText, { color: textColor, marginVertical: 0 }]}>{text}</Text>
+                <TouchableOpacity
+                    style={{ position: "absolute", right: 0, top: 0, paddingRight: 20, paddingTop: 20 }}
+                    onPress={() => handleSave(fieldName)}
+                >
+                    <FontAwesome name='check' size={20} color={textColor} />
+                </TouchableOpacity>
             </View>
-        </View>
+        ) : (
+            <View style={{ padding: 5 }}>
+                <View style={[styles.cardContainer, { borderColor: textColor }]}>
+                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                        {header}
+                    </Text>
+
+                    {/* Show edit button for specific headers */}
+                    {header !== "Name" && header !== "Employee ID" && header !== "Designation" && header !== "Email ID" && (
+                        <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons]}>
+                            <Pressable
+                                onPress={() => setEdit({ name: fieldName, bool: true })}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2 }}
+                            >
+                                <FontAwesome6 name='edit' size={16} color={textColor} />
+                            </Pressable>
+                        </View>
+                    )}
+
+                    <Text style={[styles.bodyText, { color: textColor, marginVertical: 0 }]}>{text}</Text>
+                </View>
+            </View>
+        )
     );
 }
 
@@ -277,6 +444,7 @@ function MultiLineCard({
     educationCard,
     experienceCard,
     familyCard,
+    handleOpenEditModal,
     handleDeleteDetails
 }) {
     const { darkTheme } = useAppTheme();
@@ -299,13 +467,15 @@ function MultiLineCard({
                     </Text>
 
                     <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                        <Pressable
+                            onPress={() => handleOpenEditModal("Education", edu.id)}
+                            style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
                             <FontAwesome6 name='edit' size={16} color={textColor} />
                         </Pressable>
 
                         {index !== 0 &&
                             <Pressable
-                                onPress={() => handleDeleteDetails("educationList", "edu_details_id", edu.edu_details_id)}
+                                onPress={() => handleDeleteDetails("educationList", "id", edu.id)}
                                 style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
                             >
                                 <FontAwesome6 name='trash' size={16} color={Colors.red} />
@@ -327,78 +497,87 @@ function MultiLineCard({
                         Grade: {edu.grade} CGPA
                     </Text>
                 </>
-            )}
+            )
+            }
 
-            {experienceCard && (
-                <>
-                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
-                        {exp.type}
-                    </Text>
+            {
+                experienceCard && (
+                    <>
+                        <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                            {exp.type}
+                        </Text>
 
-                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                            <FontAwesome6 name='edit' size={16} color={textColor} />
-                        </Pressable>
-
-                        {index !== 0 &&
+                        <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
                             <Pressable
-                                onPress={() => handleDeleteDetails("experienceList", "exp_details_id", exp.exp_details_id)}
-                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
-                            >
-                                <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                                onPress={() => handleOpenEditModal("Experience", exp.id)}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='edit' size={16} color={textColor} />
                             </Pressable>
-                        }
-                        {index == 0 &&
-                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                                <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
-                            </Pressable>
-                        }
-                    </View>
 
-                    <Text style={[{ color: textColor }, styles.bodyText]}>
-                        Organization: {exp.company}
-                    </Text>
-                    <Text style={[{ color: textColor }, styles.bodyText]}>
-                        Designation: {exp.designation}
-                    </Text>
-                    <Text style={[{ color: textColor }, styles.bodyText]}>
-                        Batch: {exp.workFrom} - {exp.workTo}
-                    </Text>
-                </>
-            )}
+                            {index !== 0 &&
+                                <Pressable
+                                    onPress={() => handleDeleteDetails("experienceList", "id", exp.id)}
+                                    style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                                >
+                                    <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                                </Pressable>
+                            }
+                            {index == 0 &&
+                                <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                    <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                                </Pressable>
+                            }
+                        </View>
 
-            {familyCard && (
-                <>
-                    <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
-                        {fam.relation}
-                    </Text>
+                        <Text style={[{ color: textColor }, styles.bodyText]}>
+                            Organization: {exp.company}
+                        </Text>
+                        <Text style={[{ color: textColor }, styles.bodyText]}>
+                            Designation: {exp.designation}
+                        </Text>
+                        <Text style={[{ color: textColor }, styles.bodyText]}>
+                            Batch: {exp.workFrom} - {exp.workTo}
+                        </Text>
+                    </>
+                )
+            }
 
-                    <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
-                        <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                            <FontAwesome6 name='edit' size={16} color={textColor} />
-                        </Pressable>
+            {
+                familyCard && (
+                    <>
+                        <Text style={[{ color: headerText, backgroundColor: bgColor }, styles.headerText]}>
+                            {fam.relation}
+                        </Text>
 
-                        {index !== 0 &&
+                        <View style={[{ display: 'flex', flexDirection: 'row', gap: 15 }, styles.actionButtons,]}>
                             <Pressable
-                                onPress={() => handleDeleteDetails("familyInformation", "family_details_id", fam.family_details_id)}
-                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
-                            >
-                                <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                                onPress={() => handleOpenEditModal("Family", fam.id)}
+                                style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                <FontAwesome6 name='edit' size={16} color={textColor} />
                             </Pressable>
-                        }
-                        {index == 0 &&
-                            <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
-                                <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
-                            </Pressable>
-                        }
-                    </View>
 
-                    <Text style={[{ color: textColor }, styles.bodyText]}>Relation: {fam.relation}</Text>
-                    <Text style={[{ color: textColor }, styles.bodyText]}>Name: {fam.name}</Text>
-                    <Text style={[{ color: textColor }, styles.bodyText]}>Contact: {fam.contact}</Text>
-                </>
-            )}
-        </View>
+                            {index !== 0 &&
+                                <Pressable
+                                    onPress={() => handleDeleteDetails("familyInformation", "id", fam.id)}
+                                    style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}
+                                >
+                                    <FontAwesome6 name='trash' size={16} color={Colors.red} />
+                                </Pressable>
+                            }
+                            {index == 0 &&
+                                <Pressable style={{ backgroundColor: bgColor, paddingHorizontal: 2, }}>
+                                    <FontAwesome6 name='check-circle' size={16} color={darkTheme ? Colors.white : Colors.lightBlue} />
+                                </Pressable>
+                            }
+                        </View>
+
+                        <Text style={[{ color: textColor }, styles.bodyText]}>Relation: {fam.relation}</Text>
+                        <Text style={[{ color: textColor }, styles.bodyText]}>Name: {fam.name}</Text>
+                        <Text style={[{ color: textColor }, styles.bodyText]}>Contact: {fam.contact}</Text>
+                    </>
+                )
+            }
+        </View >
     );
 }
 
@@ -475,6 +654,109 @@ function AddingModal({
                             onPress={() => handleAdd(detailsFor)}
                         >
                             <Text style={{ color: oppTextColor, fontWeight: "500" }}>ADD</Text>
+                        </Pressable>
+                    </View>
+                </Animated.View>
+            </View>
+        </Modal>
+    );
+}
+
+function EditModal({
+    selectedDetails,
+    isVisible,
+    handleCloseEditModal,
+    isKeyboardVisible,
+    onEditDetails,
+    slideModalAnim,
+    fields,
+    detailsFor
+}) {
+    const { darkTheme } = useAppTheme();
+
+    const oppTextColor = Colors[!darkTheme ? "dark" : "light"].text;
+    const btnColor = darkTheme ? Colors.white : Colors.darkBlue;
+
+    // Initialize the formData based on the selectedDetails
+    const [formData, setFormData] = useState(() => {
+        return fields.reduce((acc, field) => {
+            acc[field.name] = selectedDetails[field.name] || '';
+            return acc;
+        }, {});
+    });
+
+    useEffect(() => {
+        if (selectedDetails) {
+            // If selected details are provided, update formData
+            setFormData(prev => ({
+                ...prev,
+                ...selectedDetails,
+            }));
+        }
+    }, [selectedDetails]);
+
+    const handleInputChange = (field, value) => {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleSave = () => {
+        // Check if all fields have been filled
+        const allFieldsFilled = fields.every(field => formData[field.name]?.trim());
+        if (allFieldsFilled) {
+            handleCloseEditModal();
+            onEditDetails(detailsFor, formData);
+
+            // Reset formData after saving
+            setFormData(fields.reduce((acc, field) => {
+                acc[field.name] = '';
+                return acc;
+            }, {}));
+        } else {
+            Alert.alert("All fields are required");
+        }
+    };
+
+    const handleCancel = () => {
+        handleCloseEditModal();
+    };
+
+    return (
+        <Modal animationType="fade" transparent visible={isVisible}>
+            <View style={styles.modalContainer}>
+                <Animated.View
+                    style={[
+                        styles.modalContent,
+                        {
+                            transform: [{ translateY: slideModalAnim }],
+                            backgroundColor: Colors[darkTheme ? "dark" : "light"].background,
+                            height: isKeyboardVisible ? "85%" : "auto",
+                        },
+                    ]}
+                >
+                    <ScrollView>
+                        {fields.length > 0 && fields.map((field) => (
+                            <Inputs
+                                key={field.name}
+                                header={field.label}
+                                placeholder={field.placeholder || field.label}
+                                value={formData[field.name]}
+                                onChangeText={(value) => handleInputChange(field.name, value)}
+                            />
+                        ))}
+                    </ScrollView>
+
+                    <View style={styles.flex_row}>
+                        <Pressable
+                            style={[styles.doneButton, { backgroundColor: Colors.grey }]}
+                            onPress={handleCancel}
+                        >
+                            <Text style={{ color: darkTheme ? Colors.black : Colors.white }}>CANCEL</Text>
+                        </Pressable>
+                        <Pressable
+                            style={[styles.doneButton, { backgroundColor: btnColor }]}
+                            onPress={handleSave}
+                        >
+                            <Text style={{ color: oppTextColor, fontWeight: "500" }}>SAVE</Text>
                         </Pressable>
                     </View>
                 </Animated.View>
